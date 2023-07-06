@@ -1,10 +1,10 @@
-import util
-from data_manager import *
-from core.init_question_generator import init_question_generator
-from core.input_info_analyzer import input_info_analyzer
-from core.question_prompter import question_prompter
-from core.answer_analyzer import answer_analyzer
-from core.follow_up_question_generator import follow_up_question_generator
+from moview.utils import util
+from moview.utils.data_manager import *
+from moview.modules.question_generator.init_question_generator import init_question_generator
+from moview.modules.analyzer.input_info_analyzer import input_info_analyzer
+from moview.modules.prompter.question_prompter import question_prompter
+from moview.modules.analyzer.answer_analyzer import answer_analyzer
+from moview.modules.question_generator.follow_up_question_generator import follow_up_question_generator
 
 
 def input_process(manager: DataManager):
