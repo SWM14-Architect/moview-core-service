@@ -1,4 +1,5 @@
 from langchain import LLMChain, ConversationChain
+from langchain.base_language import BaseLanguageModel
 from langchain.chains.router import MultiPromptChain
 from langchain.chains.router.llm_router import (
     RouterOutputParser,
@@ -11,6 +12,8 @@ from langchain.prompts import PromptTemplate
 from moview.utils.data_manager import *
 from moview.utils.util import remove_indent
 from typing import *
+from langchain.llms.fake import FakeListLLM
+
 
 
 class AnswerAnalyzer:
@@ -18,7 +21,8 @@ class AnswerAnalyzer:
     def __init__(self,
                  data_manager: DataManager,
                  question_entity: QuestionEntity,
-                 evaluation_manager: EvaluationManager):
+                 evaluation_manager: EvaluationManager
+                 ):
         """
         Args:
             data_manager:
@@ -28,17 +32,18 @@ class AnswerAnalyzer:
         self.data_manager = data_manager
         self.question = question_entity.question
         self.answer = question_entity.answer
-        self.evaluation_manager=evaluation_manager
+        self.evaluation_manager = evaluation_manager
 
-    def answer_analyzer(self) -> str:
+    def answer_analyzer(self,chat_model: Union[ChatOpenAI,FakeListLLM]) -> str:
         """
+        Args:
+            chat_model: 테스트 코드인 경우 FakeListLLM
 
         Returns:    면접관 질문, 면접자 답변, 면접관 평가
 
         """
-        chat_model = ChatManager().get_chat_model()
 
-        prompt_info_array = self.__make_specific_prompt_with_knowledge(self.data_manager, self.question)
+        prompt_info_array = self.__make_specific_prompt_with_knowledge()
         router_chain = self.__make_router_chain(llm=chat_model, prompt_info_array=prompt_info_array)
         default_chain = ConversationChain(llm=chat_model, output_key="text")
         destination_chains = self.__make_destination_chains(llm=chat_model, prompt_info_array=prompt_info_array)
@@ -70,14 +75,8 @@ class AnswerAnalyzer:
 
     def __make_specific_prompt_with_knowledge(
             self,
-            data_manager: DataManager,
-            question: str,
     ) -> List[Dict]:
         """
-
-        Args:
-            data_manager:
-            question:
 
         Returns: 프롬프트가 저장된 딕셔너리 배열
 
@@ -123,12 +122,12 @@ class AnswerAnalyzer:
                     - Areas for improvement content
                     ```
                     Furthermore, the following content includes company information and the applicant's self-introduction.
-                    {data_manager.get_userdata()}
+                    {self.data_manager.get_userdata()}
                     
                     The question and the candidate's response are as follows:
                     ```
                     Interviewer`s Question:
-                    {question}
+                    {self.question}
                     Interviewee`s Answer:""" +
                     remove_indent("""{input}
                     ```
@@ -139,7 +138,7 @@ class AnswerAnalyzer:
             prompt_info_array.append(prompt_info)
         return prompt_info_array
 
-    def __make_router_chain(self,llm: ChatOpenAI, prompt_info_array: List[Dict]) -> LLMRouterChain:
+    def __make_router_chain(self, llm: BaseLanguageModel, prompt_info_array: List[Dict]) -> LLMRouterChain:
         """
 
         Args:
@@ -162,7 +161,7 @@ class AnswerAnalyzer:
 
         return LLMRouterChain.from_llm(llm, router_prompt)
 
-    def __make_destination_chains(self, llm: ChatOpenAI, prompt_info_array: List[Dict]) -> Dict[str, LLMChain]:
+    def __make_destination_chains(self, llm: BaseLanguageModel, prompt_info_array: List[Dict]) -> Dict[str, LLMChain]:
         """
 
         Args:
