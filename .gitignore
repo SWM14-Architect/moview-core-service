@@ -117,3 +117,7 @@ fabric.properties
 
 .idea
 # End of https://www.toptal.com/developers/gitignore/api/pycharm
+
+# Ignore compiled Python files
+*.pyc
+__pycache__/
