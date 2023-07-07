@@ -1,10 +1,10 @@
 from moview.utils import util
 from moview.utils.data_manager import *
-from moview.modules.question_generator.init_question_generator import init_question_generator
-from moview.modules.analyzer.input_info_analyzer import input_info_analyzer
-from moview.modules.prompter.question_prompter import question_prompter
-from moview.modules.analyzer.answer_analyzer import answer_analyzer
-from moview.modules.question_generator.follow_up_question_generator import follow_up_question_generator
+from moview.modules.question_generator.init_question_generator import InitQuestionGenerator
+from moview.modules.analyzer.input_info_analyzer import InputInfoAnalyzer
+from moview.modules.prompter.question_prompter import QuestionPrompter
+from moview.modules.analyzer.answer_analyzer import AnswerAnalyzer
+from moview.modules.question_generator.follow_up_question_generator import FollowUpQuestionGenerator
 
 
 def input_process(manager: DataManager):
@@ -25,10 +25,12 @@ if __name__ == "__main__":
     input_process(data_manager)
 
     # Input으로 받은 회사모집공고와 자소서, 1분 자기소개를 바탕으로 평가를 생성합니다.
-    input_info_analyzer(data_manager, evaluation_manager)
+    input_info_analyzer = InputInfoAnalyzer(data_manager, evaluation_manager)
+    input_info_analyzer.analyze_input_info(ChatManager())
 
     # init_question_generator 함수에서 초기질문을 생성합니다.
-    question_list = init_question_generator(data_manager)
+    init_question_generator = InitQuestionGenerator(data_manager)
+    question_list = init_question_generator.init_question_generator(ChatManager())
     # 생성된 질문리스트를 QuestionManager에 저장합니다.
     question_manager = QuestionManager(question_list)
 
@@ -42,24 +44,20 @@ if __name__ == "__main__":
 
         # 질문을 entity에 넣고, question_prompter 함수를 실행합니다.
         question_entity = QuestionEntity(next_question)
-        quit_flag = question_prompter(question_entity)
+        question_prompter = QuestionPrompter()
+        quit_flag = question_prompter.prompt_question(question_entity)
 
         # answer_analyzer 함수는 인자로 받은 질문을 던지고, 답변 내용을 평가합니다.
-        answer_analyzer(
-            data_manager,
-            question_entity,
-            evaluation_manager
-        )
+        answer_analyzer = AnswerAnalyzer(data_manager, question_entity, evaluation_manager)\
+            .answer_analyzer(ChatManager())
 
         for _ in range(3):
             if quit_flag is True:
                 break
             # answer_analyzer 함수의 결과가 나왔다면, 심화질문 생성함수를 실행합니다.
             # 생성결과 심화질문이 필요없다고 판단되면 "Very nice good!"을 return 합니다.
-            followup_question = follow_up_question_generator(
-                data_manager,
-                evaluation_manager
-            )
+            followup_question_generator = FollowUpQuestionGenerator(data_manager, evaluation_manager)
+            followup_question = followup_question_generator.follow_up_question_generator()
             # followup_question 안에 "very", "nice", "good"이 포함되어있다면, 반복문을 종료합니다.
             exit_flag = 0
             for word in ["very", "nice", "good"]:
@@ -71,15 +69,13 @@ if __name__ == "__main__":
 
             # 심화질문이 생성되었다면, 다시 question_prompter 함수로 질문을 던집니다.
             followup_entity = QuestionEntity(followup_question)
-            quit_flag = question_prompter(followup_entity)
+            question_prompter = QuestionPrompter()
+            quit_flag = question_prompter.prompt_question(followup_entity)
 
             # 심화질문에 대한 평가가 EvaluationManager에 저장되어서 다음 반복문에서 이 결과를
             # 이용해서 심화질문을 또 생성하게 됩니다. 일단, 최대 3회 반복합니다.
-            answer_analyzer(
-                data_manager,
-                followup_entity,
-                evaluation_manager
-            )
+            answer_analyzer = AnswerAnalyzer(data_manager, followup_entity, evaluation_manager) \
+                .answer_analyzer(ChatManager())
 
     print("최종 평가 결과입니다.")
     from pprint import pprint

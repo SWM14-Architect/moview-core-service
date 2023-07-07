@@ -5,10 +5,11 @@ from langchain.prompts.chat import (
     HumanMessagePromptTemplate
 )
 
-from __init__ import QUESTION_COUNT
 from moview.utils.data_manager import *
 from moview.utils.util import create_question_parser, remove_indent
 from typing import *
+
+QUESTION_COUNT: Final[int] = 10
 
 
 class InitQuestionGenerator:

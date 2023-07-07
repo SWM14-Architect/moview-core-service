@@ -6,9 +6,6 @@ class QuestionPrompter:
     질문을 던지고, 답변을 받아서 QuestionEntity에 저장합니다.
     """
 
-    def __init__(self, data_manager: DataManager):
-        self.data_manager = data_manager
-
     def prompt_question(self, question_entity: QuestionEntity) -> bool:
         """
         Args:

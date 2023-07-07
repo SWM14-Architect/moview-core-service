@@ -2,7 +2,7 @@ import os
 import sys
 from typing import *
 
-from util import remove_indent
+from moview.utils.util import remove_indent
 from moview.handlers.custom_callback_handler import CustomCallbackHandler
 from langchain.chat_models import ChatOpenAI
 
