@@ -34,15 +34,16 @@ class AnswerAnalyzer:
         self.answer = question_entity.answer
         self.evaluation_manager = evaluation_manager
 
-    def answer_analyzer(self,chat_manager:ChatManager) -> str:
+    def answer_analyzer(self, chat_manager: ChatManager) -> str:
         """
         Args:
-            chat_model: 테스트 코드인 경우 FakeListLLM
+            chat_manager: OpenAI 모델 객체
 
-        Returns:    면접관 질문, 면접자 답변, 면접관 평가
+        Returns:
+            면접관 질문, 면접자 답변, 면접관 평가
 
         """
-        chat_model=ChatManager.get_chat_model()
+        chat_model = chat_manager.get_chat_model()
 
         prompt_info_array = self.__make_specific_prompt_with_knowledge()
         router_chain = self.__make_router_chain(llm=chat_model, prompt_info_array=prompt_info_array)
