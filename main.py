@@ -49,7 +49,7 @@ if __name__ == "__main__":
 
         # answer_analyzer 함수는 인자로 받은 질문을 던지고, 답변 내용을 평가합니다.
         answer_analyzer = AnswerAnalyzer(data_manager, question_entity, evaluation_manager)\
-            .answer_analyzer(ChatManager())
+            .analyze_answer(ChatManager())
 
         for _ in range(3):
             if quit_flag is True:
@@ -75,7 +75,7 @@ if __name__ == "__main__":
             # 심화질문에 대한 평가가 EvaluationManager에 저장되어서 다음 반복문에서 이 결과를
             # 이용해서 심화질문을 또 생성하게 됩니다. 일단, 최대 3회 반복합니다.
             answer_analyzer = AnswerAnalyzer(data_manager, followup_entity, evaluation_manager) \
-                .answer_analyzer(ChatManager())
+                .analyze_answer(ChatManager())
 
     print("최종 평가 결과입니다.")
     from pprint import pprint
