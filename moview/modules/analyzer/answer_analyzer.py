@@ -1,5 +1,4 @@
 from langchain import LLMChain, ConversationChain
-from langchain.base_language import BaseLanguageModel
 from langchain.chains.router import MultiPromptChain
 from langchain.chains.router.llm_router import (
     RouterOutputParser,
@@ -12,8 +11,6 @@ from langchain.prompts import PromptTemplate
 from moview.utils.data_manager import *
 from moview.utils.util import remove_indent
 from typing import *
-from langchain.llms.fake import FakeListLLM
-
 
 
 class AnswerAnalyzer:
@@ -34,7 +31,7 @@ class AnswerAnalyzer:
         self.answer = question_entity.answer
         self.evaluation_manager = evaluation_manager
 
-    def answer_analyzer(self, chat_manager: ChatManager) -> str:
+    def analyze_answer(self, chat_manager: ChatManager) -> str:
         """
         Args:
             chat_manager: OpenAI 모델 객체
@@ -45,7 +42,7 @@ class AnswerAnalyzer:
         """
         chat_model = chat_manager.get_chat_model()
 
-        prompt_info_array = self.__make_specific_prompt_with_knowledge()
+        prompt_info_array = self._make_specific_prompt_with_knowledge()
         router_chain = self.__make_router_chain(llm=chat_model, prompt_info_array=prompt_info_array)
         default_chain = ConversationChain(llm=chat_model, output_key="text")
         destination_chains = self.__make_destination_chains(llm=chat_model, prompt_info_array=prompt_info_array)
@@ -75,7 +72,8 @@ class AnswerAnalyzer:
 
         return result
 
-    def __make_specific_prompt_with_knowledge(
+    # protected method (for test)
+    def _make_specific_prompt_with_knowledge(
             self,
     ) -> List[Dict]:
         """
@@ -95,12 +93,7 @@ class AnswerAnalyzer:
             "leadership": ("리더십", "팀에서 리더로서 역할을 수행한 경험이나 리더십에 대한 지식을 평가하는 것")
         }
 
-        knowledge_prompt = remove_indent(
-            """
-            {review_standard_detail}을 {review_standard_knowledge}이라 합니다.
-            면접관인 당신은 {review_standard_knowledge}의 관점에서 면접자의 답변을 평가해야 합니다.
-            """
-        )
+        knowledge_prompt = self.__make_knowledge_prompt()
 
         # 분석 체인은 라우팅 체인이므로 라우터 적용.
         prompt_info_array = []
@@ -112,35 +105,47 @@ class AnswerAnalyzer:
                     review_standard_knowledge=fit_feature_dict[fit_feature][0],
                     review_standard_detail=fit_feature_dict[fit_feature][1],
                 ),
-                "prompt_template": remove_indent(
-                    f"""You are an interviewer.
-                    As an interviewer, please analyze the interviewee's response and provide evaluations by dividing them into positive aspects and areas for improvement. When mentioning areas for improvement, please focus only on the truly disappointing aspects. Please follow the format below:
-    
-                    ```
-                    '좋은점':
-                    - Positive aspect content
-                    
-                    '아쉬운점':
-                    - Areas for improvement content
-                    ```
-                    Furthermore, the following content includes company information and the applicant's self-introduction.
-                    {self.data_manager.get_userdata()}
-                    
-                    The question and the candidate's response are as follows:
-                    ```
-                    Interviewer`s Question:
-                    {self.question}
-                    Interviewee`s Answer:""" +
-                    remove_indent("""{input}
-                    ```
-                    
-                    Please write in Korean.""")
-                ),
+                "prompt_template": self.__make_prompt_for_router_chain(),
             }
             prompt_info_array.append(prompt_info)
         return prompt_info_array
 
-    def __make_router_chain(self, llm: BaseLanguageModel, prompt_info_array: List[Dict]) -> LLMRouterChain:
+    def __make_knowledge_prompt(self) -> str:
+        return remove_indent(
+            """
+            {review_standard_detail}을 {review_standard_knowledge}이라 합니다.
+            면접관인 당신은 {review_standard_knowledge}의 관점에서 면접자의 답변을 평가해야 합니다.
+            """
+        )
+
+    def __make_prompt_for_router_chain(self) -> str:
+        return remove_indent(
+            f"""
+            You are an interviewer.
+            As an interviewer, please analyze the interviewee's response and provide evaluations by dividing them into positive aspects and areas for improvement. When mentioning areas for improvement, please focus only on the truly disappointing aspects. Please follow the format below:
+
+            ```
+            '좋은점':
+            - Positive aspect content
+
+            '아쉬운점':
+            - Areas for improvement content
+            ```
+            Furthermore, the following content includes company information and the applicant's self-introduction.
+            {self.data_manager.get_userdata()}
+
+            The question and the candidate's response are as follows:
+            ```
+            Interviewer`s Question:
+            {self.question}
+            Interviewee`s Answer:""" +
+            remove_indent("""{input}```
+
+            Please write in Korean.
+            """)
+        )
+
+    def __make_router_chain(self, llm: ChatOpenAI, prompt_info_array: List[Dict]) -> LLMRouterChain:
         """
 
         Args:
@@ -163,7 +168,7 @@ class AnswerAnalyzer:
 
         return LLMRouterChain.from_llm(llm, router_prompt)
 
-    def __make_destination_chains(self, llm: BaseLanguageModel, prompt_info_array: List[Dict]) -> Dict[str, LLMChain]:
+    def __make_destination_chains(self, llm: ChatOpenAI, prompt_info_array: List[Dict]) -> Dict[str, LLMChain]:
         """
 
         Args:
@@ -171,7 +176,7 @@ class AnswerAnalyzer:
             prompt_info_array: 프롬프트가 저장된 딕셔너리 배열
 
         Returns:
-
+ß
         """
         destination_chains = {}
 
