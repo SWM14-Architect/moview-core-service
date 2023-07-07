@@ -176,7 +176,7 @@ class AnswerAnalyzer:
             prompt_info_array: 프롬프트가 저장된 딕셔너리 배열
 
         Returns:
-ß
+
         """
         destination_chains = {}
 
