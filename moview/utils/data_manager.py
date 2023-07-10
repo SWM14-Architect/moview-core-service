@@ -66,7 +66,7 @@ class KeyManager:
 class ChatManager:
     def __init__(
         self,
-        custom_callback_handler: Type = CustomCallbackHandler,
+        custom_callback_handler: Type = CustomCallbackHandler(),
         streaming: bool = True,
         model: str = "gpt-3.5-turbo",
         temperature: int = 0.5
@@ -81,7 +81,7 @@ class ChatManager:
         self.chat = ChatOpenAI(
             openai_api_key=KeyManager().openai_api_key,
             streaming=streaming,
-            callbacks=[custom_callback_handler()],
+            callbacks=[custom_callback_handler],
             model_name=model,
             temperature=temperature,
         )
@@ -113,9 +113,9 @@ class QuestionManager:
 
 
 class QuestionEntity:
-    def __init__(self, question: str):
+    def __init__(self, question: str, answer: str = None):
         self.question = question
-        self.answer = None
+        self.answer = answer
 
     def add_answer(self, answer: str):
         self.answer = answer
