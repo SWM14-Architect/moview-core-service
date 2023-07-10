@@ -1,0 +1,55 @@
+# workflow의 이름
+name: CI/CD Pipeline with CodeDeploy
+
+# 해당 workflow가 언제 실행될 것인지에 대한 트리거를 지정
+on:
+  # main branch에 대한 push 나 pull request 이벤트를 트리거로 지정
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+  # 수동으로 해당 workflow 실행 지정
+  workflow_dispatch:
+  
+# 현재 스크립트에서 사용할 환경변수를 정의하여 사용
+env:
+  S3_BUCKET_NAME: moview-core-deploy-bucket
+  AWS_REGION: ap-northeast-2
+  CODEDEPLOY_NAME: moview
+  CODEDEPLOY_GROUP: moview-core-deploy
+
+# workflow는 한개 이상의 job을 가지며, 각 job은 여러 step에 따라 단계를 나눌 수 있다.
+jobs:
+  build:
+    # 해당 workflow를 어떤 OS 환경에서 실행할 것인지 지정
+    runs-on: ubuntu-latest
+
+    # step은 작업의 일부로 실행될 일련의 작업을 나타낸다.
+    steps:
+      # 작업에서 액세스할 수 있도록 $GITHUB_WORKSPACE에서 저장소를 체크아웃한다.
+      - name: Checkout
+        uses: actions/checkout@v3
+       
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ap-northeast-2
+       
+      # 버전 관리를 위해 Github Actions에서 제공하는 환경 변수를 이용하여 zip 파일에 이름을 붙인다.
+      - name: Make zip file
+        run: zip -r ./$GITHUB_SHA.zip .
+        shell: bash
+        
+      - name: Copy to S3
+        run: aws s3 cp --region ap-northeast-2 ./$GITHUB_SHA.zip s3://$S3_BUCKET_NAME/$GITHUB_SHA.zip
+
+      - name: Deploy to EC2
+        run: >
+          aws deploy create-deployment
+          --application-name $CODEDEPLOY_NAME
+          --deployment-config-name CodeDeployDefault.AllAtOnce
+          --deployment-group-name $CODEDEPLOY_GROUP
+          --s3-location bucket=$S3_BUCKET_NAME,bundleType=zip,key=$GITHUB_SHA.zip
