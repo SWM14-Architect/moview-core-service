@@ -25,7 +25,6 @@ class InputInfoAnalyzer:
         Returns:
             None
         """
-        chat_manager = ChatManager()
 
         # 면접자의 자기소개서와 1분 자기소개를 분석하기 위한 프롬프트를 작성합니다.
         prompt = ChatPromptTemplate(
