@@ -71,7 +71,7 @@ class ChatManager:
         callback_handler: Type[BaseCallbackHandler] = CustomCallbackHandler(),
         streaming: bool = True,
         model: str = "gpt-3.5-turbo",
-        temperature: int = 0.5
+        temperature: float = 0.5
     ):
         """
 
