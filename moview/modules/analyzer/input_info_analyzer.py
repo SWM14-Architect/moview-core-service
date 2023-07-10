@@ -17,13 +17,13 @@ class InputInfoAnalyzer:
         self.data_manager = data_manager
         self.evaluation_manager = evaluation_manager
 
-    def analyze_input_info(self, chat_manager: ChatManager):
+    def analyze_input_info(self, chat_manager: ChatManager) -> str:
         """
         Args:
             chat_manager: OpenAI의 API를 사용하기 위한 ChatManager 객체
 
         Returns:
-            None
+            str: 사용자 정보 평가 결과
         """
 
         # 면접자의 자기소개서와 1분 자기소개를 분석하기 위한 프롬프트를 작성합니다.
@@ -55,6 +55,8 @@ class InputInfoAnalyzer:
         create_question_chain = LLMChain(llm=chat_manager.get_chat_model(),
                                          prompt=prompt)
         output = create_question_chain(self.data_manager.company)
+        result = output['text']
 
         # 분석 결과를 EvaluationManager에 저장합니다.
-        self.evaluation_manager.add_coverletter_evaluation(output['text'])
+        self.evaluation_manager.add_coverletter_evaluation(result)
+        return result
