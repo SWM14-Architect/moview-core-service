@@ -1,3 +1,4 @@
+import openai
 from flask import request
 from flask_restx import Resource, Namespace
 from moview.modules.analyzer.input_info_analyzer import InputInfoAnalyzer
@@ -28,8 +29,8 @@ class UserEvaluation(Resource):
     def get(self):
         chat_manager = ChatManager(streaming=True, temperature=0)
 
-        if check_data_manager():
-            return response_data_manager_error()
+        if check_manager("data_manager"):
+            return get_manager_error_response("data_manager")
 
         data_manager = DataManager()
         data_manager.set_data(session['data_manager'])
@@ -37,11 +38,15 @@ class UserEvaluation(Resource):
         try:
             response = InputInfoAnalyzer(data_manager, evaluation_manager) \
                 .analyze_input_info(chat_manager)
-
+        except openai.OpenAIError as e:
+            return make_response(
+                jsonify({"messages": f"OpenAI API error\n{e}"}),
+                HTTPStatus.REQUEST_TIMEOUT
+            )
         except Exception as e:
             return make_response(
                 jsonify({"messages": f"error {e}"}),
-                HTTPStatus.REQUEST_TIMEOUT
+                HTTPStatus.INTERNAL_SERVER_ERROR
             )
 
         session['evaluation_manager'] = evaluation_manager.get_all_evaluation()
@@ -56,13 +61,16 @@ class AnswerEvaluation(Resource):
     @api.doc("질문과 답변을 바탕으로 평가합니다.")
     def post(self):
         request_body = request.get_json()
-        question_entity = QuestionEntity(request_body['question'], request_body['answer'])
+        question_entity = QuestionEntity(
+            request_body['question'],
+            request_body['answer']
+        )
 
-        if check_data_manager():
-            return response_data_manager_error()
+        if check_manager("data_manager"):
+            return get_manager_error_response("data_manager")
 
-        if check_evaluation_manager():
-            return response_evaluation_manager_error()
+        if check_manager("evaluation_manager"):
+            return get_manager_error_response("evaluation_manager")
 
         data_manager = DataManager()
         data_manager.set_data(session['data_manager'])
@@ -72,11 +80,15 @@ class AnswerEvaluation(Resource):
         try:
             response = AnswerAnalyzer(data_manager, question_entity, evaluation_manager) \
                 .analyze_answer(ChatManager())
-
+        except openai.OpenAIError as e:
+            return make_response(
+                jsonify({"messages": f"OpenAI API error\n{e}"}),
+                HTTPStatus.REQUEST_TIMEOUT
+            )
         except Exception as e:
             return make_response(
                 jsonify({"messages": f"error {e}"}),
-                HTTPStatus.REQUEST_TIMEOUT
+                HTTPStatus.INTERNAL_SERVER_ERROR
             )
 
         # 평가하면서 추가된 데이터를 세션에 다시 저장합니다.
