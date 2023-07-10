@@ -16,7 +16,7 @@ class InitQuestionGenerator:
     def __init__(self, data_manager: DataManager):
         self.data_manager = data_manager
 
-    def init_question_generator(
+    def generate_init_question(
             self,
             chat_manager: ChatManager,
     ) -> List[str]:

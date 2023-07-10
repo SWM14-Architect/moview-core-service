@@ -30,7 +30,7 @@ if __name__ == "__main__":
 
     # init_question_generator 함수에서 초기질문을 생성합니다.
     init_question_generator = InitQuestionGenerator(data_manager)
-    question_list = init_question_generator.init_question_generator(ChatManager())
+    question_list = init_question_generator.generate_init_question(ChatManager())
     # 생성된 질문리스트를 QuestionManager에 저장합니다.
     question_manager = QuestionManager(question_list)
 
@@ -57,7 +57,7 @@ if __name__ == "__main__":
             # answer_analyzer 함수의 결과가 나왔다면, 심화질문 생성함수를 실행합니다.
             # 생성결과 심화질문이 필요없다고 판단되면 "Very nice good!"을 return 합니다.
             followup_question_generator = FollowUpQuestionGenerator(data_manager, evaluation_manager)
-            followup_question = followup_question_generator.follow_up_question_generator()
+            followup_question = followup_question_generator.generate_follow_up_question()
             # followup_question 안에 "very", "nice", "good"이 포함되어있다면, 반복문을 종료합니다.
             exit_flag = 0
             for word in ["very", "nice", "good"]:

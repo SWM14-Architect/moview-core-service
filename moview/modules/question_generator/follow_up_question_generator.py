@@ -18,7 +18,7 @@ class FollowUpQuestionGenerator:
         self.data_manager = data_manager
         self.evaluation_manager = evaluation_manager
 
-    def follow_up_question_generator(self) -> str:
+    def generate_follow_up_question(self) -> str:
         chat_manager = ChatManager()
         prompt = self.__make_follow_up_question_prompt()
         followup_chain = LLMChain(llm=chat_manager.get_chat_model(),
