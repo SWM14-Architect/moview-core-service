@@ -12,7 +12,7 @@ on:
   # 수동으로 해당 workflow 실행 지정
   workflow_dispatch:
 
-# 현재 스크립트에서 사용할 환경변수를 정의하여 사용
+# 코드에서 사용할 환경변수를 Github Actions로부터 불러온다. 이는 os.getenv()로 호출될 수 있다.
 env:
   OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
 
@@ -35,24 +35,13 @@ jobs:
         with:
           python-version: '3.10'
 
-      # 패키지 설치 및 가상환경 활성화를 위해 Anaconda를 설치한다.
-      - name: Install Anaconda
-        run: |
-          wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh
-          bash miniconda.sh -b -p $HOME/miniconda
-          source "$HOME/miniconda/etc/profile.d/conda.sh"
-          hash -r
-          conda config --set always_yes yes --set changeps1 no
-          conda update -q conda
-          conda info -a
-        shell: bash
+      # 가상환경을 생성하고 활성화한다.
+      - name: Setup Python venv
+        run: python -m venv venv
 
-      # Conda 가상환경을 생성하고 활성화한다.
-      - name: Setup environment
-        run: |
-          conda env create -f environment.yml
-          conda activate moview
-        shell: bash
+      # requirements.txt의 패키지들을 설치한다.
+      - name: Install dependencies
+        run: ./venv/bin/python -m pip install -r requirements.txt
 
       # AWS 계정 정보를 설정한다.
       - name: Configure AWS credentials
@@ -62,20 +51,21 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ap-northeast-2
 
+      # 테스트 커버리지를 위해 coverage를 설치한다.
+      - name: Install coverage
+        run: ./venv/bin/python -m pip install coverage
+
       # 테스트를 실행한다.
       - name: Run tests with coverage
-        run: |
-          source activate moview
-          coverage run -m unittest discover -s tests -p "test_*.py"
+        run: ./venv/bin/python -m coverage run -m unittest discover -s tests -p "test_*.py"
         shell: bash
 
       # 테스트 커버리지를 확인한다.
       - name: Check test coverage
         id: coverage-check
         run: |
-          source activate moview
-          coverage report -m
-          COVERAGE=$(coverage report -m | grep TOTAL | awk '{print $6}' | sed 's/%//')
+          ./venv/bin/python -m coverage report -m
+          COVERAGE=$(./venv/bin/python -m coverage report -m | grep TOTAL | awk '{print $6}' | sed 's/%//')
           echo "Test coverage: $COVERAGE%"
           echo "::set-output name=coverage::$COVERAGE"
         shell: bash
@@ -87,7 +77,7 @@ jobs:
           COMMENT="Test coverage: $COVERAGE%"
           echo $COMMENT | gh pr review ${{ github.event.pull_request.number }} --comment
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ github.token }}
 
   deploy:
     runs-on: ubuntu-latest
@@ -103,24 +93,13 @@ jobs:
         with:
           python-version: '3.10'
 
-      # 패키지 설치 및 가상환경 활성화를 위해 Anaconda를 설치한다.
-      - name: Install Anaconda
-        run: |
-          wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh
-          bash miniconda.sh -b -p $HOME/miniconda
-          source "$HOME/miniconda/etc/profile.d/conda.sh"
-          hash -r
-          conda config --set always_yes yes --set changeps1 no
-          conda update -q conda
-          conda info -a
-        shell: bash
+      # 가상환경을 생성하고 활성화한다.
+      - name: Setup Python venv
+        run: python -m venv venv
 
-      # Conda 가상환경을 생성하고 활성화한다.
-      - name: Setup environment
-        run: |
-          conda env create -f environment.yml
-          conda activate moview
-        shell: bash
+      # requirements.txt의 패키지들을 설치한다.
+      - name: Install dependencies
+        run: ./venv/bin/python -m pip install -r requirements.txt
 
       # AWS 계정 정보를 설정한다.
       - name: Configure AWS credentials
@@ -132,22 +111,20 @@ jobs:
 
       # 테스트 커버리지를 위해 coverage를 설치한다.
       - name: Install coverage
-        run: conda install -c anaconda coverage
+        run: ./venv/bin/python -m pip install coverage
 
       # 테스트를 실행한다.
       - name: Run tests with coverage
-        run: |
-          source activate moview
-          coverage run -m unittest discover -s tests -p "test_*.py"
+        run: ./venv/bin/python -m coverage run -m unittest discover -s tests -p "test_*.py"
         shell: bash
 
       # 테스트 커버리지를 확인한다.
       - name: Check test coverage
         id: coverage-check
         run: |
-          source activate moview
-          coverage report -m
-          COVERAGE=$(coverage report -m | grep TOTAL | awk '{print $6}' | sed 's/%//')
+          ./venv/bin/python -m coverage report -m
+          COVERAGE=$(./venv/bin/python -m coverage report -m | grep TOTAL | awk '{print $6}' | sed 's/%//')
+          echo "Test coverage: $COVERAGE%"
           echo "::set-output name=coverage::$COVERAGE"
         shell: bash
 
