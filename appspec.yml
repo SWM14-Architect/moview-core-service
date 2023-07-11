@@ -5,10 +5,26 @@ files:
   - source: /
     destination: /home/ubuntu/app
 
+permissions:
+  - object: /
+    pattern: "**"
+    owner: ubuntu
+    group: ubuntu
+
 hooks:
   ApplicationStop:
-    - location: scripts/kill_flask.sh
+    - location: scripts/stop_application.sh
       timeout: 60
+      runas: ubuntu
+
+  BeforeInstall:
+    - location: scripts/install_dependencies.sh
+      timeout: 60
+      runas: ubuntu
+
+  AfterInstall:
+    - location: scripts/install_packages.sh
+      timeout: 300
       runas: ubuntu
 
   ApplicationStart:
