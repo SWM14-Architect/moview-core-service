@@ -2,10 +2,15 @@ version: 0.0
 os: linux
 
 files:
-  - source:  /
+  - source: /
     destination: /home/ubuntu/app
 
 hooks:
+  ApplicationStop:
+    - location: scripts/kill_flask.sh
+      timeout: 60
+      runas: ubuntu
+
   ApplicationStart:
     - location: scripts/deploy.sh
       timeout: 60
