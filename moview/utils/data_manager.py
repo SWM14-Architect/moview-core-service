@@ -2,6 +2,8 @@ import os
 import sys
 from typing import *
 
+from langchain.callbacks.base import BaseCallbackHandler
+
 from moview.utils.util import remove_indent
 from moview.handlers.custom_callback_handler import CustomCallbackHandler
 from langchain.chat_models import ChatOpenAI
@@ -66,14 +68,14 @@ class KeyManager:
 class ChatManager:
     def __init__(
         self,
-        custom_callback_handler: Type = CustomCallbackHandler(),
+        callback_handler: Type[BaseCallbackHandler] = CustomCallbackHandler(),
         streaming: bool = True,
         model: str = "gpt-3.5-turbo",
-        temperature: int = 0.5
+        temperature: float = 0.5
     ):
         """
 
-        :param custom_callback_handler: CustomCallbackHandler
+        :param callback_handler: CallbackHandler
         :param streaming: Streaming
         :param model: GPT Model
         :param temperature: Temperature
@@ -81,7 +83,7 @@ class ChatManager:
         self.chat = ChatOpenAI(
             openai_api_key=KeyManager().openai_api_key,
             streaming=streaming,
-            callbacks=[custom_callback_handler],
+            callbacks=[callback_handler],
             model_name=model,
             temperature=temperature,
         )
