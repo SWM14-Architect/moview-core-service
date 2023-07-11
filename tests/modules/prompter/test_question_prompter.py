@@ -59,7 +59,3 @@ class TestQuestionPrompter(unittest.TestCase):
         # then
         result = self.question_prompter.prompt_question(self.mock_question_entity)
         self.assertEqual(result, True)
-
-
-if __name__ == '__main__':
-    unittest.main()

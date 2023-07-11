@@ -30,6 +30,17 @@ class AnswerAnalyzer:
         self.question = question_entity.question
         self.answer = question_entity.answer
         self.evaluation_manager = evaluation_manager
+        self.fit_feature_dict = {
+            "job_fit": ("직무 적합성", "직무를 수행하는 데 필요한 기술,지식, 그리고 경험을 가지고 있는지 평가하는 것"),
+            "cultural_fit": ("문화 적합성", "조직의 가치와 문화에 잘 맞는지 평가하는 것"),
+            "project_management": ("프로젝트 관리 능력", "특정 프로젝트를 기획하고, 이를 성공적으로 실행하고, 필요한 변경 사항을 관리하는지 평가하는 것"),
+            "communication": ("의사소통 능력", "자신의 아이디어를 명확하게 전달하고, 다른 사람들과 효과적으로 협업할 수 있는지 평가하는 것"),
+            "personality": ("인성 및 태도", "성격, 성실성, 성장 마인드셋을 평가하는 것"),
+            "motivation": ("열정 및 지원동기", "왜 그 직무를 선택하고, 그 회사에서 일하길 원하는지 평가하는 것"),
+            "adaptability": ("적응력", "새로운 환경이나 상황에 얼마나 빠르게 적응하는지를 평가하는 것"),
+            "learning_ability": ("학습 능력", "지식이나 기술을 빠르게 습득하고 새로운 정보를 효과적으로 사용하는 지 평가하는 것"),
+            "leadership": ("리더십", "팀에서 리더로서 역할을 수행한 경험이나 리더십에 대한 지식을 평가하는 것")
+        }
 
     def analyze_answer(self, chat_manager: ChatManager) -> str:
         """
@@ -81,36 +92,24 @@ class AnswerAnalyzer:
         Returns: 프롬프트가 저장된 딕셔너리 배열
 
         """
-        fit_feature_dict = {
-            "job_fit": ("직무 적합성", "직무를 수행하는 데 필요한 기술,지식, 그리고 경험을 가지고 있는지 평가하는 것"),
-            "cultural_fit": ("문화 적합성", "조직의 가치와 문화에 잘 맞는지 평가하는 것"),
-            "project_management": ("프로젝트 관리 능력", "특정 프로젝트를 기획하고, 이를 성공적으로 실행하고, 필요한 변경 사항을 관리하는지 평가하는 것"),
-            "communication": ("의사소통 능력", "자신의 아이디어를 명확하게 전달하고, 다른 사람들과 효과적으로 협업할 수 있는지 평가하는 것"),
-            "personality": ("인성 및 태도", "성격, 성실성, 성장 마인드셋을 평가하는 것"),
-            "motivation": ("열정 및 지원동기", "왜 그 직무를 선택하고, 그 회사에서 일하길 원하는지 평가하는 것"),
-            "adaptability": ("적응력", "새로운 환경이나 상황에 얼마나 빠르게 적응하는지를 평가하는 것"),
-            "learning_ability": ("학습 능력", "지식이나 기술을 빠르게 습득하고 새로운 정보를 효과적으로 사용하는 지 평가하는 것"),
-            "leadership": ("리더십", "팀에서 리더로서 역할을 수행한 경험이나 리더십에 대한 지식을 평가하는 것")
-        }
-
-        knowledge_prompt = self.__make_knowledge_prompt()
+        knowledge_prompt = self._make_knowledge_prompt()
 
         # 분석 체인은 라우팅 체인이므로 라우터 적용.
         prompt_info_array = []
 
-        for fit_feature in fit_feature_dict:
+        for fit_feature in self.fit_feature_dict:
             prompt_info = {
                 "name": fit_feature,
                 "description": knowledge_prompt.format(
-                    review_standard_knowledge=fit_feature_dict[fit_feature][0],
-                    review_standard_detail=fit_feature_dict[fit_feature][1],
+                    review_standard_knowledge=self.fit_feature_dict[fit_feature][0],
+                    review_standard_detail=self.fit_feature_dict[fit_feature][1],
                 ),
                 "prompt_template": self.__make_prompt_for_router_chain(),
             }
             prompt_info_array.append(prompt_info)
         return prompt_info_array
 
-    def __make_knowledge_prompt(self) -> str:
+    def _make_knowledge_prompt(self) -> str:
         return remove_indent(
             """
             {review_standard_detail}을 {review_standard_knowledge}이라 합니다.
