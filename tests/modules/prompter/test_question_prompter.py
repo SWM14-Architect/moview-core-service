@@ -8,7 +8,7 @@ class TestQuestionPrompter(unittest.TestCase):
     def setUp(self):
         self.mock_data_manager = Mock(spec=DataManager)
         self.mock_question_entity = Mock(spec=QuestionEntity)
-        self.question_prompter = QuestionPrompter(self.mock_data_manager)
+        self.question_prompter = QuestionPrompter()
 
     @patch('builtins.print')
     @patch('builtins.input')
@@ -59,7 +59,3 @@ class TestQuestionPrompter(unittest.TestCase):
         # then
         result = self.question_prompter.prompt_question(self.mock_question_entity)
         self.assertEqual(result, True)
-
-
-if __name__ == '__main__':
-    unittest.main()

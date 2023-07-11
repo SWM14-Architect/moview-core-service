@@ -13,6 +13,7 @@ class InputInfoAnalyzer:
     """
     회사의 모집공고와 직무 정보를 토대로 면접자의 자기소개서와 1분 자기소개를 분석하여 면접관으로써 좋은 점과 아쉬운 점을 분석하여 출력합니다.
     """
+
     def __init__(self, data_manager: DataManager, evaluation_manager: EvaluationManager):
         self.data_manager = data_manager
         self.evaluation_manager = evaluation_manager
@@ -30,23 +31,13 @@ class InputInfoAnalyzer:
         prompt = ChatPromptTemplate(
             messages=[
                 SystemMessagePromptTemplate.from_template(
-                    remove_indent(
-                        f"""You are an interviewer at {self.data_manager.company}.
-
-                            {self.data_manager.get_userdata()}
-                            """)),
+                    self._make_system_template_for_analyzing_input_info(
+                        self.data_manager.company,
+                        self.data_manager.get_userdata()
+                    )),
 
                 HumanMessagePromptTemplate.from_template(
-                    remove_indent(
-                        """As an interviewer, Please read the cover letter and self-introduction of the interviewee and provide an evaluation from the {company}'s perspective, dividing it into positive aspects and areas for improvement. Please write in Korean. The format is as follows:
-
-                        "좋은점":
-                        - Content of positive aspects
-                        "아쉬운점":
-                        - Content of areas for improvement
-
-                        Please write in Korean.
-                        """))
+                    self._make_human_template_for_analyzing_input_info())
             ],
             input_variables=["company"],
         )
@@ -60,3 +51,21 @@ class InputInfoAnalyzer:
         # 분석 결과를 EvaluationManager에 저장합니다.
         self.evaluation_manager.add_coverletter_evaluation(result)
         return result
+
+    def _make_system_template_for_analyzing_input_info(self, company: str, user_data: str) -> str:
+        return remove_indent(
+            f"""
+            You are an interviewer at {company}.
+            {user_data}""")
+
+    def _make_human_template_for_analyzing_input_info(self) -> str:
+        return remove_indent(
+            """As an interviewer, Please read the cover letter and self-introduction of the interviewee and provide an evaluation from the {company}'s perspective, dividing it into positive aspects and areas for improvement. Please write in Korean. The format is as follows:
+
+            "좋은점":
+            - Content of positive aspects
+            "아쉬운점":
+            - Content of areas for improvement
+
+            Please write in Korean.
+            """)
