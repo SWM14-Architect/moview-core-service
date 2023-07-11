@@ -52,15 +52,12 @@ class DataManager:
 class KeyManager:
     def __init__(self):
         self.openai_api_key = None
-        self.serpapi_api_key = None
         if sys.platform == 'darwin':
             # MacOS
             self.openai_api_key = os.environ["OPENAI_API_KEY"]
-            self.serpapi_api_key = os.environ["SERPAPI_API_KEY"]
-        elif sys.platform == 'win32':
-            # Windows
+        elif sys.platform == 'win32' or sys.platform == 'linux':
+            # Windows, Linux
             self.openai_api_key = os.getenv("OPENAI_API_KEY")
-            self.serpapi_api_key = os.getenv("SERPAPI_API_KEY")
 
 
 class ChatManager:
