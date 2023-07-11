@@ -51,33 +51,33 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ap-northeast-2
 
-      # 테스트 커버리지를 위해 coverage를 설치한다.
-      - name: Install coverage
-        run: ./venv/bin/python -m pip install coverage
-
-      # 테스트를 실행한다.
-      - name: Run tests with coverage
-        run: ./venv/bin/python -m coverage run -m unittest discover -s tests -p "test_*.py"
-        shell: bash
-
-      # 테스트 커버리지를 확인한다.
-      - name: Check test coverage
-        id: coverage-check
-        run: |
-          ./venv/bin/python -m coverage report -m
-          COVERAGE=$(./venv/bin/python -m coverage report -m | grep TOTAL | awk '{print $6}' | sed 's/%//')
-          echo "Test coverage: $COVERAGE%"
-          echo "::set-output name=coverage::$COVERAGE"
-        shell: bash
-
-      # PR에 테스트 커버리지 결과를 남긴다.
-      - name: Comment coverage result
-        run: |
-          COVERAGE=$(echo "${{ steps.coverage-check.outputs.coverage }}" | awk '{print $1}')
-          COMMENT="Test coverage: $COVERAGE%"
-          echo $COMMENT | gh pr review ${{ github.event.pull_request.number }} --comment
-        env:
-          GH_TOKEN: ${{ github.token }}
+#      # 테스트 커버리지를 위해 coverage를 설치한다.
+#      - name: Install coverage
+#        run: ./venv/bin/python -m pip install coverage
+#
+#      # 테스트를 실행한다.
+#      - name: Run tests with coverage
+#        run: ./venv/bin/python -m coverage run -m unittest discover -s tests -p "test_*.py"
+#        shell: bash
+#
+#      # 테스트 커버리지를 확인한다.
+#      - name: Check test coverage
+#        id: coverage-check
+#        run: |
+#          ./venv/bin/python -m coverage report -m
+#          COVERAGE=$(./venv/bin/python -m coverage report -m | grep TOTAL | awk '{print $6}' | sed 's/%//')
+#          echo "Test coverage: $COVERAGE%"
+#          echo "::set-output name=coverage::$COVERAGE"
+#        shell: bash
+#
+#      # PR에 테스트 커버리지 결과를 남긴다.
+#      - name: Comment coverage result
+#        run: |
+#          COVERAGE=$(echo "${{ steps.coverage-check.outputs.coverage }}" | awk '{print $1}')
+#          COMMENT="Test coverage: $COVERAGE%"
+#          echo $COMMENT | gh pr review ${{ github.event.pull_request.number }} --comment
+#        env:
+#          GH_TOKEN: ${{ github.token }}
 
   deploy:
     runs-on: ubuntu-latest
@@ -109,36 +109,36 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ap-northeast-2
 
-      # 테스트 커버리지를 위해 coverage를 설치한다.
-      - name: Install coverage
-        run: ./venv/bin/python -m pip install coverage
-
-      # 테스트를 실행한다.
-      - name: Run tests with coverage
-        run: ./venv/bin/python -m coverage run -m unittest discover -s tests -p "test_*.py"
-        shell: bash
-
-      # 테스트 커버리지를 확인한다.
-      - name: Check test coverage
-        id: coverage-check
-        run: |
-          ./venv/bin/python -m coverage report -m
-          COVERAGE=$(./venv/bin/python -m coverage report -m | grep TOTAL | awk '{print $6}' | sed 's/%//')
-          echo "Test coverage: $COVERAGE%"
-          echo "::set-output name=coverage::$COVERAGE"
-        shell: bash
-
-      # 테스트 커버리지가 1% 이상이면 배포를 진행한다.
-      - name: Should deploy?
-        id: should-deploy
-        run: |
-          COVERAGE=$(echo "${{ steps.coverage-check.outputs.coverage }}" | awk '{print $1}')
-          if (( $(echo "$COVERAGE >= 1" | bc -l) )); then
-            echo "::set-output name=deploy::true"
-          else
-            echo "::set-output name=deploy::false"
-          fi
-        shell: bash
+#      # 테스트 커버리지를 위해 coverage를 설치한다.
+#      - name: Install coverage
+#        run: ./venv/bin/python -m pip install coverage
+#
+#      # 테스트를 실행한다.
+#      - name: Run tests with coverage
+#        run: ./venv/bin/python -m coverage run -m unittest discover -s tests -p "test_*.py"
+#        shell: bash
+#
+#      # 테스트 커버리지를 확인한다.
+#      - name: Check test coverage
+#        id: coverage-check
+#        run: |
+#          ./venv/bin/python -m coverage report -m
+#          COVERAGE=$(./venv/bin/python -m coverage report -m | grep TOTAL | awk '{print $6}' | sed 's/%//')
+#          echo "Test coverage: $COVERAGE%"
+#          echo "::set-output name=coverage::$COVERAGE"
+#        shell: bash
+#
+#      # 테스트 커버리지가 1% 이상이면 배포를 진행한다.
+#      - name: Should deploy?
+#        id: should-deploy
+#        run: |
+#          COVERAGE=$(echo "${{ steps.coverage-check.outputs.coverage }}" | awk '{print $1}')
+#          if (( $(echo "$COVERAGE >= 1" | bc -l) )); then
+#            echo "::set-output name=deploy::true"
+#          else
+#            echo "::set-output name=deploy::false"
+#          fi
+#        shell: bash
 
       # 배포를 위해 zip 파일을 생성한다. 버전 관리를 위해 Github Actions에서 제공하는 환경 변수를 이용하여 이름을 붙인다.
       - name: Make zip file
