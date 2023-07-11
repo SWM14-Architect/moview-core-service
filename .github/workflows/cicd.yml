@@ -91,6 +91,7 @@ jobs:
 
   deploy:
     runs-on: ubuntu-latest
+    if: ${{ github.event_name == 'push' }}
     steps:
       # 작업에서 액세스할 수 있도록 $GITHUB_WORKSPACE에서 저장소를 체크아웃한다.
       - name: Checkout
