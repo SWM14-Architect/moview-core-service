@@ -1,3 +1,4 @@
+import datetime
 from langchain import LLMChain
 from langchain.prompts.chat import (
     SystemMessagePromptTemplate,
@@ -6,7 +7,7 @@ from langchain.prompts.chat import (
 )
 
 from moview.utils.data_manager import *
-from moview.utils.util import remove_indent
+from moview.utils.util import remove_indent, write_log_in_txt
 
 
 class InputInfoAnalyzer:
@@ -26,6 +27,9 @@ class InputInfoAnalyzer:
         Returns:
             str: 사용자 정보 평가 결과
         """
+
+        log = {"time": str(datetime.datetime.now()), "message": "Start of InputInfoAnalyzer"}
+        write_log_in_txt(log, InputInfoAnalyzer.__name__)
 
         # 면접자의 자기소개서와 1분 자기소개를 분석하기 위한 프롬프트를 작성합니다.
         prompt = ChatPromptTemplate(
@@ -50,6 +54,10 @@ class InputInfoAnalyzer:
 
         # 분석 결과를 EvaluationManager에 저장합니다.
         self.evaluation_manager.add_coverletter_evaluation(result)
+
+        log = {"time": str(datetime.datetime.now()), "message": "End of InputInfoAnalyzer. result is : " + result}
+        write_log_in_txt(log, InputInfoAnalyzer.__name__)
+
         return result
 
     def _make_system_template_for_analyzing_input_info(self, company: str, user_data: str) -> str:

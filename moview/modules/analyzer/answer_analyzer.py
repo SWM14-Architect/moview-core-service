@@ -1,3 +1,4 @@
+import datetime
 from langchain import LLMChain, ConversationChain
 from langchain.chains.router import MultiPromptChain
 from langchain.chains.router.llm_router import (
@@ -9,8 +10,7 @@ from langchain.chains.router.multi_prompt_prompt import (
 )
 from langchain.prompts import PromptTemplate
 from moview.utils.data_manager import *
-from moview.utils.util import remove_indent
-from typing import *
+from moview.utils.util import remove_indent, write_log_in_txt
 
 
 class AnswerAnalyzer:
@@ -51,9 +51,18 @@ class AnswerAnalyzer:
             면접관 질문, 면접자 답변, 면접관 평가
 
         """
+
+        log = {"time": str(datetime.datetime.now()), "message": "Start of AnswerAnalyzer"}
+        write_log_in_txt(log, AnswerAnalyzer.__name__)
+
         chat_model = chat_manager.get_chat_model()
 
         prompt_info_array = self._make_specific_prompt_with_knowledge()
+
+        log = {"time": str(datetime.datetime.now()),
+               "message": "AnswerAnalyzer made knowledge prompt array. array is : " + str(prompt_info_array)}
+        write_log_in_txt(log, AnswerAnalyzer.__name__)
+
         router_chain = self.__make_router_chain(llm=chat_model, prompt_info_array=prompt_info_array)
         default_chain = ConversationChain(llm=chat_model, output_key="text")
         destination_chains = self.__make_destination_chains(llm=chat_model, prompt_info_array=prompt_info_array)
@@ -80,6 +89,9 @@ class AnswerAnalyzer:
         )
 
         self.evaluation_manager.add_answer_evaluation(result)
+
+        log = {"time": str(datetime.datetime.now()), "message": "End of AnswerAnalyzer. return : " + result}
+        write_log_in_txt(log, AnswerAnalyzer.__name__)
 
         return result
 
