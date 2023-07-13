@@ -79,6 +79,7 @@ jobs:
 #        env:
 #          GH_TOKEN: ${{ github.token }}
 
+  # Push가 발생했을 경우에는, 테스트 커버리지가 70% 이상인 경우에 S3-CodeDeploy-EC2로의 배포를 진행한다.
   deploy:
     runs-on: ubuntu-latest
     if: ${{ github.event_name == 'push' }}
