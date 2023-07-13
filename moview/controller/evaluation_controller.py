@@ -1,11 +1,12 @@
 import openai
+import datetime
 from flask import request
 from flask_restx import Resource, Namespace
 from moview.modules.analyzer.input_info_analyzer import InputInfoAnalyzer
 from moview.modules.analyzer.answer_analyzer import AnswerAnalyzer
 from moview.controller import *
 from moview.utils.data_manager import *
-from http import HTTPStatus
+from moview.utils.util import write_log_in_txt
 
 api = Namespace('evaluation', description='evaluation api')
 
@@ -15,7 +16,13 @@ class UserDataUpload(Resource):
     @api.doc("회사이름, 직군, 모집공고, 자기소개서를 입력받습니다.")
     def post(self):
         request_body = request.get_json()
+        log = {"time": str(datetime.datetime.now()), "message": "Start of the UserDataUpload",
+               "request_body": request_body}
+        write_log_in_txt(log, UserDataUpload.__name__)
         session["data_manager"] = request_body
+
+        log = {"time": str(datetime.datetime.now()), "message": "End of UserDataUpload"}
+        write_log_in_txt(log, UserDataUpload.__name__)
 
         return make_response(
             jsonify({"messages": "success"}),
