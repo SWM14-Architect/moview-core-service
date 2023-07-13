@@ -13,6 +13,7 @@ class TestUserDataUpload(unittest.TestCase):
         self.app.config['TESTING'] = True
         self.api.add_resource(UserDataUpload, '/user')
         self.client = self.app.test_client()
+        os.environ['PYTHON_PROFILE'] = 'test'
 
     def test_post(self):
         mock_data = {

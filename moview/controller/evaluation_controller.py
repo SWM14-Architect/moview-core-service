@@ -15,6 +15,8 @@ api = Namespace('evaluation', description='evaluation api')
 class UserDataUpload(Resource):
     @api.doc("회사이름, 직군, 모집공고, 자기소개서를 입력받습니다.")
     def post(self):
+
+        # todo : request body 한글로 들어올 경우, 로그에서 한글이 안나옵니다. 추후 문제 해결 필요.
         request_body = request.get_json()
         log = {"time": str(datetime.datetime.now()), "message": "Start of the UserDataUpload",
                "request_body": request_body}
