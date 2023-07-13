@@ -4,8 +4,8 @@ import string
 from flask import Flask
 from flask_restx import Api
 
-from controller import evaluation_controller
-from controller import generation_controller
+from moview.controller import evaluation_controller
+from moview.controller import generation_controller
 
 
 app = Flask(__name__)

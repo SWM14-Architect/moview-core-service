@@ -1,4 +1,4 @@
-from utils.data_manager import KeyManager
+from moview.utils.data_manager import KeyManager
 from flask import session, Response, make_response, jsonify
 from http import HTTPStatus
 

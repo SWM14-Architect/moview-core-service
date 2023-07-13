@@ -79,29 +79,25 @@ jobs:
 #        env:
 #          GH_TOKEN: ${{ github.token }}
 
+  # Push가 발생했을 경우에는, 테스트 커버리지가 70% 이상인 경우에 S3-CodeDeploy-EC2로의 배포를 진행한다.
   deploy:
     runs-on: ubuntu-latest
     if: ${{ github.event_name == 'push' }}
     steps:
-      # 작업에서 액세스할 수 있도록 $GITHUB_WORKSPACE에서 저장소를 체크아웃한다.
       - name: Checkout
         uses: actions/checkout@v3
 
-      # 파이썬 버전을 3.10으로 설정한다.
       - name: Set up Python 3.10
         uses: actions/setup-python@v4
         with:
           python-version: '3.10'
 
-      # 가상환경을 생성하고 활성화한다.
       - name: Setup Python venv
         run: python -m venv venv
 
-      # requirements.txt의 패키지들을 설치한다.
       - name: Install dependencies
         run: ./venv/bin/python -m pip install -r requirements.txt
 
-      # AWS 계정 정보를 설정한다.
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:
@@ -109,16 +105,13 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ap-northeast-2
 
-#      # 테스트 커버리지를 위해 coverage를 설치한다.
 #      - name: Install coverage
 #        run: ./venv/bin/python -m pip install coverage
 #
-#      # 테스트를 실행한다.
 #      - name: Run tests with coverage
 #        run: ./venv/bin/python -m coverage run -m unittest discover -s tests -p "test_*.py"
 #        shell: bash
 #
-#      # 테스트 커버리지를 확인한다.
 #      - name: Check test coverage
 #        id: coverage-check
 #        run: |
@@ -128,12 +121,12 @@ jobs:
 #          echo "::set-output name=coverage::$COVERAGE"
 #        shell: bash
 #
-#      # 테스트 커버리지가 1% 이상이면 배포를 진행한다.
-#      - name: Should deploy?
-#        id: should-deploy
+#      # 테스트 커버리지가 70% 이상인지 확인한다.
+#      - name: Check Test Coverage Threshold
+#        id: check-coverage-threshold
 #        run: |
 #          COVERAGE=$(echo "${{ steps.coverage-check.outputs.coverage }}" | awk '{print $1}')
-#          if (( $(echo "$COVERAGE >= 1" | bc -l) )); then
+#          if (( $(echo "$COVERAGE >= 70" | bc -l) )); then
 #            echo "::set-output name=deploy::true"
 #          else
 #            echo "::set-output name=deploy::false"
@@ -144,14 +137,14 @@ jobs:
       - name: Remove venv
         run: rm -rf venv
 
-      # 배포를 위해 zip 파일을 생성한다. 버전 관리를 위해 Github Actions에서 제공하는 환경 변수를 이용하여 이름을 붙인다.
+      # 배포를 위해 zip 파일을 생성한다. 항상 moview_core.zip라는 이름으로 생성한다.
       - name: Make zip file
-        run: zip -qq -r ./$GITHUB_SHA.zip .
+        run: zip -qq -r ./moview_core.zip .
         shell: bash
 
       # S3에 zip 파일을 업로드한다.
       - name: Upload to S3
-        run: aws s3 cp --region ap-northeast-2 ./$GITHUB_SHA.zip s3://${{ secrets.S3_BUCKET_NAME }}/deploy/$GITHUB_SHA.zip --source .
+        run: aws s3 cp --region ap-northeast-2 ./moview_core.zip s3://${{ secrets.S3_BUCKET_NAME }}/moview_core.zip --source .
 
 #      # CodeDeploy를 이용하여 EC2에 배포한다.
 #      - name: Deploy to EC2
@@ -161,7 +154,7 @@ jobs:
 #            --application-name ${{ secrets.CODE_DEPLOY_APP_NAME }}
 #            --deployment-config-name CodeDeployDefault.AllAtOnce
 #            --deployment-group-name ${{ secrets.CODE_DEPLOY_GROUP_NAME }}
-#            --s3-location bucket=${{ secrets.S3_BUCKET_NAME }},bundleType=zip,key=deploy/$GITHUB_SHA.zip
+#            --s3-location bucket=${{ secrets.S3_BUCKET_NAME }},bundleType=zip,key=moview_core.zip
 #          else
 #            echo "테스트 커버리지가 부족하여 배포를 취소합니다."
 #          fi
@@ -174,5 +167,5 @@ jobs:
           --application-name ${{ secrets.CODE_DEPLOY_APP_NAME }} \
           --deployment-config-name CodeDeployDefault.AllAtOnce \
           --deployment-group-name ${{ secrets.CODE_DEPLOY_GROUP_NAME }} \
-          --s3-location bucket=${{ secrets.S3_BUCKET_NAME }},bundleType=zip,key=deploy/$GITHUB_SHA.zip
+          --s3-location bucket=${{ secrets.S3_BUCKET_NAME }},bundleType=zip,key=moview_core.zip
         shell: bash
