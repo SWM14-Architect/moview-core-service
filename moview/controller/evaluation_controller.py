@@ -3,8 +3,8 @@ from flask import request
 from flask_restx import Resource, Namespace
 from moview.modules.analyzer.input_info_analyzer import InputInfoAnalyzer
 from moview.modules.analyzer.answer_analyzer import AnswerAnalyzer
-from controller import *
-from utils.data_manager import *
+from moview.controller import *
+from moview.utils.data_manager import *
 from http import HTTPStatus
 
 api = Namespace('evaluation', description='evaluation api')

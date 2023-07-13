@@ -2,8 +2,8 @@ import openai
 from flask_restx import Resource, Namespace
 from moview.modules.question_generator.init_question_generator import InitQuestionGenerator
 from moview.modules.question_generator.follow_up_question_generator import FollowUpQuestionGenerator
-from utils.data_manager import *
-from controller import *
+from moview.utils.data_manager import *
+from moview.controller import *
 from http import HTTPStatus
 
 api = Namespace('generation', description='generation api')
