@@ -1,0 +1,178 @@
+# workflow의 이름
+name: CI/CD Pipeline with CodeDeploy
+
+# 해당 workflow가 언제 실행될 것인지에 대한 트리거를 지정
+on:
+  # main branch에 대한 push 나 pull request 이벤트를 트리거로 지정
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+  # 수동으로 해당 workflow 실행 지정
+  workflow_dispatch:
+
+# 코드에서 사용할 환경변수를 Github Actions로부터 불러온다. 이는 os.getenv()로 호출될 수 있다.
+env:
+  OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+
+# workflow는 한개 이상의 job을 가지며, 각 job은 여러 step에 따라 단계를 나눌 수 있다.
+jobs:
+  # PR이 발생했을 경우에는 테스트만 진행한다.
+  test:
+    # 해당 workflow를 어떤 OS 환경에서 실행할 것인지 지정
+    runs-on: ubuntu-latest
+    if: ${{ github.event_name == 'pull_request' }}
+    # step은 작업의 일부로 실행될 일련의 작업을 나타낸다.
+    steps:
+      # 작업에서 액세스할 수 있도록 $GITHUB_WORKSPACE에서 저장소를 체크아웃한다.
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      # 파이썬 버전을 3.10으로 설정한다.
+      - name: Set up Python 3.10
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      # 가상환경을 생성하고 활성화한다.
+      - name: Setup Python venv
+        run: python -m venv venv
+
+      # requirements.txt의 패키지들을 설치한다.
+      - name: Install dependencies
+        run: ./venv/bin/python -m pip install -r requirements.txt
+
+      # AWS 계정 정보를 설정한다.
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ap-northeast-2
+
+#      # 테스트 커버리지를 위해 coverage를 설치한다.
+#      - name: Install coverage
+#        run: ./venv/bin/python -m pip install coverage
+#
+#      # 테스트를 실행한다.
+#      - name: Run tests with coverage
+#        run: ./venv/bin/python -m coverage run -m unittest discover -s tests -p "test_*.py"
+#        shell: bash
+#
+#      # 테스트 커버리지를 확인한다.
+#      - name: Check test coverage
+#        id: coverage-check
+#        run: |
+#          ./venv/bin/python -m coverage report -m
+#          COVERAGE=$(./venv/bin/python -m coverage report -m | grep TOTAL | awk '{print $6}' | sed 's/%//')
+#          echo "Test coverage: $COVERAGE%"
+#          echo "::set-output name=coverage::$COVERAGE"
+#        shell: bash
+#
+#      # PR에 테스트 커버리지 결과를 남긴다.
+#      - name: Comment coverage result
+#        run: |
+#          COVERAGE=$(echo "${{ steps.coverage-check.outputs.coverage }}" | awk '{print $1}')
+#          COMMENT="Test coverage: $COVERAGE%"
+#          echo $COMMENT | gh pr review ${{ github.event.pull_request.number }} --comment
+#        env:
+#          GH_TOKEN: ${{ github.token }}
+
+  deploy:
+    runs-on: ubuntu-latest
+    if: ${{ github.event_name == 'push' }}
+    steps:
+      # 작업에서 액세스할 수 있도록 $GITHUB_WORKSPACE에서 저장소를 체크아웃한다.
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      # 파이썬 버전을 3.10으로 설정한다.
+      - name: Set up Python 3.10
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      # 가상환경을 생성하고 활성화한다.
+      - name: Setup Python venv
+        run: python -m venv venv
+
+      # requirements.txt의 패키지들을 설치한다.
+      - name: Install dependencies
+        run: ./venv/bin/python -m pip install -r requirements.txt
+
+      # AWS 계정 정보를 설정한다.
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ap-northeast-2
+
+#      # 테스트 커버리지를 위해 coverage를 설치한다.
+#      - name: Install coverage
+#        run: ./venv/bin/python -m pip install coverage
+#
+#      # 테스트를 실행한다.
+#      - name: Run tests with coverage
+#        run: ./venv/bin/python -m coverage run -m unittest discover -s tests -p "test_*.py"
+#        shell: bash
+#
+#      # 테스트 커버리지를 확인한다.
+#      - name: Check test coverage
+#        id: coverage-check
+#        run: |
+#          ./venv/bin/python -m coverage report -m
+#          COVERAGE=$(./venv/bin/python -m coverage report -m | grep TOTAL | awk '{print $6}' | sed 's/%//')
+#          echo "Test coverage: $COVERAGE%"
+#          echo "::set-output name=coverage::$COVERAGE"
+#        shell: bash
+#
+#      # 테스트 커버리지가 1% 이상이면 배포를 진행한다.
+#      - name: Should deploy?
+#        id: should-deploy
+#        run: |
+#          COVERAGE=$(echo "${{ steps.coverage-check.outputs.coverage }}" | awk '{print $1}')
+#          if (( $(echo "$COVERAGE >= 1" | bc -l) )); then
+#            echo "::set-output name=deploy::true"
+#          else
+#            echo "::set-output name=deploy::false"
+#          fi
+#        shell: bash
+
+      # 가상환경을 삭제한다.
+      - name: Remove venv
+        run: rm -rf venv
+
+      # 배포를 위해 zip 파일을 생성한다. 버전 관리를 위해 Github Actions에서 제공하는 환경 변수를 이용하여 이름을 붙인다.
+      - name: Make zip file
+        run: zip -qq -r ./$GITHUB_SHA.zip .
+        shell: bash
+
+      # S3에 zip 파일을 업로드한다.
+      - name: Upload to S3
+        run: aws s3 cp --region ap-northeast-2 ./$GITHUB_SHA.zip s3://${{ secrets.S3_BUCKET_NAME }}/deploy/$GITHUB_SHA.zip --source .
+
+#      # CodeDeploy를 이용하여 EC2에 배포한다.
+#      - name: Deploy to EC2
+#        run: |
+#          if [ "${{ steps.should-deploy.outputs.deploy }}" = "true" ]; then
+#            aws deploy create-deployment
+#            --application-name ${{ secrets.CODE_DEPLOY_APP_NAME }}
+#            --deployment-config-name CodeDeployDefault.AllAtOnce
+#            --deployment-group-name ${{ secrets.CODE_DEPLOY_GROUP_NAME }}
+#            --s3-location bucket=${{ secrets.S3_BUCKET_NAME }},bundleType=zip,key=deploy/$GITHUB_SHA.zip
+#          else
+#            echo "테스트 커버리지가 부족하여 배포를 취소합니다."
+#          fi
+#        shell: bash
+
+      # CodeDeploy를 이용하여 EC2에 배포한다.
+      - name: Deploy to EC2
+        run: |
+          aws deploy create-deployment \
+          --application-name ${{ secrets.CODE_DEPLOY_APP_NAME }} \
+          --deployment-config-name CodeDeployDefault.AllAtOnce \
+          --deployment-group-name ${{ secrets.CODE_DEPLOY_GROUP_NAME }} \
+          --s3-location bucket=${{ secrets.S3_BUCKET_NAME }},bundleType=zip,key=deploy/$GITHUB_SHA.zip
+        shell: bash
