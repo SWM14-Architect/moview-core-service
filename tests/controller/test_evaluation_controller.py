@@ -13,6 +13,7 @@ class TestUserDataUpload(unittest.TestCase):
         self.app.config['TESTING'] = True
         self.api.add_resource(UserDataUpload, '/user')
         self.client = self.app.test_client()
+        os.environ['PYTHON_PROFILE'] = 'test'
 
     def test_post(self):
         mock_data = {
@@ -39,6 +40,13 @@ class TestUserEvaluation(unittest.TestCase):
         self.app.config['TESTING'] = True
         self.api.add_resource(UserEvaluation, '/user/evaluation')
         self.client = self.app.test_client()
+        os.environ['PYTHON_PROFILE'] = 'test'
+
+    def test_post_when_has_no_data_manager(self):
+        response = self.client.get('/user/evaluation')
+
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.get_json(), {"messages": "유저 데이터를 먼저 입력해야 합니다."})
 
     # patch 데코레이터를 사용하여 InputInfoAnalyzer의 analyze_input_info 메소드를 직접 모킹합니다.
     @patch('moview.modules.analyzer.input_info_analyzer.InputInfoAnalyzer.analyze_input_info')
@@ -74,6 +82,7 @@ class TestAnswerEvaluation(unittest.TestCase):
         self.app.config['TESTING'] = True
         self.api.add_resource(AnswerEvaluation, '/answer/evaluation')
         self.client = self.app.test_client()
+        os.environ['PYTHON_PROFILE'] = 'test'
 
     def test_post_when_has_no_data_manager(self):
         request_mock_data = {

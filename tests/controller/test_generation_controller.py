@@ -14,6 +14,7 @@ class TestInitQuestion(unittest.TestCase):
         self.app.config['TESTING'] = True
         self.api.add_resource(InitQuestion, '/question')
         self.client = self.app.test_client()
+        os.environ['PYTHON_PROFILE'] = 'test'
 
     def test_get_when_has_no_data_manager(self):
         response = self.client.get('/question')
@@ -51,6 +52,7 @@ class TestFollowUpQuestion(unittest.TestCase):
         self.app.config['TESTING'] = True
         self.api.add_resource(FollowUpQuestion, '/question/followup')
         self.client = self.app.test_client()
+        os.environ['PYTHON_PROFILE'] = 'test'
 
     def test_post_when_has_no_data_manager(self):
         response = self.client.post('/question/followup')

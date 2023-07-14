@@ -1,3 +1,4 @@
+import datetime
 from langchain import LLMChain
 from langchain.prompts.chat import (
     SystemMessagePromptTemplate,
@@ -6,25 +7,40 @@ from langchain.prompts.chat import (
 )
 
 from moview.utils.data_manager import *
-from moview.utils.util import remove_indent, follow_up_question_parser
+from moview.utils.util import remove_indent, follow_up_question_parser, write_log_in_txt
 
 
 class FollowUpQuestionGenerator:
     def __init__(
-        self,
-        data_manager: DataManager,
-        evaluation_manager: EvaluationManager
+            self,
+            data_manager: DataManager,
+            evaluation_manager: EvaluationManager
     ):
         self.data_manager = data_manager
         self.evaluation_manager = evaluation_manager
 
     def generate_follow_up_question(self) -> str:
+        log = {"time": str(datetime.datetime.now()), "message": "Start of FollowUpQuestionGenerator"}
+        write_log_in_txt(log, FollowUpQuestionGenerator.__name__)
+
         chat_manager = ChatManager()
+
         prompt = self.__make_follow_up_question_prompt()
+
+        log = {"time": str(datetime.datetime.now()),
+               "message": "FollowUpQuestionGenerator made a prompt. prompt is : " + str(prompt)}
+        write_log_in_txt(log, FollowUpQuestionGenerator.__name__)
+
         followup_chain = LLMChain(llm=chat_manager.get_chat_model(),
                                   prompt=prompt)
         output = followup_chain(self.evaluation_manager.get_answer_evaluation())
-        return follow_up_question_parser(output['text'])
+
+        result = follow_up_question_parser(output['text'])
+        log = {"time": str(datetime.datetime.now()),
+               "message": "End of FollowUpQuestionGenerator. result is : " + result}
+        write_log_in_txt(log, FollowUpQuestionGenerator.__name__)
+
+        return result
 
     def __make_follow_up_question_prompt(self) -> ChatPromptTemplate:
         prompt = ChatPromptTemplate(

@@ -22,6 +22,7 @@ class TestAnswerAnalyzer(unittest.TestCase):
             self.mock_question_entity,
             self.evaluation_manager,
         )
+        os.environ['PYTHON_PROFILE'] = 'test'
 
     def test__make_specific_prompt_with_knowledge_whether_it_has_all_fit(self):
         # given

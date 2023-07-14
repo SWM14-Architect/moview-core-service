@@ -18,6 +18,8 @@ class TestInputInfoAnalyzer(unittest.TestCase):
             self.evaluation_manager
         )
 
+    os.environ['PYTHON_PROFILE'] = 'test'
+
     def test__make_system_template_for_analyzing_input_info(self):
         # given
         system_template = self.input_info_analyzer._make_system_template_for_analyzing_input_info(

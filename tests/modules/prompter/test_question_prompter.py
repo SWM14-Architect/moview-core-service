@@ -9,6 +9,7 @@ class TestQuestionPrompter(unittest.TestCase):
         self.mock_data_manager = Mock(spec=DataManager)
         self.mock_question_entity = Mock(spec=QuestionEntity)
         self.question_prompter = QuestionPrompter()
+        os.environ['PYTHON_PROFILE'] = 'test'
 
     @patch('builtins.print')
     @patch('builtins.input')
