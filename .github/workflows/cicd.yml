@@ -47,10 +47,6 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
 
-#      # 테스트 커버리지를 위해 coverage를 설치한다.
-#      - name: Install coverage
-#        run: ./venv/bin/python -m pip install coverage
-#
 #      # 테스트를 실행한다.
 #      - name: Run tests with coverage
 #        run: ./venv/bin/python -m coverage run -m unittest discover -s tests -p "test_*.py"
@@ -102,9 +98,6 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
 
-#      - name: Install coverage
-#        run: ./venv/bin/python -m pip install coverage
-#
 #      - name: Run tests with coverage
 #        run: ./venv/bin/python -m coverage run -m unittest discover -s tests -p "test_*.py"
 #        shell: bash
