@@ -18,7 +18,7 @@ hooks:
       runas: ubuntu
 
   BeforeInstall:
-    - location: scripts/before_install/install_dependencies.sh
+    - location: scripts/before_install/install_python_dependencies.sh
       timeout: 60
       runas: ubuntu
     - location: scripts/before_install/install_mongodb.sh
@@ -28,6 +28,12 @@ hooks:
   AfterInstall:
     - location: scripts/after_install/install_packages.sh
       timeout: 300
+      runas: ubuntu
+    - location: scripts/after_install/install_aws_cli.sh
+      timeout: 120
+      runas: ubuntu
+    - location: scripts/after_install/set_environment_variables.sh
+      timeout: 60
       runas: ubuntu
 
   ApplicationStart:
