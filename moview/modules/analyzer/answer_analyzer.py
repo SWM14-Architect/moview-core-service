@@ -15,21 +15,19 @@ from moview.utils.util import remove_indent, write_log_in_txt
 
 class AnswerAnalyzer:
 
-    def __init__(self,
-                 data_manager: DataManager,
-                 question_entity: QuestionEntity,
-                 evaluation_manager: EvaluationManager
-                 ):
+    def __init__(
+        self,
+        user_data: str,
+        question_entity: Dict
+    ):
         """
         Args:
-            data_manager:
+            user_data:       사용자 정보
             question_entity:    질문과 답변을 가지고 있는 객체
-            evaluation_manager:     평가를 저장하는 객체
         """
-        self.data_manager = data_manager
-        self.question = question_entity.question
-        self.answer = question_entity.answer
-        self.evaluation_manager = evaluation_manager
+        self.user_data = user_data
+        self.question = question_entity['question']
+        self.answer = question_entity['answer']
         self.fit_feature_dict = {
             "job_fit": ("직무 적합성", "직무를 수행하는 데 필요한 기술,지식, 그리고 경험을 가지고 있는지 평가하는 것"),
             "cultural_fit": ("문화 적합성", "조직의 가치와 문화에 잘 맞는지 평가하는 것"),
@@ -52,7 +50,8 @@ class AnswerAnalyzer:
 
         """
 
-        log = {"time": str(datetime.datetime.now()), "message": "Start of AnswerAnalyzer"}
+        log = {"time": str(datetime.datetime.now()),
+               "message": "Start of AnswerAnalyzer"}
         write_log_in_txt(log, AnswerAnalyzer.__name__)
 
         chat_model = chat_manager.get_chat_model()
@@ -60,12 +59,15 @@ class AnswerAnalyzer:
         prompt_info_array = self._make_specific_prompt_with_knowledge()
 
         log = {"time": str(datetime.datetime.now()),
-               "message": "AnswerAnalyzer made knowledge prompt array. array is : " + str(prompt_info_array)}
+               "message": "AnswerAnalyzer made knowledge prompt array. array is : " + str(
+                   prompt_info_array)}
         write_log_in_txt(log, AnswerAnalyzer.__name__)
 
-        router_chain = self.__make_router_chain(llm=chat_model, prompt_info_array=prompt_info_array)
+        router_chain = self.__make_router_chain(llm=chat_model,
+                                                prompt_info_array=prompt_info_array)
         default_chain = ConversationChain(llm=chat_model, output_key="text")
-        destination_chains = self.__make_destination_chains(llm=chat_model, prompt_info_array=prompt_info_array)
+        destination_chains = self.__make_destination_chains(llm=chat_model,
+                                                            prompt_info_array=prompt_info_array)
 
         chain = MultiPromptChain(
             router_chain=router_chain,
@@ -88,16 +90,15 @@ class AnswerAnalyzer:
             """
         )
 
-        self.evaluation_manager.add_answer_evaluation(result)
-
-        log = {"time": str(datetime.datetime.now()), "message": "End of AnswerAnalyzer. return : " + result}
+        log = {"time": str(datetime.datetime.now()),
+               "message": "End of AnswerAnalyzer. return : " + result}
         write_log_in_txt(log, AnswerAnalyzer.__name__)
 
         return result
 
     # protected method (for test)
     def _make_specific_prompt_with_knowledge(
-            self,
+        self,
     ) -> List[Dict]:
         """
 
@@ -113,8 +114,10 @@ class AnswerAnalyzer:
             prompt_info = {
                 "name": fit_feature,
                 "description": knowledge_prompt.format(
-                    review_standard_knowledge=self.fit_feature_dict[fit_feature][0],
-                    review_standard_detail=self.fit_feature_dict[fit_feature][1],
+                    review_standard_knowledge=
+                    self.fit_feature_dict[fit_feature][0],
+                    review_standard_detail=self.fit_feature_dict[fit_feature][
+                        1],
                 ),
                 "prompt_template": self.__make_prompt_for_router_chain(),
             }
@@ -143,7 +146,7 @@ class AnswerAnalyzer:
             - Areas for improvement content
             ```
             Furthermore, the following content includes company information and the applicant's self-introduction.
-            {self.data_manager.get_userdata()}
+            {self.user_data}
 
             The question and the candidate's response are as follows:
             ```
@@ -156,7 +159,11 @@ class AnswerAnalyzer:
             """)
         )
 
-    def __make_router_chain(self, llm: ChatOpenAI, prompt_info_array: List[Dict]) -> LLMRouterChain:
+    def __make_router_chain(
+        self,
+        llm: ChatOpenAI,
+        prompt_info_array: List[Dict]
+    ) -> LLMRouterChain:
         """
 
         Args:
@@ -165,7 +172,8 @@ class AnswerAnalyzer:
         Returns:
 
         """
-        destinations = [f"{p['name']}: {p['description']}" for p in prompt_info_array]
+        destinations = [f"{p['name']}: {p['description']}" for p in
+                        prompt_info_array]
         destinations_str = "\n".join(destinations)
 
         router_template = MULTI_PROMPT_ROUTER_TEMPLATE.format(
@@ -179,7 +187,11 @@ class AnswerAnalyzer:
 
         return LLMRouterChain.from_llm(llm, router_prompt)
 
-    def __make_destination_chains(self, llm: ChatOpenAI, prompt_info_array: List[Dict]) -> Dict[str, LLMChain]:
+    def __make_destination_chains(
+        self,
+        llm: ChatOpenAI,
+        prompt_info_array: List[Dict]
+    ) -> Dict[str, LLMChain]:
         """
 
         Args:

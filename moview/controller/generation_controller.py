@@ -18,15 +18,13 @@ class InitQuestion(Resource):
         log = {"time": str(datetime.datetime.now()), "message": "Start of InitQuestion"}
         write_log_in_txt(log, InitQuestion.__name__)
 
-        if check_manager("data_manager"):
-            log = {"time": str(datetime.datetime.now()), "message": "Data manager check failed"}
+        if is_manager_missing("user_data"):
+            log = {"time": str(datetime.datetime.now()), "message": "User Data check failed"}
             write_log_in_txt(log, InitQuestion.__name__)
-            return get_manager_error_response("data_manager")
+            return get_manager_error_response("user_data")
 
-        data_manager = DataManager()
-        data_manager.set_data(session['data_manager'])
         chat_manager = ChatManager(temperature=0)
-        init_question_generator = InitQuestionGenerator(data_manager)
+        init_question_generator = InitQuestionGenerator(session['user_data'])
         try:
             response = init_question_generator.generate_init_question(chat_manager)
         except openai.OpenAIError as e:
@@ -51,6 +49,8 @@ class InitQuestion(Resource):
         log = {"time": str(datetime.datetime.now()), "message": "End of the InitQuestion"}
         write_log_in_txt(log, InitQuestion.__name__)
 
+        session['question'] = response
+
         return make_response(
             jsonify({"messages": response}),
             HTTPStatus.OK
@@ -65,35 +65,21 @@ class FollowUpQuestion(Resource):
         log = {"time": str(datetime.datetime.now()), "message": "Start of FollowUpQuestion"}
         write_log_in_txt(log, FollowUpQuestion.__name__)
 
-        if check_manager("data_manager"):
-            log = {"time": str(datetime.datetime.now()), "message": "Data manager check failed"}
+        if is_manager_missing("user_data"):
+            log = {"time": str(datetime.datetime.now()), "message": "User Data check failed"}
             write_log_in_txt(log, FollowUpQuestion.__name__)
 
-            return get_manager_error_response("data_manager")
+            return get_manager_error_response("user_data")
 
-        if check_manager("evaluation_manager"):
-            log = {"time": str(datetime.datetime.now()), "message": "Evaluation manager check failed"}
+        if is_manager_missing("answer_evaluation"):
+            log = {"time": str(datetime.datetime.now()), "message": "Answer Evaluation check failed"}
             write_log_in_txt(log, FollowUpQuestion.__name__)
 
-            return get_manager_error_response("evaluation_manager")
-
-        data_manager = DataManager()
-        data_manager.set_data(session['data_manager'])
-        evaluation_manager = EvaluationManager()
-        evaluation_manager.evaluation_records = session['evaluation_manager']
-
-        if not evaluation_manager.evaluation_records.get("answer"):
-            log = {"time": str(datetime.datetime.now()), "message": "Evaluation manager answer record not exist"}
-            write_log_in_txt(log, FollowUpQuestion.__name__)
-
-            return make_response(
-                jsonify({"messages": f"질문을 답변하는 과정이 최소 1회 이상 필요합니다."}),
-                HTTPStatus.BAD_REQUEST
-            )
+            return get_manager_error_response("answer_evaluation")
 
         follow_up_question_generator = FollowUpQuestionGenerator(
-            data_manager,
-            evaluation_manager
+            session["user_data"],
+            session["answer_evaluation"][-1]
         )
 
         try:
@@ -120,6 +106,8 @@ class FollowUpQuestion(Resource):
 
         log = {"time": str(datetime.datetime.now()), "message": "End of the FollowUpQuestion"}
         write_log_in_txt(log, FollowUpQuestion.__name__)
+
+        session['question'].append(response)
 
         return make_response(
             jsonify({"messages": response}),
