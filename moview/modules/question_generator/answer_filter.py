@@ -19,18 +19,15 @@ class AnswerFilter:
         with open(abs_path + '/answer_filter_prompt.json', 'r') as f:
             data = json.load(f)
 
-        self.prompt = data['prompt']
+        self.prompt1 = data['prompt1']
+        self.prompt2 = data['prompt2']
 
     def check_answer_appropriate(self, job_group: str, question: str, answer: str) -> str:
         prompt = ChatPromptTemplate(
             messages=[
                 SystemMessagePromptTemplate.from_template(
-                    f"""
-                    You are interviewers working at company in job position {job_group}.
-                    """
-                ),
-                SystemMessagePromptTemplate.from_template(
-                    self.prompt
+                    self.prompt1 + job_group + "." +
+                    self.prompt2
                 ),
                 HumanMessagePromptTemplate.from_template(
                     """

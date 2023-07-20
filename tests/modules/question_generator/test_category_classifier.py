@@ -7,6 +7,7 @@ from moview.modules.question_generator.answer_category_classifier import AnswerC
 class TestAnswerCategoryClassifier(unittest.TestCase):
     def setUp(self) -> None:
         self.answer_category_classifier = AnswerCategoryClassifier()
+
     @patch(
         'moview.modules.question_generator.answer_category_classifier.AnswerCategoryClassifier'
         '.classify_category_of_answer')

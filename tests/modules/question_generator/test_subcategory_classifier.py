@@ -16,10 +16,12 @@ class TestAnswerSubCategoryClassifier(unittest.TestCase):
         job_group = "테스트 직군"
         question = "테스트 질문"
         answer = "테스트 답변"
+        category = "테스트 카테고리"
         mock_method.return_value = "classification result"
 
         # when
-        result = self.answer_subcategory_classifier.classify_sub_category_of_answer(job_group, question, answer)
+        result = self.answer_subcategory_classifier.classify_sub_category_of_answer(job_group, question, answer,
+                                                                                    category)
 
         # then
         self.assertIn("classification result", result)

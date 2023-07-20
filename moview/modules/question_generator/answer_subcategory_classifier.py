@@ -18,18 +18,17 @@ class AnswerSubCategoryClassifier:
         with open(abs_path + '/subcategory_prompt.json', 'r') as f:
             data = json.load(f)
 
-        self.prompt = data['prompt']
+        self.prompt1 = data['prompt1']
+        self.prompt2 = data['prompt2']
+        self.prompt3 = data['prompt3']
 
-    def classify_sub_category_of_answer(self, job_group: str, question: str, answer: str) -> str:
+    def classify_sub_category_of_answer(self, job_group: str, question: str, answer: str, categories: str) -> str:
         prompt = ChatPromptTemplate(
             messages=[
                 SystemMessagePromptTemplate.from_template(
-                    f"""
-                    You are interviewers working at company in job position {job_group}.
-                    """
-                ),
-                SystemMessagePromptTemplate.from_template(
-                    self.prompt
+                    self.prompt1 + job_group + "." +
+                    self.prompt2 + categories +"\n"+
+                    self.prompt3
                 ),
                 HumanMessagePromptTemplate.from_template(
                     """
