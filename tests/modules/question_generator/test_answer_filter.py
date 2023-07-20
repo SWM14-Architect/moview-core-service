@@ -1,5 +1,5 @@
 import unittest
-from unittest.mock import Mock, patch
+from unittest.mock import patch
 
 from moview.modules.question_generator.answer_filter import AnswerFilter
 
