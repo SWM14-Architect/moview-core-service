@@ -51,19 +51,20 @@ class MongoHandler(logging.Handler):
             # session id 추가, 사람 이름 추가
             'timestamp': datetime.datetime.now(),  # 시간
             'fileName': record.filename,  # 파일명
-            'className': record.__dict__.get('className', ''),  # 클래스명
+            'className': record.classname,  # 클래스명
             'functionName': record.funcName,  # 함수명
             'levelName': record.levelname,  # 로그 레벨명(ex. DEBUG)
-            'message': record.msg,  # 메시지
+            'message': record.getMessage(),  # 메시지
         }
 
         # error 이상의 로그 레벨인 경우, 에러 정보를 document에 추가
         if record.levelno >= logging.ERROR:
             if record.exc_info:  # 예외 정보가 있는 경우
                 # traceback 모듈을 이용하여 예외 정보를 문자열로 변환
-                document['exc_info'] = traceback.format_exception(*record.exc_info)
+                document['exc_info'] = ''.join(traceback.format_exception(*record.exc_info))
             if record.stack_info:  # 스택 정보가 있는 경우
-                document['stack_info'] = record.stack_info
+                # traceback 모듈을 이용하여 스택 정보를 문자열로 변환
+                document['stack_info'] = '\n'.join(traceback.StackSummary.from_list(record.stack_info).format())
 
         # record의 extra에 있는 모든 추가 정보를 document에 추가
         for key, value in record.__dict__.get('extra', {}).items():

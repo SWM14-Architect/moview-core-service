@@ -1,51 +1,131 @@
 import inspect
 import logging
+import sys
+import traceback
 from moview.handlers.mongo_handler import MongoHandler
 
 
-class CustomLoggerAdapter(logging.LoggerAdapter):
-    def process(self, msg, kwargs):
-        extra = kwargs.get("extra", {})
-        calling_class = inspect.currentframe().f_back.f_locals.get('self', None).__class__.__name__
-        extra["className"] = calling_class
-        kwargs["extra"] = extra
-        return msg, kwargs
+class CustomLogRecord(logging.LogRecord):
+    """
+    CustomLogRecord는 LogRecord 클래스를 상속받아, 클래스명을 추가한 LogRecord입니다.
+    """
+    def __init__(self, name, level, fn, lno, msg, args, exc_info, func=None, extra=None, sinfo=None, **kwargs):
+        super().__init__(name, level, fn, lno, msg, args, exc_info, func, sinfo)
+
+        # 클래스명은 record 변수로 추가
+        setattr(self, 'classname', kwargs.pop('classname', None))
+
+        # 그 외의 추가 정보는 extra에 추가
+        if kwargs:
+            if extra is None:
+                self.__dict__["extra"] = {}
+            self.__dict__["extra"].update(kwargs)
+
+
+class CustomLogger(logging.getLoggerClass()):
+    """
+    CustomLogger는 logger의 메소드들을 오버라이드 하여 사용자 정의 로그를 생성합니다.
+    """
+    def __init__(self, name, level=logging.NOTSET):
+        super().__init__(name, level)
+
+    def log(self, level, msg, *args, **kwargs):
+        if self.isEnabledFor(level):
+            self._log(level, msg, args, **kwargs)
+
+    def makeRecord(self, name, level, fn, lno, msg, args, exc_info, func=None, extra=None, sinfo=None, **kwargs):
+        return CustomLogRecord(name, level, fn, lno, msg, args, exc_info, func, extra, sinfo, **kwargs)
+
+    def _log(self, level, msg, args, exc_info=None, extra=None, **kwargs):
+        caller_frame = kwargs.pop('caller_frame', None)
+
+        fn = caller_frame.f_code.co_filename if caller_frame else "(unknown file)"
+        lno = caller_frame.f_lineno if caller_frame else 0
+        func = caller_frame.f_code.co_name if caller_frame else "(unknown function)"
+        kwargs['classname'] = self._get_class_name(caller_frame) if caller_frame else "(unknown class)"
+        sinfo = traceback.extract_stack(caller_frame) if caller_frame else None
+
+        if exc_info:
+            if not isinstance(exc_info, tuple):
+                if isinstance(exc_info, BaseException):
+                    exc_info = (type(exc_info), exc_info, exc_info.__traceback__)
+                else:
+                    exc_info = sys.exc_info()
+
+        record = self.makeRecord(self.name, level, fn, lno, msg, args, exc_info, func, extra, sinfo, **kwargs)
+        self.handle(record)
+
+    @staticmethod
+    def _get_class_name(frame):
+        """
+        주어진 프레임에서 클래스 이름을 추출합니다.
+        """
+        args, _, _, value_dict = inspect.getargvalues(frame)
+
+        if len(args) and args[0] == 'self':
+            instance = value_dict.get('self', None)
+
+            if instance:
+                return instance.__class__.__name__
+
+        return "(unknown class)"
+
+
+class LoggerWrapper:
+    """
+    LoggerWrapper는 logger를 wrapping하여, 사용자 정의 로그를 생성합니다.
+    """
+
+    def __init__(self, logger):
+        self.logger = logger
+
+    def __call__(self, msg=None, *args, **kwargs):
+        """
+        파이썬의 매직 메소드인 __call__을 이용하여 인스턴스를 함수처럼 호출할 수 있도록 합니다.
+        이 때, 자신을 호출한 호출자에 대한 정보를 kwargs에 추가하여 로그 메시지에 포함시킵니다.
+        """
+        # 자신을 호출한 호출자에 대한 frame을 가져오고, kwargs에 추가
+        caller_frame = inspect.currentframe().f_back
+        kwargs.update({'caller_frame': caller_frame})
+
+        # 로그 메소드 호출
+        self.logger.log(self.logger.level, msg, *args, **kwargs)
 
 
 class MongoLogger:
     def __init__(self):
         self.db_name = 'log'
-        self.execution_trace_logger = self.__create_logger(logger_name='execution_trace_logger',
-                                                           collection_name='executionTraceLogs',
-                                                           log_level=logging.INFO)
-        self.error_logger = self.__create_logger(logger_name='error_logger',
-                                                 collection_name='errorLogs',
-                                                 log_level=logging.ERROR)
-        self.prompt_result_logger = self.__create_logger(logger_name='prompt_result_logger',
-                                                         collection_name='promptResultLogs',
-                                                         log_level=logging.INFO)
+        self.execution_trace_logger = LoggerWrapper(self.__create_logger(logger_name='execution_trace_logger',
+                                                                         collection_name='executionTraceLogs',
+                                                                         log_level=logging.INFO))
+        self.error_logger = LoggerWrapper(self.__create_logger(logger_name='error_logger',
+                                                               collection_name='errorLogs',
+                                                               log_level=logging.ERROR))
+        self.prompt_result_logger = LoggerWrapper(self.__create_logger(logger_name='prompt_result_logger',
+                                                                       collection_name='promptResultLogs',
+                                                                       log_level=logging.INFO))
 
     def __create_logger(self, logger_name, collection_name, log_level):
+        # 원래의 로거 클래스를 저장
+        original_logger_class = logging.getLoggerClass()
+
+        # logger를 CustomLogger로 설정
+        logging.setLoggerClass(CustomLogger)
+
+        # 이름이 logger_name인 logger를 생성
         logger = logging.getLogger(logger_name)
 
+        # logger의 log level을 설정
         logger.setLevel(log_level)
 
-        if not logger.hasHandlers():
-            handler = MongoHandler(log_level, self.db_name, collection_name)
-            logger.addHandler(handler)
+        # logger에 MongoDB 핸들러를 추가
+        handler = MongoHandler(log_level, self.db_name, collection_name)
+        logger.addHandler(handler)
 
-        logger = CustomLoggerAdapter(logger)
+        # 로거 클래스를 복원
+        logging.setLoggerClass(original_logger_class)
 
         return logger
-
-    # def log_execution_trace(self, message, **kwargs):
-    #     self.execution_trace_logger.info(message, extra=kwargs)
-    #
-    # def log_error(self, message, **kwargs):
-    #     self.error_logger.error(message, extra=kwargs)
-    #
-    # def log_prompt_result(self, message, **kwargs):
-    #     self.prompt_result_logger.info(message, extra=kwargs)
 
 
 mongo_logger = MongoLogger()
