@@ -15,9 +15,8 @@ class InputInfoAnalyzer:
     회사의 모집공고와 직무 정보를 토대로 면접자의 자기소개서와 1분 자기소개를 분석하여 면접관으로써 좋은 점과 아쉬운 점을 분석하여 출력합니다.
     """
 
-    def __init__(self, data_manager: DataManager, evaluation_manager: EvaluationManager):
-        self.data_manager = data_manager
-        self.evaluation_manager = evaluation_manager
+    def __init__(self, user_data: str):
+        self.user_data = user_data
 
     def analyze_input_info(self, chat_manager: ChatManager) -> str:
         """
@@ -35,40 +34,37 @@ class InputInfoAnalyzer:
         prompt = ChatPromptTemplate(
             messages=[
                 SystemMessagePromptTemplate.from_template(
-                    self._make_system_template_for_analyzing_input_info(
-                        self.data_manager.company,
-                        self.data_manager.get_userdata()
-                    )),
+                    self._make_system_template_for_analyzing_input_info()
+                ),
 
                 HumanMessagePromptTemplate.from_template(
-                    self._make_human_template_for_analyzing_input_info())
+                    self._make_human_template_for_analyzing_input_info()
+                )
             ],
-            input_variables=["company"],
+            input_variables=["user_data"],
         )
 
         # 작성된 프롬프트를 이용하여 chain을 생성하고 실행합니다.
         create_question_chain = LLMChain(llm=chat_manager.get_chat_model(),
                                          prompt=prompt)
-        output = create_question_chain(self.data_manager.company)
+        output = create_question_chain(self.user_data)
         result = output['text']
-
-        # 분석 결과를 EvaluationManager에 저장합니다.
-        self.evaluation_manager.add_coverletter_evaluation(result)
 
         log = {"time": str(datetime.datetime.now()), "message": "End of InputInfoAnalyzer. result is : " + result}
         write_log_in_txt(log, InputInfoAnalyzer.__name__)
 
         return result
 
-    def _make_system_template_for_analyzing_input_info(self, company: str, user_data: str) -> str:
-        return remove_indent(
-            f"""
-            You are an interviewer at {company}.
-            {user_data}""")
+    def _make_system_template_for_analyzing_input_info(self) -> str:
+        return "You are an interviewer."
 
     def _make_human_template_for_analyzing_input_info(self) -> str:
         return remove_indent(
-            """As an interviewer, Please read the cover letter and self-introduction of the interviewee and provide an evaluation from the {company}'s perspective, dividing it into positive aspects and areas for improvement. Please write in Korean. The format is as follows:
+            """Please read the cover letter of the interviewee and provide an evaluation from the perspective, dividing it into positive aspects and areas for improvement. Please write in Korean.
+            
+            {user_data}
+            
+            The format is as follows:
 
             "좋은점":
             - Content of positive aspects

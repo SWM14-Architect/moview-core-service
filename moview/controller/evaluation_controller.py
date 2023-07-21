@@ -6,7 +6,7 @@ from moview.modules.analyzer.input_info_analyzer import InputInfoAnalyzer
 from moview.modules.analyzer.answer_analyzer import AnswerAnalyzer
 from moview.controller import *
 from moview.utils.data_manager import *
-from moview.utils.util import write_log_in_txt
+from moview.utils.util import write_log_in_txt, remove_indent
 
 api = Namespace('evaluation', description='evaluation api')
 
@@ -20,7 +20,16 @@ class UserDataUpload(Resource):
         log = {"time": str(datetime.datetime.now()), "message": "Start of the UserDataUpload",
                "request_body": request_body}
         write_log_in_txt(log, UserDataUpload.__name__)
-        session["data_manager"] = request_body
+        session["user_data"] = remove_indent(
+            f"""JobAdvertisement At {request_body['user_company']}:
+            {request_body['job_requirement']}
+
+            Interviewee`s desired position:
+            {request_body['user_job']}
+
+            Interviewee`s coverletter:
+            {request_body['cover_letter']}
+            """)
 
         log = {"time": str(datetime.datetime.now()), "message": "End of UserDataUpload"}
         write_log_in_txt(log, UserDataUpload.__name__)
@@ -40,17 +49,14 @@ class UserEvaluation(Resource):
         log = {"time": str(datetime.datetime.now()), "message": "Start of UserEvaluation"}
         write_log_in_txt(log, UserEvaluation.__name__)
 
-        if check_manager("data_manager"):
-            log = {"time": str(datetime.datetime.now()), "message": "Data manager check failed"}
+        if is_manager_missing("user_data"):
+            log = {"time": str(datetime.datetime.now()), "message": "User Data check failed"}
             write_log_in_txt(log, UserEvaluation.__name__)
 
-            return get_manager_error_response("data_manager")
+            return get_manager_error_response("user_data")
 
-        data_manager = DataManager()
-        data_manager.set_data(session['data_manager'])
-        evaluation_manager = EvaluationManager()
         try:
-            response = InputInfoAnalyzer(data_manager, evaluation_manager) \
+            response = InputInfoAnalyzer(session['user_data']) \
                 .analyze_input_info(chat_manager)
         except openai.OpenAIError as e:
 
@@ -73,7 +79,8 @@ class UserEvaluation(Resource):
         log = {"time": str(datetime.datetime.now()), "message": "End of the UserEvaluation"}
         write_log_in_txt(log, UserEvaluation.__name__)
 
-        session['evaluation_manager'] = evaluation_manager.get_all_evaluation()
+        session['coverletter_evaluation'] = response
+
         return make_response(
             jsonify({"messages": response}),
             HTTPStatus.OK
@@ -85,34 +92,29 @@ class AnswerEvaluation(Resource):
     @api.doc("질문과 답변을 바탕으로 평가합니다.")
     def post(self):
         request_body = request.get_json()
-        question_entity = QuestionEntity(
-            request_body['question'],
-            request_body['answer']
-        )
+        question_entity = {
+            'question': request_body['question'],
+            'answer': request_body['answer']
+        }
 
         log = {"time": str(datetime.datetime.now()), "message": "Start of the AnswerEvaluation",
                "request_body": request_body}
         write_log_in_txt(log, AnswerEvaluation.__name__)
 
-        if check_manager("data_manager"):
-            log = {"time": str(datetime.datetime.now()), "message": "Data manager check failed"}
+        if is_manager_missing("user_data"):
+            log = {"time": str(datetime.datetime.now()), "message": "User Data check failed"}
             write_log_in_txt(log, AnswerEvaluation.__name__)
 
-            return get_manager_error_response("data_manager")
+            return get_manager_error_response("user_data")
 
-        if check_manager("evaluation_manager"):
-            log = {"time": str(datetime.datetime.now()), "message": "Evaluation manager check failed"}
+        if is_manager_missing("coverletter_evaluation"):
+            log = {"time": str(datetime.datetime.now()), "message": "Coverletter Evaluation check failed"}
             write_log_in_txt(log, AnswerEvaluation.__name__)
 
-            return get_manager_error_response("evaluation_manager")
-
-        data_manager = DataManager()
-        data_manager.set_data(session['data_manager'])
-        evaluation_manager = EvaluationManager()
-        evaluation_manager.evaluation_records = session['evaluation_manager']
+            return get_manager_error_response("coverletter_evaluation")
 
         try:
-            response = AnswerAnalyzer(data_manager, question_entity, evaluation_manager) \
+            response = AnswerAnalyzer(session['user_data'], question_entity) \
                 .analyze_answer(ChatManager())
         except openai.OpenAIError as e:
 
@@ -134,7 +136,10 @@ class AnswerEvaluation(Resource):
             )
 
         # 평가하면서 추가된 데이터를 세션에 다시 저장합니다.
-        session['evaluation_manager'] = evaluation_manager.get_all_evaluation()
+        if not session.get("answer_evaluation"):
+            session["answer_evaluation"] = [response]
+        else:
+            session['answer_evaluation'].append(response)
 
         return make_response(
             jsonify({"messages": response}),
