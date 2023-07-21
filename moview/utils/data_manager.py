@@ -3,52 +3,8 @@ import sys
 from typing import *
 
 from langchain.callbacks.base import BaseCallbackHandler
-
-from moview.utils.util import remove_indent
 from moview.handlers.custom_callback_handler import CustomCallbackHandler
 from langchain.chat_models import ChatOpenAI
-
-
-class DataManager:
-    def __init__(self):
-        self.company = None
-        self.job = None
-        self.requirement = None
-        self.coverletter = None
-        self.introduce = None
-        self.userdata = None
-
-    def set_data(self, input_data: Dict):
-        self.company = input_data["user_company"]
-        self.job = input_data["user_job"]
-        self.requirement = input_data["job_requirement"]
-        self.coverletter = input_data["cover_letter"]
-        self.introduce = input_data["self_introduce"]
-        self.userdata = remove_indent(
-            f"""JobAdvertisement At {self.company}:
-            {self.requirement}
-            
-            Interviewee`s desired position:
-            {self.job}
-            
-            Interviewee`s coverletter:
-            {self.coverletter}
-            
-            Interviewee`s self-introduction:
-            {self.introduce}
-            """)
-
-    def get_data(self) -> Dict:
-        return {
-            "company": self.company,
-            "job": self.job,
-            "requirement": self.requirement,
-            "coverletter": self.coverletter,
-            "introduce": self.introduce
-        }
-
-    def get_userdata(self) -> str:
-        return self.userdata
 
 
 class KeyManager:
@@ -71,11 +27,11 @@ class ChatManager:
         temperature: float = 0.5
     ):
         """
-
-        :param callback_handler: CallbackHandler
-        :param streaming: Streaming
-        :param model: GPT Model
-        :param temperature: Temperature
+        Args:
+            callback_handler: CallbackHandler
+            streaming: Streaming
+            model: GPT Model
+            temperature: Temperature
         """
         self.chat = ChatOpenAI(
             openai_api_key=KeyManager().openai_api_key,
@@ -85,56 +41,5 @@ class ChatManager:
             temperature=temperature,
         )
 
-    def get_chat_model(self):
+    def get_chat_model(self) -> ChatOpenAI:
         return self.chat
-
-
-class QuestionManager:
-    def __init__(self, question_list: List):
-        self.question = [] + question_list
-        self.number = len(self.question)
-        self.count = -1
-        self.max_number = 6
-
-    def set_max_question_number(self, number: int):
-        if number > self.number:
-            self.max_number = self.number
-        self.max_number = number
-
-    def get_question(self) -> str:
-        self.count += 1
-        if self.count > self.max_number:
-            return "No questions."
-        return self.question[self.count]
-
-    def ask_question_count(self) -> int:
-        return self.count + 1
-
-
-class QuestionEntity:
-    def __init__(self, question: str, answer: str = None):
-        self.question = question
-        self.answer = answer
-
-    def add_answer(self, answer: str):
-        self.answer = answer
-
-
-class EvaluationManager:
-    def __init__(self):
-        self.evaluation_records = {
-            "coverletter": None,
-            "answer": []
-        }
-
-    def add_coverletter_evaluation(self, evaluation: str):
-        self.evaluation_records["coverletter"] = evaluation
-
-    def add_answer_evaluation(self, evaluation: str):
-        self.evaluation_records["answer"].append(evaluation)
-
-    def get_answer_evaluation(self) -> str:
-        return self.evaluation_records["answer"][-1]
-
-    def get_all_evaluation(self) -> Dict:
-        return self.evaluation_records

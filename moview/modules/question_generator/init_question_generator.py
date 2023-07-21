@@ -14,8 +14,8 @@ QUESTION_COUNT: Final[int] = 10
 
 
 class InitQuestionGenerator:
-    def __init__(self, data_manager: DataManager):
-        self.data_manager = data_manager
+    def __init__(self, user_data: str):
+        self.user_data = user_data
 
     def generate_init_question(
             self,
@@ -54,10 +54,10 @@ class InitQuestionGenerator:
             messages=[
                 SystemMessagePromptTemplate.from_template(
                     remove_indent(
-                        f"""You are an interviewer at {self.data_manager.company}.
+                        f"""You are an interviewer.
 
-                        {self.data_manager.get_userdata()}
-                        """)),
+                        {self.user_data}""")
+                ),
 
                 HumanMessagePromptTemplate.from_template(
                     remove_indent(
@@ -77,7 +77,11 @@ class InitQuestionGenerator:
         )
         return prompt
 
-    def __make_result_of_question_chain(self, chat_model: ChatOpenAI, prompt: ChatPromptTemplate) -> list:
+    def __make_result_of_question_chain(
+        self,
+        chat_model: ChatOpenAI,
+        prompt: ChatPromptTemplate
+    ) -> list:
         create_question_chain = LLMChain(llm=chat_model,
                                          prompt=prompt)
         output = create_question_chain(str(QUESTION_COUNT))

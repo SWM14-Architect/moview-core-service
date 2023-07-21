@@ -13,11 +13,11 @@ from moview.utils.util import remove_indent, follow_up_question_parser, write_lo
 class FollowUpQuestionGenerator:
     def __init__(
             self,
-            data_manager: DataManager,
-            evaluation_manager: EvaluationManager
+            user_data: str,
+            evaluation: str
     ):
-        self.data_manager = data_manager
-        self.evaluation_manager = evaluation_manager
+        self.user_data = user_data
+        self.evaluation = evaluation
 
     def generate_follow_up_question(self) -> str:
         log = {"time": str(datetime.datetime.now()), "message": "Start of FollowUpQuestionGenerator"}
@@ -33,7 +33,7 @@ class FollowUpQuestionGenerator:
 
         followup_chain = LLMChain(llm=chat_manager.get_chat_model(),
                                   prompt=prompt)
-        output = followup_chain(self.evaluation_manager.get_answer_evaluation())
+        output = followup_chain(self.evaluation)
 
         result = follow_up_question_parser(output['text'])
         log = {"time": str(datetime.datetime.now()),
@@ -47,10 +47,11 @@ class FollowUpQuestionGenerator:
             messages=[
                 SystemMessagePromptTemplate.from_template(
                     remove_indent(
-                        f"""You are an interviewer at {self.data_manager.company}.
+                        f"""You are an interviewer.
 
-                            {self.data_manager.get_userdata()}
-                            """)),
+                            {self.evaluation}
+                            """)
+                ),
 
                 HumanMessagePromptTemplate.from_template(
                     remove_indent(
@@ -65,7 +66,8 @@ class FollowUpQuestionGenerator:
 
                         REMEMBER! Please write in Korean.
                         REMEMBER! Please create only 1 question.
-                        """))
+                        """)
+                )
             ],
             input_variables=["evaluation"],
         )
