@@ -44,8 +44,8 @@ class TestMongoHandler(TestCase):
         self.assertEqual(documents[0]['fileName'], os.path.basename(__file__))  # fileName이 현재 파일의 이름과 일치하는지 확인
         self.assertEqual(documents[0]['className'], '(unknown class)') # className이 '(unknown class)'인지 확인 (기본 logger는 클래스명을 가져오지 못함)
         self.assertEqual(documents[0]['functionName'], 'test_emit')  # functionName이 'test_emit'인지 확인
-        self.assertEqual(documents[0]['levelName'], 'INFO')
-        self.assertEqual(documents[0]['message'], 'test message')
+        self.assertEqual(documents[0]['levelName'], 'INFO')  # levelName이 'INFO'인지 확인
+        self.assertEqual(documents[0]['message'], 'test message')  # message가 'test message'인지 확인
 
 
 if __name__ == '__main__':
