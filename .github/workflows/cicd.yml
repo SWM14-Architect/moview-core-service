@@ -11,10 +11,6 @@ on:
     # GitHub의 Actions 탭의 Run workflow 기능 활성화 (코드 push 없이 워크플로우 시작 가능)
   workflow_dispatch:
 
-# 코드에서 사용할 환경변수를 Github Actions로부터 불러온다. 이는 os.getenv()로 호출될 수 있다.
-env:
-  OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-
 jobs:
   # PR이 발생한 경우에는 테스트만 진행
   test:
