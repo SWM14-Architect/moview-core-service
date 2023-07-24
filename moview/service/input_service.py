@@ -26,6 +26,11 @@ class InputService:
                                                                                           recruit_announcement=recruit_announcement,
                                                                                           cover_letter_questions=cover_letter_questions,
                                                                                           cover_letter_answers=cover_letter_answers)
+
+        # 세션 저옵에 맞게 분석한 내용 저장.
+        self.__save_initial_analysis_about_interviewee(
+            initial_analysis_about_interviewee=initial_analysis_about_interviewee)
+
         # 7. 초기 질문 생성 요청 (n회)
         initial_questions = []
         for i in range(initial_question_count):
@@ -33,7 +38,7 @@ class InputService:
                 initial_analysis_about_interviewee=initial_analysis_about_interviewee)
             initial_questions.append(initial_question)  # 초기 질문 리스트에 추가
 
-        # 11. 생성된 초기질문 저장 및 id 부여
+        # 11. 세션 정보에 맞게 생성된 초기질문 저장 및 id 부여
         self.__save_initial_questions_and_allocate_id(initial_questions=initial_questions)
 
         return initial_questions
@@ -59,6 +64,19 @@ class InputService:
         """
         pass
 
+    def __save_initial_analysis_about_interviewee(self, initial_analysis_about_interviewee) -> None:
+        """
+
+        자소서 분석 내용 db에 저장
+
+        Args:
+            initial_analysis_about_interviewee: 면접 지원자 초기 입력에 대한 분석 내용
+
+        Returns:
+
+        """
+        pass
+
     def __create_initial_question(self, initial_analysis_about_interviewee: str) -> str:
         """
 
@@ -73,7 +91,7 @@ class InputService:
     def __save_initial_questions_and_allocate_id(self, initial_questions: List[str]) -> None:
         """
 
-        생성된 초기 질문을 저장하고, id를 부여하는 메서드
+        생성된 초기 질문을 db에 저장하고, id를 부여하는 메서드
 
         Args:
             initial_questions: 면접 지원자에게 출제할 초기 질문 리스트
