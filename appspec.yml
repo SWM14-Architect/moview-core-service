@@ -13,21 +13,30 @@ permissions:
 
 hooks:
   ApplicationStop:
-    - location: scripts/stop_application.sh
+    - location: scripts/application_stop/stop_application.sh
       timeout: 60
       runas: ubuntu
 
   BeforeInstall:
-    - location: scripts/install_dependencies.sh
+    - location: scripts/before_install/install_python_dependencies.sh
+      timeout: 60
+      runas: ubuntu
+    - location: scripts/before_install/install_mongodb.sh
+      timeout: 300
+      runas: root
+
+  AfterInstall:
+    - location: scripts/after_install/install_packages.sh
+      timeout: 300
+      runas: ubuntu
+    - location: scripts/after_install/install_aws_cli.sh
+      timeout: 120
+      runas: ubuntu
+    - location: scripts/after_install/set_environment_variables.sh
       timeout: 60
       runas: ubuntu
 
-  AfterInstall:
-    - location: scripts/install_packages.sh
-      timeout: 300
-      runas: ubuntu
-
   ApplicationStart:
-    - location: scripts/deploy.sh
+    - location: scripts/application_start/deploy.sh
       timeout: 60
       runas: ubuntu
