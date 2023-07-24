@@ -21,7 +21,7 @@ class FollowUpQuestionGiver:
 
         self.prompt = data['prompt']
 
-    def give_followup_question(self, job_group: str, question: str, answer: str, previous_question_list: str,
+    def give_followup_question(self, job_group: str, question: str, answer: str, previous_questions: str,
                                categories_ordered_pair: str) -> str:
         """
         꼬리질문을 출제하는 메서드
@@ -30,7 +30,7 @@ class FollowUpQuestionGiver:
             job_group: 직군
             question: 현재 질문
             answer: 현재 질문에 대한 답변
-            previous_question_list: 이전 질문 리스트
+            previous_questions: 이전 질문들
             categories_ordered_pair: 대분류, 중분류 순서쌍
 
         Returns:
@@ -40,7 +40,7 @@ class FollowUpQuestionGiver:
             messages=[
                 SystemMessagePromptTemplate.from_template(
                     self.prompt.format(job_group=job_group, categories_ordered_pair=categories_ordered_pair,
-                                       previous_question=previous_question_list)
+                                       previous_question=previous_questions)
                 ),
                 HumanMessagePromptTemplate.from_template(
                     """

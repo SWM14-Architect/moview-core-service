@@ -40,13 +40,13 @@ class FollowUpQuestionManager:
         self.major = AnswerCategoryClassifier()
         self.sub = AnswerSubCategoryClassifier()
         self.giver = FollowUpQuestionGiver()
-        self.previous_question = []
+        # todo 이전 질문만 세션 별로 관리하는 객체가 필요해보인다. 이 클래스를 아예 서비스단으로 올리자.
 
-    # 꼬리 질문 생성하는 데 필요한 흐름 관리(메서드 이름 바꿔야 할 수도?)
     def manage_followup_question(self, job_group: str, question: str, answer: str) -> str:
 
-        # 필터
-        check = self.filter.check_answer_appropriate(job_group=job_group, question=question, answer=answer)
+        # 적절하지 않은 답변을 걸러냅니다.
+        check = self.filter.exclude_invalid_answer(job_group=job_group, question=question, answer=answer)
+
         number = find_first_number(check)
 
         if number == "1":
@@ -54,8 +54,9 @@ class FollowUpQuestionManager:
         elif number == "2" or number == "3" or number == "4":
             raise InappropriateAnswerError()
 
-        self.previous_question.append(question)
-        # 대분류
+        # todo 현재 질문을 이전 질문에 추가할 때, [세션 id] :[이전 질문리스트] 형태로 추가해야 함. 그래야 세션 별로 추적 가능
+
+        # 면접 질문과 답변의 대분류
         categories = self.major.classify_category_of_answer(job_group=job_group, question=question, answer=answer)
 
         # 중분류
@@ -63,11 +64,11 @@ class FollowUpQuestionManager:
             job_group=job_group, question=question,
             answer=answer, categories=categories)
 
-        # 꼬리 질문
+        # 꼬리 질문 출제
         followup_question = self.giver.give_followup_question(
             job_group=job_group, question=question, answer=answer,
-            previous_question=str(self.previous_question), categories_ordered_pair=categories_ordered_pair)
+            previous_questions=str(self.previous_question), categories_ordered_pair=categories_ordered_pair)
 
-        self.previous_question.append(followup_question)
+        # todo 꼬리 질문을 이전 질문에 추가할 때, [세션 id] :[이전 질문리스트] 형태로 추가해야 함. 그래야 세션 별로 추적 가능
 
         return followup_question
