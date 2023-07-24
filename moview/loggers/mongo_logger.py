@@ -106,34 +106,28 @@ class LoggerWrapper:
 class MongoLogger:
     def __init__(self):
         self.db_name = 'log'
-        self.execution_trace_logger = LoggerWrapper(self.__create_logger(logger_name='execution_trace_logger',
-                                                                         collection_name='executionTraceLogs',
-                                                                         log_level=logging.INFO))
-        self.error_logger = LoggerWrapper(self.__create_logger(logger_name='error_logger',
-                                                               collection_name='errorLogs',
-                                                               log_level=logging.ERROR))
-        self.prompt_result_logger = LoggerWrapper(self.__create_logger(logger_name='prompt_result_logger',
-                                                                       collection_name='promptResultLogs',
-                                                                       log_level=logging.INFO))
+        self.execution_trace_logger = LoggerWrapper(self._create_logger(logger_name='execution_trace_logger',
+                                                                        collection_name='executionTraceLogs',
+                                                                        log_level=logging.INFO))
+        self.error_logger = LoggerWrapper(self._create_logger(logger_name='error_logger',
+                                                              collection_name='errorLogs',
+                                                              log_level=logging.ERROR))
+        self.prompt_result_logger = LoggerWrapper(self._create_logger(logger_name='prompt_result_logger',
+                                                                      collection_name='promptResultLogs',
+                                                                      log_level=logging.INFO))
 
-    def __create_logger(self, logger_name, collection_name, log_level):
-        # 원래의 로거 클래스를 저장
+    def _create_logger(self, logger_name, collection_name, log_level):
+        # 기본 LoggerClass를 저장
         original_logger_class = logging.getLoggerClass()
 
-        # logger를 CustomLogger로 설정
         logging.setLoggerClass(CustomLogger)
-
-        # 이름이 logger_name인 logger를 생성
         logger = logging.getLogger(logger_name)
-
-        # logger의 log level을 설정
         logger.setLevel(log_level)
 
-        # logger에 MongoDB 핸들러를 추가
         handler = MongoHandler(log_level, self.db_name, collection_name)
         logger.addHandler(handler)
 
-        # 로거 클래스를 복원
+        # LoggerClass 복원
         logging.setLoggerClass(original_logger_class)
 
         return logger

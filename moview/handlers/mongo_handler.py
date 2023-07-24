@@ -9,7 +9,7 @@ import traceback
 class MongoHandler(logging.Handler):
     def __init__(self, level=logging.NOTSET,
                  database_name='default', collection_name='collections',
-                 capped=True, size=100*1024*1024, is_collection_drop=False):
+                 capped=True, size=100 * 1024 * 1024, is_collection_drop=False):
 
         # 부모 생성자 호출
         logging.Handler.__init__(self, level)
@@ -31,27 +31,27 @@ class MongoHandler(logging.Handler):
             self.db = self.conn.get_database(database_name)
 
         # 데이터베이스 컬렉션을 가져온다
-        if collection_name in self.db.list_collection_names():  # 컬렉션이 이미 존재할 때
-            if is_collection_drop:
+        if collection_name in self.db.list_collection_names():  # 만들려는 컬렉션 이름이 DB에 이미 있을 때
+            if is_collection_drop:  # 컬렉션을 삭제하고 다시 만들고 싶다면
                 self.db.drop_collection(collection_name)
-                self.collection = self.__create_collection(collection_name)
-            else:
+                self.collection = self._create_collection(collection_name)
+            else:  # 컬렉션을 삭제하지 않고 사용하고 싶다면
                 self.collection = self.db.get_collection(collection_name)
-        else:
-            self.collection = self.__create_collection(collection_name)
+        else:  # 만들려는 컬렉션 이름이 DB에 없을 때
+            self.collection = self._create_collection(collection_name)
 
-    def __create_collection(self, collection_name):
+    def _create_collection(self, collection_name):
         # 컬렉션 이름으로 컬렉션을 만들고 리턴 한다.
         return self.db.create_collection(collection_name,
-                                         capped=True,  # 고정 크기 컬렉션
-                                         size=100*1024*1024)  # 컬렉션 최대 크기(100MB) 지정(단위: bytes)
+                                         capped=True,  # 고정 크기 컬렉션 (size를 넘어서면 오래된 document부터 삭제)
+                                         size=100 * 1024 * 1024)  # 컬렉션 최대 크기(100MB) 지정(단위: bytes)
 
     def emit(self, record):
         document = {
-            # session id 추가, 사람 이름 추가
+            # session id는 추가 파라미터로 직접 추가
             'timestamp': datetime.datetime.now(),  # 시간
             'fileName': record.filename,  # 파일명
-            'className': record.classname,  # 클래스명
+            'className': getattr(record, 'classname', '(unknown class)'),  # 클래스명
             'functionName': record.funcName,  # 함수명
             'levelName': record.levelname,  # 로그 레벨명(ex. DEBUG)
             'message': record.getMessage(),  # 메시지
