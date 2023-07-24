@@ -41,6 +41,7 @@ class FollowUpQuestionManager:
         self.sub = AnswerSubCategoryClassifier()
         self.giver = FollowUpQuestionGiver()
         # todo 이전 질문만 세션 별로 관리하는 객체가 필요해보인다. 이 클래스를 아예 서비스단으로 올리자.
+        self.previous_question=[]
 
     def manage_followup_question(self, job_group: str, question: str, answer: str) -> str:
 
