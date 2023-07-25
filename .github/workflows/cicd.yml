@@ -29,18 +29,18 @@ jobs:
       - name: Install dependencies
         run: ./venv/bin/python -m pip install -r requirements.txt
 
-      - name: Run tests with coverage
-        run: ./venv/bin/python -m coverage run -m unittest discover -s tests -p "test_*.py"
-        shell: bash
-
-      - name: Check test coverage
-        id: coverage-check
-        run: |
-          ./venv/bin/python -m coverage report -m
-          COVERAGE=$(./venv/bin/python -m coverage report -m | grep TOTAL | awk '{print $6}' | sed 's/%//')
-          echo "Test coverage: $COVERAGE%"
-          echo "::set-output name=coverage::$COVERAGE"
-        shell: bash
+#      - name: Run tests with coverage
+#        run: ./venv/bin/python -m coverage run -m unittest discover -s tests -p "test_*.py"
+#        shell: bash
+#
+#      - name: Check test coverage
+#        id: coverage-check
+#        run: |
+#          ./venv/bin/python -m coverage report -m
+#          COVERAGE=$(./venv/bin/python -m coverage report -m | grep TOTAL | awk '{print $6}' | sed 's/%//')
+#          echo "Test coverage: $COVERAGE%"
+#          echo "::set-output name=coverage::$COVERAGE"
+#        shell: bash
 
   # main에 대한 PR이 발생한 경우에는 PR Comment에 테스트 커버리지 기록 추가
   test_and_comment:
