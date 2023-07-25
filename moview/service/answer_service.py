@@ -2,8 +2,8 @@ import re
 from moview.modules.question_generator import AnswerFilter, AnswerCategoryClassifier, AnswerSubCategoryClassifier, \
     FollowUpQuestionGiver
 from moview.modules.answer_evaluator.interview_answer_scorer import InterviewAnswerScorer
-from moview.service import IntervieweeDataVO
-from moview.service import InterviewActionEnum
+from moview.service.interviewee_data_vo import IntervieweeDataVO
+from moview.service.interview_action_enum import InterviewActionEnum
 
 
 # 정규 표현식으로 짜긴 했는데, 간혹 출력값이 이상하게 나올 수 있음. 이럴 떄는 문장 유사도 평가가 좋아보임. 그래서 이러한 함수 간 접합 부분에는 vector db를 쓰는게 나을 듯?
@@ -84,10 +84,10 @@ class AnswerService:
         # 평가 저장
         vo.save_score_of_interviewee(score_from_llm=score_from_llm)
 
-        if vo.is_initial_questions_end() and vo.followup_question_count == vo.MAX_FOLLOWUP_QUESTION_COUNT:
+        if vo.is_initial_questions_end() and vo.is_followup_questions_end():
             # 다음 초기 질문 x, 심화질문 x인 경우, interview 종료
             return vo, InterviewActionEnum.END_INTERVIEW
-        elif not vo.is_initial_questions_end() and vo.followup_question_count == vo.MAX_FOLLOWUP_QUESTION_COUNT:
+        elif not vo.is_initial_questions_end() and vo.is_followup_questions_end():
             # 다음 초기 질문 o, 심화질문 x인 경우, 다음 초기 질문 진행
             vo.give_next_initial_question()
             return vo, InterviewActionEnum.NEXT_INITIAL_QUESTION
@@ -109,7 +109,7 @@ class AnswerService:
 
         if number == "1":
             raise ResubmissionRequestError()
-        elif number == "2" or number == "3" or number == "4":
+        elif number in ["2", "3", "4"]:
             raise InappropriateAnswerError()
 
         # 면접 질문과 답변의 대분류
