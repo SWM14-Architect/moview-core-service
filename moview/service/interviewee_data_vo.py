@@ -31,5 +31,14 @@ class IntervieweeDataVO:
         if not self.is_initial_questions_end():
             self.followup_question_count = 0
 
+    # 꼬리질문 저장
+    def save_followup_question(self, followup_question: str):
+        self.followup_question_count += 1
+        self.previous_question_list.append(followup_question)
+
     def is_initial_questions_end(self) -> bool:
         return self.initial_question_index == len(self.initial_question_list) - 1
+
+    # 평가 내용 저장
+    def save_score_of_interviewee(self, score_from_llm):
+        self.scores_about_answer.append(score_from_llm)

@@ -59,7 +59,7 @@ class AnswerService:
 
         Returns:
             1. 심화질문 o인 경우, 심화 질문 반환 (심화질문 저장된 vo, 심화 질문 생성 완료 enum)
-            2. 질문 재요청인 경우, 좀 더 구체적인 질문 생성 요청 (아무것도 변경되지 않은 vo, 재요청 enum)
+            2. 질문 재요청인 경우, 좀 더 구체적인 질문 생성 요청 ( vo, 재요청 enum)
             3. 적절하지 않은 답변의 경우, 다음 초기 질문 진행 (다음 초기질문 이행하는 vo, 적절하지 않은 답변 enum)
             4. 심화 질문 x, 다음 초기 질문 x인 경우, interview 종료 (심화질문 저장된 vo, interview 종료 enum)
 
@@ -82,7 +82,7 @@ class AnswerService:
         score_from_llm = self.scorer.score_by_main_and_subcategories(question=question, answer=answer,
                                                                      categories_ordered_pair=category_and_sub_category)
         # 평가 저장
-        self.__save_score_of_interviewee(score_from_llm, vo=vo)
+        vo.save_score_of_interviewee(score_from_llm=score_from_llm)
 
         if vo.is_initial_questions_end() and vo.followup_question_count == vo.MAX_FOLLOWUP_QUESTION_COUNT:
             # 다음 초기 질문 x, 심화질문 x인 경우, interview 종료
@@ -96,8 +96,7 @@ class AnswerService:
             followup_question = self.__get_followup_question(job_group=job_group, question=question, answer=answer,
                                                              categories_ordered_pair=category_and_sub_category,
                                                              vo=vo)
-            # 꼬리질문 저장
-            self.__save_followup_question(followup_question, vo)
+            vo.save_followup_question(followup_question)
 
             # 그외에 심화질문 o인 경우, 다음 꼬리 질문 진행
             return vo, InterviewActionEnum.CREATED_FOLLOWUP_QUESTION
@@ -130,9 +129,3 @@ class AnswerService:
             job_group=job_group, question=question, answer=answer,
             previous_questions=str(vo.previous_question_list),
             categories_ordered_pair=categories_ordered_pair)
-
-    def __save_score_of_interviewee(self, score_from_llm, vo: IntervieweeDataVO):
-        vo.scores_about_answer.append(score_from_llm)
-
-    def __save_followup_question(self, followup_question, vo):
-        vo.previous_question_list.append(followup_question)
