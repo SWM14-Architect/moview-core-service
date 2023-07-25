@@ -28,8 +28,8 @@ class IntervieweeDataVO:
     def give_next_initial_question(self):
         self.initial_question_index += 1
 
-        if not self.is_initial_questions_end():
-            self.followup_question_count = 0
+        # 꼬리질문 초기화
+        self.followup_question_count = 0
 
     # 꼬리질문 저장
     def save_followup_question(self, followup_question: str):
