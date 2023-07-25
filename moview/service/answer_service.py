@@ -127,5 +127,5 @@ class AnswerService:
         # 꼬리 질문 출제
         return self.giver.give_followup_question(
             job_group=job_group, question=question, answer=answer,
-            previous_questions=str(vo.previous_question_list),
+            previous_questions=str(vo.exclude_question_list),
             categories_ordered_pair=categories_ordered_pair)

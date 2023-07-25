@@ -17,7 +17,11 @@ class IntervieweeDataVO:
     def __init__(self, session_id, initial_question_list: list[str], initial_interview_analysis: str):
         self.id = session_id  # flask session id
         self.initial_question_list = initial_question_list
-        self.previous_question_list = []
+        self.exclude_question_list = []
+
+        for question in initial_question_list:
+            self.exclude_question_list.append(question)
+
         self.interview_analysis = initial_interview_analysis
         self.initial_question_index = 0
         self.followup_question_count = 0
@@ -34,7 +38,7 @@ class IntervieweeDataVO:
     # 꼬리질문 저장
     def save_followup_question(self, followup_question: str):
         self.followup_question_count += 1
-        self.previous_question_list.append(followup_question)
+        self.exclude_question_list.append(followup_question)
 
     def is_initial_questions_end(self) -> bool:
         return self.initial_question_index == len(self.initial_question_list) - 1
