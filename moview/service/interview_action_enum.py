@@ -7,3 +7,4 @@ class InterviewActionEnum(Enum):
     DIRECT_REQUEST = 2
     INAPPROPRIATE_ANSWER = 3
     END_INTERVIEW = 4
+    NEXT_INITIAL_QUESTION = 5

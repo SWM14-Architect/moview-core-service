@@ -1,8 +1,9 @@
 import re
-
 from moview.modules.question_generator import AnswerFilter, AnswerCategoryClassifier, AnswerSubCategoryClassifier, \
     FollowUpQuestionGiver
 from moview.modules.answer_evaluator.interview_answer_scorer import InterviewAnswerScorer
+from moview.service import IntervieweeDataVO
+from moview.service import InterviewActionEnum
 
 
 # 정규 표현식으로 짜긴 했는데, 간혹 출력값이 이상하게 나올 수 있음. 이럴 떄는 문장 유사도 평가가 좋아보임. 그래서 이러한 함수 간 접합 부분에는 vector db를 쓰는게 나을 듯?
@@ -44,43 +45,62 @@ class AnswerService:
         self.sub_classifier = AnswerSubCategoryClassifier()
 
         self.giver = FollowUpQuestionGiver()
-        # todo 이 부분에 이전 질문들 관리하는 멤버 변수나 객체 추가 필요 (그리고 이전 질문들은 세션으로 묶여야 한다...)
-        pass
 
-    def determine_next_action_of_interviewer(self, job_group: str, question: str, answer: str):
+    def determine_next_action_of_interviewer(self, job_group: str, question: str, answer: str,
+                                             vo: IntervieweeDataVO) -> (IntervieweeDataVO, InterviewActionEnum):
         """
         interviewer의 질문과 interviewee의 답변을 받아서, intervieweer의 다음 행동을 결정하는 메서드
 
         Args:
+            vo: 인터뷰 세션 모든 정보를 다 갖고 있는 vo. (db에 저장하는 걸로 바꿔야 합니다.)
             job_group: 직군
             question: interviewer의 질문
             answer: interviewee의 답변
 
         Returns:
-            1. 심화질문 o인 경우, 심화 질문 반환
-            2. 질문 재요청인 경우, 좀 더 구체적인 질문 생성 요청
-            3. 심화질문 x인 경우, 다음 초기 질문 진행
-            4. 심화 질문 x, 다음 초기 질문 x인 경우, interview 종료
+            1. 심화질문 o인 경우, 심화 질문 반환 (심화질문 저장된 vo, 심화 질문 생성 완료 enum)
+            2. 질문 재요청인 경우, 좀 더 구체적인 질문 생성 요청 (아무것도 변경되지 않은 vo, 재요청 enum)
+            3. 적절하지 않은 답변의 경우, 다음 초기 질문 진행 (다음 초기질문 이행하는 vo, 적절하지 않은 답변 enum)
+            4. 심화 질문 x, 다음 초기 질문 x인 경우, interview 종료 (심화질문 저장된 vo, interview 종료 enum)
 
         """
-        # 답변 내용을 분류 (적절한가, 재요청인가 등)
-        categories_ordered_pair = self.__classify_answer_of_interviewee(job_group=job_group, question=question,
-                                                                        answer=answer)
 
-        # 질문과 답변 내용을 전달하여 사용자 답변에 대한 평가
+        # 답변 내용을 분류 (적절한가, 재요청인가 등) -> 대분류, 중분류를 받음.
+        try:
+            category_and_sub_category = self.__classify_answer_of_interviewee(job_group=job_group, question=question,
+                                                                              answer=answer)
+        except InappropriateAnswerError:
+            # 적절하지 않은 답변인 경우, 다음 초기 질문 진행
+            vo.give_next_initial_question()
+            return vo, InterviewActionEnum.INAPPROPRIATE_ANSWER
+        except ResubmissionRequestError:
+            # todo 재요청인 경우, 좀 더 구체적인 질문 생성 요청으로 바꿔야 함. 현재는 다음 초기 질문 진행으로 해놓음.
+            vo.give_next_initial_question()
+            return vo, InterviewActionEnum.DIRECT_REQUEST
+
+        # 질문과 답변 내용, 대분류와 중분류를 전달하여 사용자 답변에 대한 평가
         score_from_llm = self.scorer.score_by_main_and_subcategories(question=question, answer=answer,
-                                                                     categories_ordered_pair=categories_ordered_pair)
+                                                                     categories_ordered_pair=category_and_sub_category)
+        # 평가 저장
+        self.__save_score_of_interviewee(score_from_llm, vo=vo)
 
-        # todo 평가 내용 정규 표현식 적용해서 가공 필요
+        if vo.is_initial_questions_end() and vo.followup_question_count == vo.MAX_FOLLOWUP_QUESTION_COUNT:
+            # 다음 초기 질문 x, 심화질문 x인 경우, interview 종료
+            return vo, InterviewActionEnum.END_INTERVIEW
+        elif not vo.is_initial_questions_end() and vo.followup_question_count == vo.MAX_FOLLOWUP_QUESTION_COUNT:
+            # 다음 초기 질문 o, 심화질문 x인 경우, 다음 초기 질문 진행
+            vo.give_next_initial_question()
+            return vo, InterviewActionEnum.NEXT_INITIAL_QUESTION
+        else:
+            # 꼬리질문 출제
+            followup_question = self.__get_followup_question(job_group=job_group, question=question, answer=answer,
+                                                             categories_ordered_pair=category_and_sub_category,
+                                                             vo=vo)
+            # 꼬리질문 저장
+            self.__save_followup_question(followup_question, vo)
 
-        # todo 가공한 평가 내용 어딘가에 저장 필요
-
-        # 평가 결과에 따라 다음 행동 결정
-
-        # 심화 질문 o인 경우, 심화 질문 반환
-        followup_question = self.__get_followup_question(job_group=job_group, question=question, answer=answer,
-                                                         categories_ordered_pair=categories_ordered_pair)
-        pass
+            # 그외에 심화질문 o인 경우, 다음 꼬리 질문 진행
+            return vo, InterviewActionEnum.CREATED_FOLLOWUP_QUESTION
 
     def __classify_answer_of_interviewee(self, job_group: str, question: str, answer: str) -> str:
         # 적절하지 않은 답변을 걸러냅니다.
@@ -93,8 +113,6 @@ class AnswerService:
         elif number == "2" or number == "3" or number == "4":
             raise InappropriateAnswerError()
 
-        # todo 현재 질문을 이전 질문에 추가할 때, [세션 id] :[이전 질문리스트] 형태로 추가해야 함. 그래야 세션 별로 추적 가능
-
         # 면접 질문과 답변의 대분류
         categories = self.major_classifier.classify_category_of_answer(job_group=job_group, question=question,
                                                                        answer=answer)
@@ -104,14 +122,17 @@ class AnswerService:
             job_group=job_group, question=question,
             answer=answer, categories=categories)
 
-    def __score_answer_of_interviewee(self):
-        pass
+    def __get_followup_question(self, job_group: str, question: str, answer: str, categories_ordered_pair: str,
+                                vo: IntervieweeDataVO) -> str:
 
-    def __get_followup_question(self, job_group: str, question: str, answer: str, categories_ordered_pair: str) -> str:
+        # 꼬리 질문 출제
+        return self.giver.give_followup_question(
+            job_group=job_group, question=question, answer=answer,
+            previous_questions=str(vo.previous_question_list),
+            categories_ordered_pair=categories_ordered_pair)
 
-        # # 꼬리 질문 출제
-        # return  self.giver.give_followup_question(
-        #     job_group=job_group, question=question, answer=answer,
-        #     previous_questions=str(self.previous_question),
-        #     categories_ordered_pair=categories_ordered_pair)  # todo <- previous question 말고 다른 걸로 대체 필요
-        pass
+    def __save_score_of_interviewee(self, score_from_llm, vo: IntervieweeDataVO):
+        vo.scores_about_answer.append(score_from_llm)
+
+    def __save_followup_question(self, followup_question, vo):
+        vo.previous_question_list.append(followup_question)

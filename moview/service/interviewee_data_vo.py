@@ -12,7 +12,6 @@ class IntervieweeDataVO:
     6. 꼬리질문 횟수
     7. 답변에 대한 평가 저장
     8. 꼬리질문 최대 횟수
-    9. 인터뷰 종료 여부
     """
 
     def __init__(self, session: session, initial_question_list: list[str], initial_interview_analysis: str):
@@ -24,11 +23,13 @@ class IntervieweeDataVO:
         self.followup_question_count = 0
         self.scores_about_answer = []
         self.MAX_FOLLOWUP_QUESTION_COUNT = 3
-        self.is_end = False
 
     # 다음 초기 질문 출제
     def give_next_initial_question(self):
-        pass
+        self.initial_question_index += 1
 
+        if not self.is_initial_questions_end():
+            self.followup_question_count = 0
 
-
+    def is_initial_questions_end(self) -> bool:
+        return self.initial_question_index == len(self.initial_question_list) - 1
