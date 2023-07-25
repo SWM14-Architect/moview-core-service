@@ -6,16 +6,46 @@ on:
       - main
   push:
     branches:
-      - main
-
-    # GitHub의 Actions 탭의 Run workflow 기능 활성화 (코드 push 없이 워크플로우 시작 가능)
-  workflow_dispatch:
+      - '**'
+  workflow_dispatch:  # GitHub의 Actions 탭의 Run workflow 기능 활성화 (코드 push 없이 워크플로우 시작 가능)
 
 jobs:
-  # PR이 발생한 경우에는 테스트만 진행
+  # main 외의 브랜치에 대한 push가 발생한 경우에는, 테스트만 진행한다.
   test:
     runs-on: ubuntu-latest
-    if: ${{ github.event_name == 'pull_request' }}
+    if: github.event_name == 'push' && github.ref != 'refs/heads/main'
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v3
+
+      - name: Set up Python 3.10
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Setup Python venv
+        run: python -m venv venv
+
+      - name: Install dependencies
+        run: ./venv/bin/python -m pip install -r requirements.txt
+
+      - name: Run tests with coverage
+        run: ./venv/bin/python -m coverage run -m unittest discover -s tests -p "test_*.py"
+        shell: bash
+
+      - name: Check test coverage
+        id: coverage-check
+        run: |
+          ./venv/bin/python -m coverage report -m
+          COVERAGE=$(./venv/bin/python -m coverage report -m | grep TOTAL | awk '{print $6}' | sed 's/%//')
+          echo "Test coverage: $COVERAGE%"
+          echo "::set-output name=coverage::$COVERAGE"
+        shell: bash
+
+  # main에 대한 PR이 발생한 경우에는 PR Comment에 테스트 커버리지 기록 추가
+  test_and_comment:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
     steps:
       # Repo 내용을 Checkout한다.
       - name: Checkout source code
@@ -34,14 +64,6 @@ jobs:
       # requirements.txt의 패키지들을 설치한다.
       - name: Install dependencies
         run: ./venv/bin/python -m pip install -r requirements.txt
-
-      # AWS 계정 정보를 설정한다.
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v2
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ secrets.AWS_REGION }}
 
 #      # 테스트를 실행한다.
 #      - name: Run tests with coverage
@@ -68,10 +90,11 @@ jobs:
 #          GH_TOKEN: ${{ github.token }}
 
 
-  # Push가 발생했을 경우에는, 테스트 커버리지가 70% 이상인 경우에 S3-CodeDeploy-EC2로의 배포를 진행한다.
+  # main에 대한 push가 발생했을 경우에는, 테스트 커버리지가 70% 이상인 경우에 S3-CodeDeploy-EC2로의 배포를 진행한다.
+  # 또는 임의로 이벤트를 발생시켜서 deploy 워크플로우를 실행할 수 있다.
   deploy:
     runs-on: ubuntu-latest
-    if: ${{ github.event_name == 'push' }}
+    if: (github.event_name == 'push' && github.ref == 'refs/heads/main') || github.event_name == 'workflow_dispatch'
     steps:
       - name: Checkout
         uses: actions/checkout@v3
