@@ -1,7 +1,6 @@
 import re
 from moview.modules.question_generator import AnswerFilter, AnswerCategoryClassifier, AnswerSubCategoryClassifier, \
     FollowUpQuestionGiver
-from moview.modules.answer_evaluator.interview_answer_scorer import InterviewAnswerScorer
 from moview.service.interviewee_data_vo import IntervieweeDataVO
 from moview.service.interview_action_enum import InterviewActionEnum
 
@@ -38,8 +37,6 @@ class ResubmissionRequestError(Exception):
 
 class AnswerService:
     def __init__(self):
-        self.scorer = InterviewAnswerScorer()
-
         self.filter = AnswerFilter()
         self.major_classifier = AnswerCategoryClassifier()
         self.sub_classifier = AnswerSubCategoryClassifier()
@@ -69,6 +66,10 @@ class AnswerService:
             category_and_sub_category = self.__classify_answer_of_interviewee(job_group=vo.initial_input_data.job_group,
                                                                               question=question,
                                                                               answer=answer)
+
+            # 답변에 대한 대분류, 중분류 저장
+            vo.save_categories_ordered_pair(question, answer, category_and_sub_category)
+
         except InappropriateAnswerError:
             # 적절하지 않은 답변인 경우, 다음 초기 질문 진행
             vo.give_next_initial_question()
@@ -77,12 +78,6 @@ class AnswerService:
             # todo 재요청인 경우, 좀 더 구체적인 질문 생성 요청으로 바꿔야 함. 현재는 다음 초기 질문 진행으로 해놓음.
             vo.give_next_initial_question()
             return vo, InterviewActionEnum.DIRECT_REQUEST
-
-        # 질문과 답변 내용, 대분류와 중분류를 전달하여 사용자 답변에 대한 평가
-        score_from_llm = self.scorer.score_by_main_and_subcategories(question=question, answer=answer,
-                                                                     categories_ordered_pair=category_and_sub_category)
-        # 평가 저장
-        vo.save_score_of_interviewee(score_from_llm=score_from_llm)
 
         if vo.is_initial_questions_end() and vo.is_followup_questions_end():
             # 다음 초기 질문 x, 심화질문 x인 경우, interview 종료
