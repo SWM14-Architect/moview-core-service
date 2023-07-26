@@ -1,4 +1,9 @@
-from flask import session
+class IntervieweeInitialInputData:
+    def __init__(self, jop_group, recruit_announcement, cover_letter_questions, cover_letter_answers):
+        self.job_group = jop_group
+        self.recruit_announcement = recruit_announcement
+        self.cover_letter_questions = cover_letter_questions
+        self.cover_letter_answers = cover_letter_answers
 
 
 class IntervieweeDataVO:
@@ -12,9 +17,12 @@ class IntervieweeDataVO:
     6. 꼬리질문 횟수
     7. 답변에 대한 평가 저장
     8. 꼬리질문 최대 횟수
+
+    9.초기 입력 데이터 (직군,공고, 자소서 문항 리스트, 자소서 답변 리스트)
     """
 
-    def __init__(self, session_id, initial_question_list: list[str], initial_interview_analysis: str):
+    def __init__(self, session_id, initial_question_list: list[str], initial_interview_analysis: str,
+                 initial_input_data: IntervieweeInitialInputData):
         self.id = session_id  # flask session id
         self.initial_question_list = initial_question_list
         self.exclude_question_list = []
@@ -27,6 +35,8 @@ class IntervieweeDataVO:
         self.followup_question_count = 0
         self.scores_about_answer = []
         self.MAX_FOLLOWUP_QUESTION_COUNT = 3
+
+        self.initial_input_data = initial_input_data
 
     # 다음 초기 질문 출제
     def give_next_initial_question(self):
