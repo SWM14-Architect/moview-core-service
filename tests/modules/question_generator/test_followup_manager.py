@@ -10,19 +10,19 @@ class TestFollowUpQuestionManager(unittest.TestCase):
     def setUp(self):
         self.manager = FollowUpQuestionManager()
 
-    @patch('moview.modules.question_generator.answer_filter.AnswerFilter.check_answer_appropriate')
+    @patch('moview.modules.question_generator.answer_filter.AnswerFilter.exclude_invalid_answer')
     def test_manage_followup_question_resubmission_error(self, mock_method):
         mock_method.return_value = "1"
         with self.assertRaises(ResubmissionRequestError):
             self.manager.manage_followup_question("job_group", "question", "answer")
 
-    @patch('moview.modules.question_generator.answer_filter.AnswerFilter.check_answer_appropriate')
-    def test_manage_followup_question_inappropriate_error(self, mock_find_first_number):
-        mock_find_first_number.return_value = "2"
+    @patch('moview.modules.question_generator.answer_filter.AnswerFilter.exclude_invalid_answer')
+    def test_manage_followup_question_inappropriate_error(self, mock_method):
+        mock_method.return_value = "2"
         with self.assertRaises(InappropriateAnswerError):
             self.manager.manage_followup_question("job_group", "question", "answer")
 
-    @patch('moview.modules.question_generator.answer_filter.AnswerFilter.check_answer_appropriate')
+    @patch('moview.modules.question_generator.answer_filter.AnswerFilter.exclude_invalid_answer')
     def test_manage_followup_question(self, mock_method):
         self.manager.major.classify_category_of_answer = MagicMock(return_value="major_category")
         self.manager.sub.classify_sub_category_of_answer = MagicMock(return_value="sub_category")

@@ -1,0 +1,1 @@
+from moview.modules.answer_evaluator.interview_answer_scorer import InterviewAnswerScorer

@@ -19,20 +19,28 @@ class FollowUpQuestionGiver:
         with open(abs_path + '/followup_question_prompt.json', 'r') as f:
             data = json.load(f)
 
-        self.prompt1 = data['prompt1']
-        self.prompt2 = data['prompt2']
-        self.prompt3 = data['prompt3']
-        self.prompt4 = data['prompt4']
-        
-    def give_followup_question(self, job_group: str, question: str, answer: str, previous_question: str,
+        self.prompt = data['prompt']
+
+    def give_followup_question(self, job_group: str, question: str, answer: str, previous_questions: str,
                                categories_ordered_pair: str) -> str:
+        """
+        꼬리질문을 출제하는 메서드
+
+        Args:
+            job_group: 직군
+            question: 현재 질문
+            answer: 현재 질문에 대한 답변
+            previous_questions: 이전 질문들
+            categories_ordered_pair: 대분류, 중분류 순서쌍
+
+        Returns:
+
+        """
         prompt = ChatPromptTemplate(
             messages=[
                 SystemMessagePromptTemplate.from_template(
-                    self.prompt1 + job_group + "." +
-                    self.prompt2 + categories_ordered_pair + "\"" +
-                    self.prompt3 + previous_question +
-                    self.prompt4
+                    self.prompt.format(job_group=job_group, categories_ordered_pair=categories_ordered_pair,
+                                       previous_question=previous_questions)
                 ),
                 HumanMessagePromptTemplate.from_template(
                     """
