@@ -17,7 +17,8 @@ class TestAnswerServiceWithMocking(unittest.TestCase):
     @patch('moview.modules.question_generator.AnswerFilter.exclude_invalid_answer')
     def test_inappropriate_answer_error_without_followup_question(self, mock_method):
         # given
-        vo = IntervieweeDataVO(session_id=1, initial_question_list=["질문1", "질문2"], initial_interview_analysis="분석",
+        vo = IntervieweeDataVO(session_id=1, initial_question_list=["질문1", "질문2"],
+                               initial_interview_analysis=["분석1", "분석 2"],
                                initial_input_data=self.initial_input_data)
         self.assertEqual(len(vo.initial_question_list), 2)
         self.assertEqual(vo.initial_question_index, 0)
@@ -35,7 +36,8 @@ class TestAnswerServiceWithMocking(unittest.TestCase):
     @patch('moview.modules.question_generator.AnswerFilter.exclude_invalid_answer')
     def test_inappropriate_answer_error_with_followup_question(self, mock_method):
         # given
-        vo = IntervieweeDataVO(session_id=1, initial_question_list=["질문1", "질문2"], initial_interview_analysis="분석",
+        vo = IntervieweeDataVO(session_id=1, initial_question_list=["질문1", "질문2"],
+                               initial_interview_analysis=["분석1", "분석 2"],
                                initial_input_data=self.initial_input_data)
         vo.save_followup_question("꼬리질문1")
         vo.save_followup_question("꼬리질문2")
@@ -59,7 +61,8 @@ class TestAnswerServiceWithMocking(unittest.TestCase):
     @patch('moview.modules.question_generator.AnswerFilter.exclude_invalid_answer')
     def test_resubmission_request_error_without_followup_question(self, mock_method):
         # given
-        vo = IntervieweeDataVO(session_id=1, initial_question_list=["질문1", "질문2"], initial_interview_analysis="분석",
+        vo = IntervieweeDataVO(session_id=1, initial_question_list=["질문1", "질문2"],
+                               initial_interview_analysis=["분석1", "분석 2"],
                                initial_input_data=self.initial_input_data)
         self.assertEqual(len(vo.initial_question_list), 2)
         self.assertEqual(vo.initial_question_index, 0)
@@ -77,7 +80,8 @@ class TestAnswerServiceWithMocking(unittest.TestCase):
     @patch('moview.modules.question_generator.AnswerFilter.exclude_invalid_answer')
     def test_resubmission_request_error_with_followup_question(self, mock_method):
         # given
-        vo = IntervieweeDataVO(session_id=1, initial_question_list=["질문1", "질문2"], initial_interview_analysis="분석",
+        vo = IntervieweeDataVO(session_id=1, initial_question_list=["질문1", "질문2"],
+                               initial_interview_analysis=["분석1", "분석 2"],
                                initial_input_data=self.initial_input_data)
         vo.save_followup_question("꼬리질문1")
         vo.save_followup_question("꼬리질문2")
