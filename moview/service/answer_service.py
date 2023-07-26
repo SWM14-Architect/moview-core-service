@@ -46,14 +46,13 @@ class AnswerService:
 
         self.giver = FollowUpQuestionGiver()
 
-    def determine_next_action_of_interviewer(self, job_group: str, question: str, answer: str,
+    def determine_next_action_of_interviewer(self, question: str, answer: str,
                                              vo: IntervieweeDataVO) -> (IntervieweeDataVO, InterviewActionEnum):
         """
         interviewer의 질문과 interviewee의 답변을 받아서, intervieweer의 다음 행동을 결정하는 메서드
 
         Args:
             vo: 인터뷰 세션 모든 정보를 다 갖고 있는 vo. (db에 저장하는 걸로 바꿔야 합니다.)
-            job_group: 직군
             question: interviewer의 질문
             answer: interviewee의 답변
 
@@ -67,7 +66,8 @@ class AnswerService:
 
         # 답변 내용을 분류 (적절한가, 재요청인가 등) -> 대분류, 중분류를 받음.
         try:
-            category_and_sub_category = self.__classify_answer_of_interviewee(job_group=job_group, question=question,
+            category_and_sub_category = self.__classify_answer_of_interviewee(job_group=vo.initial_input_data.job_group,
+                                                                              question=question,
                                                                               answer=answer)
         except InappropriateAnswerError:
             # 적절하지 않은 답변인 경우, 다음 초기 질문 진행
@@ -93,7 +93,7 @@ class AnswerService:
             return vo, InterviewActionEnum.NEXT_INITIAL_QUESTION
         else:
             # 꼬리질문 출제
-            followup_question = self.__get_followup_question(job_group=job_group, question=question, answer=answer,
+            followup_question = self.__get_followup_question(question=question, answer=answer,
                                                              categories_ordered_pair=category_and_sub_category,
                                                              vo=vo)
             vo.save_followup_question(followup_question)
@@ -121,11 +121,11 @@ class AnswerService:
             job_group=job_group, question=question,
             answer=answer, categories=categories)
 
-    def __get_followup_question(self, job_group: str, question: str, answer: str, categories_ordered_pair: str,
+    def __get_followup_question(self, question: str, answer: str, categories_ordered_pair: str,
                                 vo: IntervieweeDataVO) -> str:
 
         # 꼬리 질문 출제
         return self.giver.give_followup_question(
-            job_group=job_group, question=question, answer=answer,
+            job_group=vo.initial_input_data.job_group, question=question, answer=answer,
             previous_questions=str(vo.exclude_question_list),
             categories_ordered_pair=categories_ordered_pair)
