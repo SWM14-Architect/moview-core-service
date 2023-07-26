@@ -69,7 +69,8 @@ class InputService:
         # 자소서 문항 필터. 개수만큼 반복
 
         # 자소서 답변 필터. 개수만큼 반복
-        pass
+
+        return initial_input_data
 
     def __analyze_initial_inputs_of_interviewee(self, initial_input_data: IntervieweeInitialInputData) -> List[str]:
         """
