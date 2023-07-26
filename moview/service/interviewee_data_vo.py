@@ -2,7 +2,8 @@ from typing import List
 
 
 class IntervieweeInitialInputData:
-    def __init__(self, jop_group, recruit_announcement, cover_letter_questions, cover_letter_answers):
+    def __init__(self, jop_group: str, recruit_announcement: str, cover_letter_questions: List[str],
+                 cover_letter_answers: List[str]):
         self.job_group = jop_group
         self.recruit_announcement = recruit_announcement
         self.cover_letter_questions = cover_letter_questions
