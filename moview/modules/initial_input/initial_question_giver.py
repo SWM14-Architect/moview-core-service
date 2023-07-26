@@ -11,7 +11,7 @@ from langchain.prompts.chat import (
 )
 from langchain.chat_models import ChatOpenAI
 from langchain.callbacks.streaming_stdout import StreamingStdOutCallbackHandler
-from langchain.output_parsers import CommaSeparatedListOutputParser
+
 
 class InitialQuestionGiver:
     def __init__(self):
@@ -32,7 +32,6 @@ class InitialQuestionGiver:
         Returns: 분석 내용을 바탕으로 생성된 초기 질문 문자열 리스트 (question_count만큼 생성)
 
         """
-        output_parser = CommaSeparatedListOutputParser()
 
         prompt = ChatPromptTemplate(
             messages=[
@@ -68,11 +67,11 @@ class InitialQuestionGiver:
         # 패턴을 정의합니다.
         # 문항 번호와 점 그리고 공백 뒤에 오는 모든 문자(질문)를 찾습니다.
         # 여기서 .*#는 점 뒤에 오는 모든 문자와 '#'를 의미합니다.
-        pattern = re.compile(r'(\d\.\s)(.*#)') # 0번쨰에는 숫자, 1번째에는 질문이 나옵니다.
+        pattern = re.compile(r'(\d\.\s)(.*#)')  # 0번쨰에는 숫자, 1번째에는 질문이 나옵니다.
         matches = pattern.findall(initial_questions_from_llm)
 
         inital_questions = []
         for match in matches:
-            inital_questions.append(match[1])
+            inital_questions.append(match[1].rstrip(' #')) # '#'를 제거한 질문을 리스트에 추가합니다.
 
         return inital_questions
