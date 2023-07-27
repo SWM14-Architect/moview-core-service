@@ -59,12 +59,12 @@ jobs:
 #          echo "::set-output name=coverage::$COVERAGE"
 #        shell: bash
 
-  # PR일 경우, 테스트 커버리지를 PR Comment에 기록
-  post-comment:
-    needs: setup
-    runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request'
-    steps:
+#  # PR일 경우, 테스트 커버리지를 PR Comment에 기록
+#  post-comment:
+#    needs: setup
+#    runs-on: ubuntu-latest
+#    if: github.event_name == 'pull_request'
+#    steps:
 #      - name: Post Test Coverage Report as PR Comment
 #        run: |
 #          COVERAGE=$(echo "${{ needs.setup.outputs.coverage }}" | awk '{print $1}')
