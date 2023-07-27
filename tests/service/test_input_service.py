@@ -30,8 +30,8 @@ class TestInputService(unittest.TestCase):
         vo = self.input_service.ask_initial_question_to_interviewee(session_id=1,
                                                                     initial_input_data=initial_input_data)
 
-        self.assertEqual(len(vo.initial_question_list), 2)
-        print(vo.initial_question_list)
+        self.assertEqual(len(vo.interview_questions.initial_question_list), 2)
+        print(vo.interview_questions.initial_question_list)
 
     def test_ask_initial_question_to_interviewee_with_two_cover_letter(self):
         initial_input_data = IntervieweeInitialInputData(jop_group="IT", recruit_announcement=self.recruit_announcement,
@@ -44,8 +44,8 @@ class TestInputService(unittest.TestCase):
         vo = self.input_service.ask_initial_question_to_interviewee(session_id=1,
                                                                     initial_input_data=initial_input_data)
 
-        self.assertEqual(len(vo.initial_question_list), 4)
-        print(vo.initial_question_list)
+        self.assertEqual(len(vo.interview_questions.initial_question_list), 4)
+        print(vo.interview_questions.initial_question_list)
 
     def test_ask_initial_question_to_interviewee_with_three_cover_letter(self):
         initial_input_data = IntervieweeInitialInputData(jop_group="IT", recruit_announcement=self.recruit_announcement,
@@ -60,5 +60,5 @@ class TestInputService(unittest.TestCase):
         vo = self.input_service.ask_initial_question_to_interviewee(session_id=1,
                                                                     initial_input_data=initial_input_data)
 
-        self.assertEqual(len(vo.initial_question_list), 6)
-        print(vo.initial_question_list)
+        self.assertEqual(len(vo.interview_questions.initial_question_list), 6)
+        print(vo.interview_questions.initial_question_list)
