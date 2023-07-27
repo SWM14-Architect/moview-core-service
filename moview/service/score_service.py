@@ -9,7 +9,7 @@ class ScoreService:
         self.scorer = InterviewAnswerScorer()
 
     def score_answers_of_interviewee(self, vo: IntervieweeDataVO) -> IntervieweeDataVO:
-        for question, answer, category_and_sub_category in vo.categories_ordered_pair_list:
+        for question, answer, category_and_sub_category in vo.answer_score_with_category.categories_ordered_pair_list:
             # 질문과 답변 내용, 대분류와 중분류를 전달하여 사용자 답변에 대한 평가
             score_from_llm = self.scorer.score_by_main_and_subcategories(question=question,
                                                                          answer=answer,

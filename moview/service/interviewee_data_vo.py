@@ -11,6 +11,22 @@ class IntervieweeInitialInputData:
 
 
 class IntervieweeDataVO:
+    class AnswerScoresWithCategory:
+
+        def __init__(self):
+            """
+                1.답변에 대한 대분류, 중분류 저장
+                2.답변에 대한 평가 점수 저장
+            """
+            self.categories_ordered_pair_list = []  # (질문, 답변, 대분류+중분류) 순서쌍 리스트
+            self.scores_about_answer = []  # i 번째 요소는 categories_ordered_pair_list[i]에 대한 평가 기준과 점수 문자열이 들어가 있다.
+
+        def add_categories_ordered_pair(self, question: str, answer: str, categories_ordered_pair: str):
+            self.categories_ordered_pair_list.append((question, answer, categories_ordered_pair))
+
+        def add_score_of_interviewee(self, score_of_answer: str):
+            self.scores_about_answer.append(score_of_answer)
+
     """
     갖고 있는 데이터
     1. 인터뷰 세션 id
@@ -21,8 +37,7 @@ class IntervieweeDataVO:
     6. 초기 질문 인덱스
     7. 꼬리질문 인덱스
     8. 꼬리질문 최대 횟수
-    9. 답변에 대한 대분류, 중분류 저장
-    10. 답변에 대한 평가 점수 저장
+    9. 답변에 대한 (대분류+중분류, 평가 점수) 순서쌍을 관리하는 객체
     """
 
     def __init__(self, session_id, initial_question_list: List[str], initial_interview_analysis: List[str],
@@ -43,8 +58,7 @@ class IntervieweeDataVO:
         self.followup_question_count = 0
         self.MAX_FOLLOWUP_QUESTION_COUNT = 3
 
-        self.categories_ordered_pair_list = []  # (질문, 답변, 대분류+중분류) 순서쌍 리스트
-        self.scores_about_answer = []  # i 번째 요소는 categories_ordered_pair_list[i]에 대한 평가 기준과 점수 문자열이 들어가 있다.
+        self.answer_score_with_category = self.AnswerScoresWithCategory()
 
     # 다음 초기 질문 출제
     def give_next_initial_question(self):
@@ -65,9 +79,9 @@ class IntervieweeDataVO:
         return self.followup_question_count == self.MAX_FOLLOWUP_QUESTION_COUNT
 
     def save_categories_ordered_pair(self, question: str, answer: str, categories_ordered_pair: str):
-        self.categories_ordered_pair_list.append((question, answer, categories_ordered_pair))
+        self.answer_score_with_category.add_categories_ordered_pair(question=question, answer=answer,
+                                                                    categories_ordered_pair=categories_ordered_pair)
 
-    # 평가 내용 저장
     def save_score_of_interviewee(self, score_of_answer: str):
         """
 
@@ -77,4 +91,4 @@ class IntervieweeDataVO:
         Returns:
 
         """
-        self.scores_about_answer.append(score_of_answer)
+        self.answer_score_with_category.add_score_of_interviewee(score_of_answer=score_of_answer)

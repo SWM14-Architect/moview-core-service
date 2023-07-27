@@ -144,7 +144,7 @@ class TestAnswerServiceWithoutMocking(unittest.TestCase):
         self.assertEqual(vo.followup_question_count, 3)
         self.assertEqual(action_enum, InterviewActionEnum.END_INTERVIEW)
         self.assertEqual(len(vo.exclude_question_list), 6)
-        self.assertEqual(len(vo.categories_ordered_pair_list), 1)
+        self.assertEqual(len(vo.answer_score_with_category.categories_ordered_pair_list), 1)
 
     # 초기 질문이 마지막이 아니고, 꼬리 질문이 마지막일 경우 테스트.
     def test_next_initial_question(self):
@@ -172,7 +172,7 @@ class TestAnswerServiceWithoutMocking(unittest.TestCase):
         self.assertEqual(vo.followup_question_count, 0)
         self.assertEqual(action_enum, InterviewActionEnum.NEXT_INITIAL_QUESTION)
         self.assertEqual(len(vo.exclude_question_list), 6)
-        self.assertEqual(len(vo.categories_ordered_pair_list), 1)
+        self.assertEqual(len(vo.answer_score_with_category.categories_ordered_pair_list), 1)
 
     def test_get_followup_question(self):
         # given
@@ -198,9 +198,8 @@ class TestAnswerServiceWithoutMocking(unittest.TestCase):
         self.assertEqual(vo.followup_question_count, 3)
         self.assertEqual(action_enum, InterviewActionEnum.CREATED_FOLLOWUP_QUESTION)
         self.assertEqual(len(vo.exclude_question_list), 6)
-        self.assertEqual(len(vo.categories_ordered_pair_list), 1)
+        self.assertEqual(len(vo.answer_score_with_category.categories_ordered_pair_list), 1)
         self.assertTrue(vo.is_followup_questions_end())  # 3번째 꼬리질문이 출제됬으므로 끝났는지 테스트.
-
 
 if __name__ == '__main__':
     unittest.main()

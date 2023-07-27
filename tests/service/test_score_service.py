@@ -24,11 +24,14 @@ class TestScoreService(unittest.TestCase):
 
         result_vo = self.score_service.score_answers_of_interviewee(vo=self.vo)
 
-        self.assertEqual(len(result_vo.scores_about_answer), 1)
-        print(result_vo.scores_about_answer)
+        self.assertEqual(len(result_vo.answer_score_with_category.scores_about_answer), 1)
+        print("\nPRINT\n")
+        print("\n", result_vo.answer_score_with_category.scores_about_answer)
 
     def test_score_answers_of_interviewee(self):
-        for _ in range(3):
+        ANSWER_COUNT = 2
+
+        for _ in range(ANSWER_COUNT):
             self.vo.save_categories_ordered_pair(
                 question="프로젝트에서 어떤 언어와 프레임워크, 라이브러리를 사용하였나요?",
                 answer="언어는 JAVA, JavaScript를 사용했습니다.프레임워크는 스프링 부트를 사용했습니다.",
@@ -36,29 +39,45 @@ class TestScoreService(unittest.TestCase):
 
         result_vo = self.score_service.score_answers_of_interviewee(vo=self.vo)
 
-        self.assertEqual(len(result_vo.scores_about_answer), 5)
-        print(result_vo.scores_about_answer)
+        self.assertEqual(len(result_vo.answer_score_with_category.scores_about_answer), ANSWER_COUNT)
+
+        print("\nPRINT\n")
+        for i in range(len(result_vo.answer_score_with_category.scores_about_answer)):
+            print("\n", result_vo.answer_score_with_category.scores_about_answer[i])
         """
         출력 형태
-        1.
+        (첫 번째 경우)
         - Technical Details
             - Technical Knowledge (0-100 points): 80#
             - Technical Depth (0-100 points): 70#
             - Practical Application (0-100 points): 90#
         
-        2.
+        (두 번째 경우) 
         - Technical Details
 
             - Technical Knowledge: 85#
             - Technical Depth: 70#
             - Practical Application: 90#   
         
-        3.
+        (세 번째 경우) 
         - Technical Details
 
             - Technical Knowledge (85#)
             - Technical Depth (80#)
             - Practical Application (90#)
         
-        기타 등등 많음...
+        (네 번째 경우)
+        Evaluation:
+        
+        - Technical Knowledge (0-100 points): 80#
+        - The candidate accurately identifies the languages and frameworks used in their project.
+        - Technical Depth (0-100 points): 70#
+        
+        Overall Score: 80
+        
+        (다섯 번째 경우)
+         Technical Job-related Questions - Technical Details:
+        - Technical Knowledge: 80#
+        - Technical Depth: 70#     
+        - Practical Application: 90#
         """
