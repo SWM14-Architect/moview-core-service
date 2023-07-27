@@ -94,7 +94,7 @@ jobs:
   # 또는 임의로 이벤트를 발생시켜서 deploy 워크플로우를 실행할 수 있다.
   deploy:
     runs-on: ubuntu-latest
-    if: (github.event_name == 'push' && github.ref == 'refs/heads/main') || github.event_name == 'workflow_dispatch'
+    if: (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && github.ref == 'refs/heads/main'
     steps:
       - name: Checkout
         uses: actions/checkout@v3
