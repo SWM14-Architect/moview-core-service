@@ -11,6 +11,14 @@ class IntervieweeInitialInputData:
 
 
 class IntervieweeDataVO:
+    class InitialInterviewAnalysis:
+        """
+        자소서 문항 [i]에 대해 초기 분석 initial_interview_analysis[i]가 매핑됩니다.
+        """
+
+        def __init__(self, initial_interview_analysis: List[str]):
+            self.initial_interview_analysis = initial_interview_analysis
+
     class AnswerScoresWithCategory:
 
         def __init__(self):
@@ -33,7 +41,7 @@ class IntervieweeDataVO:
     2. 초기 입력 데이터 (직군,공고, 자소서 문항 리스트, 자소서 답변 리스트)
     3. 초기 질문 리스트
     4. 이전 질문 리스트
-    5. 분석 내용 리스트
+    5. 각 자소서 문항에 대해 분석한 결과를 담고 있는 객체
     6. 초기 질문 인덱스
     7. 꼬리질문 인덱스
     8. 꼬리질문 최대 횟수
@@ -52,7 +60,7 @@ class IntervieweeDataVO:
         for question in initial_question_list:
             self.exclude_question_list.append(question)
 
-        self.interview_analysis = initial_interview_analysis
+        self.interview_analysis = self.InitialInterviewAnalysis(initial_interview_analysis)
 
         self.initial_question_index = 0
         self.followup_question_count = 0
