@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Tuple
 
 
 class IntervieweeInitialInputData:
@@ -32,7 +32,7 @@ class IntervieweeDataVO:
         self.initial_input_data = initial_input_data
 
         self.initial_question_list = initial_question_list
-        self.exclude_question_list = []
+        self.exclude_question_list = []  # 꼬리질문 출제에서 제외할 질문들
 
         for question in initial_question_list:
             self.exclude_question_list.append(question)
@@ -44,7 +44,7 @@ class IntervieweeDataVO:
         self.MAX_FOLLOWUP_QUESTION_COUNT = 3
 
         self.categories_ordered_pair_list = []  # (질문, 답변, 대분류+중분류) 순서쌍 리스트
-        self.scores_about_answer = []
+        self.scores_about_answer = []  # i 번째 요소는 categories_ordered_pair_list[i]에 대한 평가 기준과 점수 문자열이 들어가 있다.
 
     # 다음 초기 질문 출제
     def give_next_initial_question(self):
@@ -68,5 +68,13 @@ class IntervieweeDataVO:
         self.categories_ordered_pair_list.append((question, answer, categories_ordered_pair))
 
     # 평가 내용 저장
-    def save_score_of_interviewee(self, score_from_llm):
-        self.scores_about_answer.append(score_from_llm)
+    def save_score_of_interviewee(self, score_of_answer: str):
+        """
+
+        Args:
+            score_of_answer: # - 기준 : 점수 # 의 여러개의 문자열이 합쳐져있음.
+
+        Returns:
+
+        """
+        self.scores_about_answer.append(score_of_answer)

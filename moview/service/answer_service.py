@@ -68,7 +68,8 @@ class AnswerService:
                                                                               answer=answer)
 
             # 답변에 대한 대분류, 중분류 저장
-            vo.save_categories_ordered_pair(question, answer, category_and_sub_category)
+            vo.save_categories_ordered_pair(question=question, answer=answer,
+                                            categories_ordered_pair=category_and_sub_category)
 
         except InappropriateAnswerError:
             # 적절하지 않은 답변인 경우, 다음 초기 질문 진행

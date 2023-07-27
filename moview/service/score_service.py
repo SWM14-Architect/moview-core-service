@@ -1,3 +1,5 @@
+
+
 from moview.service.interviewee_data_vo import IntervieweeDataVO
 from moview.modules.answer_evaluator.interview_answer_scorer import InterviewAnswerScorer
 
@@ -12,7 +14,8 @@ class ScoreService:
             score_from_llm = self.scorer.score_by_main_and_subcategories(question=question,
                                                                          answer=answer,
                                                                          categories_ordered_pair=category_and_sub_category)
+
             # 평가 저장
-            vo.save_score_of_interviewee(score_from_llm=score_from_llm)
+            vo.save_score_of_interviewee(score_of_answer=score_from_llm)
 
         return vo
