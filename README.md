@@ -50,8 +50,11 @@ GPT call: X
 ### 시퀀스 다이어그램
 
 #### /api/interviewee/analysis
+![interviewee_analysis](resources/interviewee_analysis.png)
+
 
 #### /api/interviewee/answer
+![interviewee_answer](resources/interviewee_answer.png)
 
 #### /api/interview/feedback
 
