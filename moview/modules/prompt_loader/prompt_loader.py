@@ -71,22 +71,30 @@ class SingletonPromptLoader(metaclass=SingletonPromptLoaderMeta):
         with open(abs_path + '/json/' + class_name + '.json', 'r') as f:
             data = json.load(f)
 
+        keys = {
+            "Details": 'details_template',
+            "Results and Learnings": 'results_learnings_template',
+            "Reaction and Coping Strategies": 'coping_strategies_template',
+            "Job-related Scenarios": 'job_scenarios_template',
+            "Scenarios Reflecting Company Culture and Values": 'culture_values_template',
+            "Adaptability and Problem-solving Skills": 'problem_solving_template',
+            "Ethical Judgment": 'ethical_judgment_template',
+            "Technical Details": 'tech_details_template',
+            "Real-world Application": 'real_world_application_template',
+            "Learning and Development": 'learning_development_template',
+            "Core Values and Principles of the Company": 'core_values_principles_template',
+            "Teamwork and Communication Style": 'teamwork_communication_template',
+            "Candidate's Traits and Values": 'candidate_traits_values_template',
+            "Adaptability": 'adaptability_template',
+            "Thinking Style and Behavioral Patterns": 'thinking_style_behavioral_patterns_template',
+            "Growth and Development": 'growth_development_template',
+            "Motivation and Values": 'motivation_values_template'
+        }
+
+        return self.__combine_templates(data, keys)
+
+    def __combine_templates(self, data: dict, keys: dict):
         return {
-            "Details": data['details_template'],
-            "Results and Learnings": data['results_learnings_template'],
-            "Reaction and Coping Strategies": data['coping_strategies_template'],
-            "Job-related Scenarios": data['job_scenarios_template'],
-            "Scenarios Reflecting Company Culture and Values": data['culture_values_template'],
-            "Adaptability and Problem-solving Skills": data['problem_solving_template'],
-            "Ethical Judgment": data['ethical_judgment_template'],
-            "Technical Details": data['tech_details_template'],
-            "Real-world Application": data['real_world_application_template'],
-            "Learning and Development": data['learning_development_template'],
-            "Core Values and Principles of the Company": data['core_values_principles_template'],
-            "Teamwork and Communication Style": data['teamwork_communication_template'],
-            "Candidate's Traits and Values": data['candidate_traits_values_template'],
-            "Adaptability": data['adaptability_template'],
-            "Thinking Style and Behavioral Patterns": data['thinking_style_behavioral_patterns_template'],
-            "Growth and Development": data['growth_development_template'],
-            "Motivation and Values": data['motivation_values_template']
+            key: data['header_template'] + data[template] + data.get('footer_template', '')
+            for key, template in keys.items()
         }
