@@ -66,11 +66,6 @@ class AnswerService:
             category_and_sub_category = self.__classify_answer_of_interviewee(job_group=vo.initial_input_data.job_group,
                                                                               question=question,
                                                                               answer=answer)
-
-            # 답변에 대한 대분류, 중분류 저장
-            vo.save_categories_ordered_pair(question=question, answer=answer,
-                                            categories_ordered_pair=category_and_sub_category)
-
         except InappropriateAnswerError:
             # 적절하지 않은 답변인 경우, 다음 초기 질문 진행
             vo.give_next_initial_question()
@@ -80,6 +75,9 @@ class AnswerService:
             vo.give_next_initial_question()
             return vo, InterviewActionEnum.DIRECT_REQUEST
 
+        # 답변에 대한 대분류, 중분류 저장
+        vo.save_categories_ordered_pair(question=question, answer=answer,
+                                        categories_ordered_pair=category_and_sub_category)
         if vo.is_initial_questions_end() and vo.is_followup_questions_end():
             # 다음 초기 질문 x, 심화질문 x인 경우, interview 종료
             return vo, InterviewActionEnum.END_INTERVIEW
