@@ -15,7 +15,7 @@ class InitialInputAnalyzer:
     def __init__(self):
         abs_path = os.path.dirname(os.path.abspath(__file__))
 
-        with open(abs_path + '/initial_input_analyzer.json', 'r') as f:
+        with open(abs_path + '/InitialInputAnalyzer.json', 'r') as f:
             data = json.load(f)
 
         self.prompt = data['prompt']
