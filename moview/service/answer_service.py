@@ -1,7 +1,6 @@
 import re
 from moview.modules.question_generator import AnswerFilter, AnswerCategoryClassifier, AnswerSubCategoryClassifier, \
     FollowUpQuestionGiver
-from moview.modules.answer_evaluator.interview_answer_scorer import InterviewAnswerScorer
 from moview.service.interviewee_data_vo import IntervieweeDataVO
 from moview.service.interview_action_enum import InterviewActionEnum
 
@@ -38,22 +37,19 @@ class ResubmissionRequestError(Exception):
 
 class AnswerService:
     def __init__(self):
-        self.scorer = InterviewAnswerScorer()
-
         self.filter = AnswerFilter()
         self.major_classifier = AnswerCategoryClassifier()
         self.sub_classifier = AnswerSubCategoryClassifier()
 
         self.giver = FollowUpQuestionGiver()
 
-    def determine_next_action_of_interviewer(self, job_group: str, question: str, answer: str,
+    def determine_next_action_of_interviewer(self, question: str, answer: str,
                                              vo: IntervieweeDataVO) -> (IntervieweeDataVO, InterviewActionEnum):
         """
         interviewer의 질문과 interviewee의 답변을 받아서, intervieweer의 다음 행동을 결정하는 메서드
 
         Args:
             vo: 인터뷰 세션 모든 정보를 다 갖고 있는 vo. (db에 저장하는 걸로 바꿔야 합니다.)
-            job_group: 직군
             question: interviewer의 질문
             answer: interviewee의 답변
 
@@ -67,7 +63,8 @@ class AnswerService:
 
         # 답변 내용을 분류 (적절한가, 재요청인가 등) -> 대분류, 중분류를 받음.
         try:
-            category_and_sub_category = self.__classify_answer_of_interviewee(job_group=job_group, question=question,
+            category_and_sub_category = self.__classify_answer_of_interviewee(job_group=vo.initial_input_data.job_group,
+                                                                              question=question,
                                                                               answer=answer)
         except InappropriateAnswerError:
             # 적절하지 않은 답변인 경우, 다음 초기 질문 진행
@@ -78,12 +75,9 @@ class AnswerService:
             vo.give_next_initial_question()
             return vo, InterviewActionEnum.DIRECT_REQUEST
 
-        # 질문과 답변 내용, 대분류와 중분류를 전달하여 사용자 답변에 대한 평가
-        score_from_llm = self.scorer.score_by_main_and_subcategories(question=question, answer=answer,
-                                                                     categories_ordered_pair=category_and_sub_category)
-        # 평가 저장
-        vo.save_score_of_interviewee(score_from_llm=score_from_llm)
-
+        # 답변에 대한 대분류, 중분류 저장
+        vo.save_categories_ordered_pair(question=question, answer=answer,
+                                        categories_ordered_pair=category_and_sub_category)
         if vo.is_initial_questions_end() and vo.is_followup_questions_end():
             # 다음 초기 질문 x, 심화질문 x인 경우, interview 종료
             return vo, InterviewActionEnum.END_INTERVIEW
@@ -93,7 +87,7 @@ class AnswerService:
             return vo, InterviewActionEnum.NEXT_INITIAL_QUESTION
         else:
             # 꼬리질문 출제
-            followup_question = self.__get_followup_question(job_group=job_group, question=question, answer=answer,
+            followup_question = self.__get_followup_question(question=question, answer=answer,
                                                              categories_ordered_pair=category_and_sub_category,
                                                              vo=vo)
             vo.save_followup_question(followup_question)
@@ -121,11 +115,11 @@ class AnswerService:
             job_group=job_group, question=question,
             answer=answer, categories=categories)
 
-    def __get_followup_question(self, job_group: str, question: str, answer: str, categories_ordered_pair: str,
+    def __get_followup_question(self, question: str, answer: str, categories_ordered_pair: str,
                                 vo: IntervieweeDataVO) -> str:
 
         # 꼬리 질문 출제
         return self.giver.give_followup_question(
-            job_group=job_group, question=question, answer=answer,
-            previous_questions=str(vo.exclude_question_list),
+            job_group=vo.initial_input_data.job_group, question=question, answer=answer,
+            previous_questions=str(vo.interview_questions.excluded_questions_for_giving_followup_question),
             categories_ordered_pair=categories_ordered_pair)

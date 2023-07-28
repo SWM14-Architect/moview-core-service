@@ -106,8 +106,7 @@ class InterviewAnswerScorer:
         multi_prompt_chain = MultiPromptChain(
             router_chain=router_chain,
             destination_chains=destination_chains,
-            default_chain=ConversationChain(llm=ChatOpenAI(), output_key="text"),
-            verbose=True)
+            default_chain=ConversationChain(llm=ChatOpenAI(), output_key="text"))
 
         return multi_prompt_chain
 
