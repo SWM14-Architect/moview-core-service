@@ -35,18 +35,18 @@ class InputService:
         # 각 자소서 답변 분석 내용에 대해 2개씩 초기 질문 생성.
         for analysis_about_one_cover_letter in initial_analysis_list_about_interviewee:
 
-            # 길이 2의 질문 리스트 생성 List[str]
+            # 길이 (INIT_QUESTION_MULTIPLIER) 의 질문 리스트 생성 List[str]
             created_questions = self.initial_question_giver.give_initial_questions(
                 analysis_about_one_cover_letter=analysis_about_one_cover_letter,
                 question_count=self.INIT_QUESTION_MULTIPLIER)
 
-            # 생성된 초기 질문 2개를 initial_question_list에 추가. List[str] (created_questions) 에서 List[str]
-            # (initial_question_list)로 옮기기 위한 코드
+            # 생성된 초기 질문 (INIT_QUESTION_MULTIPLIER)개를 initial_question_list에 추가.
+            # List[str] (created_questions) 에서 List[str] (initial_question_list)로 옮기기 위한 코드
             for _ in range(self.INIT_QUESTION_MULTIPLIER):
                 initial_question_list.append(created_questions.pop())
 
         return IntervieweeDataVO(session_id=session_id,
-                                 initial_question_list=initial_question_list,  # 자소서 문항, 답변 순서쌍 * 2 만큼 초기질문이 들어있음.
+                                 initial_question_list=initial_question_list,  # (자소서 문항, 답변) 순서쌍 길이 * (INIT_QUESTION_MULTIPLIER) 만큼 초기질문이 들어있음.
                                  initial_interview_analysis=initial_analysis_list_about_interviewee,
                                  initial_input_data=filtered_input_data)
 
