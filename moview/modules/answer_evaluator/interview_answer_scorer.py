@@ -31,7 +31,7 @@ class InterviewAnswerScorer:
         self.prompt = self.__load_prompt_for_multi_prompt_chain_from_json_file()
         self.templates_for_prompt_info = self.__load_prompt_for_routing_from_json_file()
 
-    def score_by_main_and_subcategories(self, question: str, answer: str, categories_ordered_pair: str) -> str:
+    def rate_by_main_and_subcategories(self, question: str, answer: str, categories_ordered_pair: str) -> str:
 
         multi_prompt_chain = self.__make_multi_prompt_chain()
 
