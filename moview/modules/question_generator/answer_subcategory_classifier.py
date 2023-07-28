@@ -1,6 +1,3 @@
-import json
-import os
-
 from langchain import LLMChain
 from langchain.prompts.chat import (
     SystemMessagePromptTemplate,
@@ -9,16 +6,13 @@ from langchain.prompts.chat import (
 )
 from langchain.chat_models import ChatOpenAI
 from langchain.callbacks.streaming_stdout import StreamingStdOutCallbackHandler
+from moview.modules.prompt_loader.prompt_loader import SingletonPromptLoader
 
 
 class AnswerSubCategoryClassifier:
     def __init__(self):
-        abs_path = os.path.dirname(os.path.abspath(__file__))
-
-        with open(abs_path + '/subcategory_prompt.json', 'r') as f:
-            data = json.load(f)
-
-        self.prompt = data['prompt']
+        prompt_loader = SingletonPromptLoader()
+        self.prompt = prompt_loader.load_prompt_json(AnswerSubCategoryClassifier.__name__)
 
     def classify_sub_category_of_answer(self, job_group: str, question: str, answer: str, categories: str) -> str:
         """

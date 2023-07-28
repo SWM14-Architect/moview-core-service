@@ -40,9 +40,53 @@ class SingletonPromptLoader(metaclass=SingletonPromptLoaderMeta):
         Returns: 프롬프트 내용
 
         """
+
+        if class_name == 'InterviewAnswerScorer':
+            raise ValueError('InterviewAnswerScorer는 이 메서드를 사용할 수 없습니다.')
+
         abs_path = os.path.dirname(os.path.abspath(__file__))
 
         with open(abs_path + '/json/' + class_name + '.json', 'r') as f:
             data = json.load(f)
 
         return data['prompt']
+
+    def load_multi_prompt_chain_json_for_interview_answer_scorer(self, class_name: str) -> dict:
+        if class_name != 'InterviewAnswerScorer':
+            raise ValueError('InterviewAnswerScorer만 이 메서드를 사용할 수 있습니다.')
+
+        abs_path = os.path.dirname(os.path.abspath(__file__))
+
+        with open(abs_path + '/json/' + class_name + '.json', 'r') as f:
+            data = json.load(f)
+
+        return data['multi_prompt_template']
+
+    def load_routing_prompt_json_for_interview_answer_scorer(self, class_name: str) -> dict:
+        if class_name != 'InterviewAnswerScorer':
+            raise ValueError('InterviewAnswerScorer만 이 메서드를 사용할 수 있습니다.')
+
+        abs_path = os.path.dirname(os.path.abspath(__file__))
+
+        with open(abs_path + '/json/' + class_name + '.json', 'r') as f:
+            data = json.load(f)
+
+        return {
+            "Details": data['details_template'],
+            "Results and Learnings": data['results_learnings_template'],
+            "Reaction and Coping Strategies": data['coping_strategies_template'],
+            "Job-related Scenarios": data['job_scenarios_template'],
+            "Scenarios Reflecting Company Culture and Values": data['culture_values_template'],
+            "Adaptability and Problem-solving Skills": data['problem_solving_template'],
+            "Ethical Judgment": data['ethical_judgment_template'],
+            "Technical Details": data['tech_details_template'],
+            "Real-world Application": data['real_world_application_template'],
+            "Learning and Development": data['learning_development_template'],
+            "Core Values and Principles of the Company": data['core_values_principles_template'],
+            "Teamwork and Communication Style": data['teamwork_communication_template'],
+            "Candidate's Traits and Values": data['candidate_traits_values_template'],
+            "Adaptability": data['adaptability_template'],
+            "Thinking Style and Behavioral Patterns": data['thinking_style_behavioral_patterns_template'],
+            "Growth and Development": data['growth_development_template'],
+            "Motivation and Values": data['motivation_values_template']
+        }

@@ -3,6 +3,7 @@ import unittest
 from moview.modules.prompt_loader.prompt_loader import SingletonPromptLoader
 from moview.modules.initial_input.initial_input_analyzer import InitialInputAnalyzer
 
+
 class TestSingleton(unittest.TestCase):
     def test_singleton(self):
         prompt_loader1 = SingletonPromptLoader()

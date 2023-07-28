@@ -3,9 +3,18 @@ from unittest.mock import patch
 from moview.modules.question_generator.followup_question_giver import FollowUpQuestionGiver
 
 
+def is_not_none_string(s):
+    return s is not None and isinstance(s, str)
+
+
 class TestFollowUpQuestionGiver(unittest.TestCase):
     def setUp(self) -> None:
         self.followup_question_giver = FollowUpQuestionGiver()
+
+    def test_load_prompt(self):
+        self.assertTrue(is_not_none_string(self.followup_question_giver.prompt))
+        print(self.followup_question_giver.prompt.format(job_group="테스트 직군", categories_ordered_pair="테스트 카테고리 쌍",
+                                                         previous_question="테스트 이전 질문"))
 
     @patch(
         'moview.modules.question_generator.followup_question_giver.FollowUpQuestionGiver'
