@@ -9,7 +9,7 @@ from langchain.chains.router.multi_prompt_prompt import (
     MULTI_PROMPT_ROUTER_TEMPLATE,
 )
 from langchain.prompts import PromptTemplate
-from moview.utils.data_manager import *
+from moview.utils.llm_interface import *
 from moview.utils.util import remove_indent, write_log_in_txt
 
 

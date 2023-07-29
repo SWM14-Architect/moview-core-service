@@ -1,4 +1,4 @@
-from moview.utils.data_manager import LLMApiKeyLoader
+from moview.utils.llm_interface import LLMApiKeyLoader
 from flask import session, Response, make_response, jsonify
 from http import HTTPStatus
 

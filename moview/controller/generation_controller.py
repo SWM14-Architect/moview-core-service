@@ -3,7 +3,7 @@ import datetime
 from flask_restx import Resource, Namespace
 from moview.modules.question_generator.init_question_generator import InitQuestionGenerator
 from moview.modules.question_generator.follow_up_question_generator import FollowUpQuestionGenerator
-from moview.utils.data_manager import *
+from moview.utils.llm_interface import *
 from moview.controller import *
 from moview.utils.util import write_log_in_txt
 

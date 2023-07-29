@@ -6,7 +6,7 @@ from langchain.prompts.chat import (
     HumanMessagePromptTemplate
 )
 
-from moview.utils.data_manager import *
+from moview.utils.llm_interface import *
 from moview.utils.util import remove_indent, write_log_in_txt
 
 

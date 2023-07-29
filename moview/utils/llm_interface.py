@@ -6,8 +6,10 @@ from langchain.callbacks.base import BaseCallbackHandler
 from moview.handlers.custom_callback_handler import CustomCallbackHandler
 from langchain.chat_models import ChatOpenAI
 
+from moview.utils.singleton_meta_class import SingletonMeta
 
-class LLMApiKeyLoader:
+
+class LLMApiKeyLoader(metaclass=SingletonMeta):
     def __init__(self):
         self.openai_api_key = None
         if sys.platform == 'darwin':
@@ -20,11 +22,11 @@ class LLMApiKeyLoader:
 
 class ChatManager:
     def __init__(
-        self,
-        callback_handler: Type[BaseCallbackHandler] = CustomCallbackHandler(),
-        streaming: bool = True,
-        model: str = "gpt-3.5-turbo",
-        temperature: float = 0.5
+            self,
+            callback_handler: Type[BaseCallbackHandler] = CustomCallbackHandler(),
+            streaming: bool = True,
+            model: str = "gpt-3.5-turbo",
+            temperature: float = 0.5
     ):
         """
         Args:

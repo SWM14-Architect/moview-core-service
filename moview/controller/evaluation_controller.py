@@ -5,7 +5,7 @@ from flask_restx import Resource, Namespace
 from moview.modules.analyzer.input_info_analyzer import InputInfoAnalyzer
 from moview.modules.analyzer.answer_analyzer import AnswerAnalyzer
 from moview.controller import *
-from moview.utils.data_manager import *
+from moview.utils.llm_interface import *
 from moview.utils.util import write_log_in_txt, remove_indent
 
 api = Namespace('evaluation', description='evaluation api')
