@@ -1,13 +1,13 @@
 import unittest
 
 from moview.service import IntervieweeDataVO, IntervieweeInitialInputData
-from moview.service.score_service import ScoreService
+from moview.service.score_service import InterviewAnswerScoreService
 
 
 class TestScoreService(unittest.TestCase):
 
     def setUp(self) -> None:
-        self.score_service = ScoreService()
+        self.score_service = InterviewAnswerScoreService()
         self.initial_input_data = IntervieweeInitialInputData(
             interviewee_name="test_user", jop_group="IT", recruit_announcement="공고",
             cover_letter_questions=["질문1", "질문2"],
