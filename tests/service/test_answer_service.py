@@ -9,7 +9,8 @@ class TestAnswerServiceWithMocking(unittest.TestCase):
 
     def setUp(self) -> None:
         self.answer_service = AnswerService()
-        self.initial_input_data = IntervieweeInitialInputData(jop_group="IT", recruit_announcement="공고",
+        self.initial_input_data = IntervieweeInitialInputData(interviewee_name="test_user", jop_group="IT",
+                                                              recruit_announcement="공고",
                                                               cover_letter_questions=["질문1", "질문2"],
                                                               cover_letter_answers=["답변1", "답변2"])
 
@@ -112,7 +113,8 @@ class TestAnswerServiceWithoutMocking(unittest.TestCase):
 
     def setUp(self) -> None:
         self.answer_service = AnswerService()
-        self.initial_input_data = IntervieweeInitialInputData(jop_group="IT", recruit_announcement="공고",
+        self.initial_input_data = IntervieweeInitialInputData(interviewee_name="test_user", jop_group="IT",
+                                                              recruit_announcement="공고",
                                                               cover_letter_questions=["질문1", "질문2"],
                                                               cover_letter_answers=["답변1", "답변2"])
         self.question = "프로젝트에서 어떤 언어와 프레임워크, 라이브러리를 사용하였나요?"

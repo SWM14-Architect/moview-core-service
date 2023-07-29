@@ -2,8 +2,10 @@ from typing import List, Tuple
 
 
 class IntervieweeInitialInputData:
-    def __init__(self, jop_group: str, recruit_announcement: str, cover_letter_questions: List[str],
+    def __init__(self, interviewee_name: str, jop_group: str, recruit_announcement: str,
+                 cover_letter_questions: List[str],
                  cover_letter_answers: List[str]):
+        self.interviewee_name = interviewee_name
         self.job_group = jop_group
         self.recruit_announcement = recruit_announcement
         self.cover_letter_questions = cover_letter_questions
