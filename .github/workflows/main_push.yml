@@ -1,4 +1,4 @@
-name: Main branch Push Workflow (Test and Deploy)
+name: Main branch Push Workflow
 
 on:
   push:

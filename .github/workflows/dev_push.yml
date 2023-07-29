@@ -1,4 +1,4 @@
-name: Dev branch Push Workflow (Test)
+name: Dev branch Push Workflow
 
 on:
   push:

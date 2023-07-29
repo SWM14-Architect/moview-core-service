@@ -1,4 +1,4 @@
-name: Main branch PR Workflow (Test and Comment)
+name: Main branch PR Workflow
 
 on:
   pull_request:
