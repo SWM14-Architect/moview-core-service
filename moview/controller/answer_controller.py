@@ -1,8 +1,8 @@
 from flask import request
 from flask_restx import Resource, Namespace
 
-from moview.service import IntervieweeDataVO, AnswerService, InterviewActionEnum
-from moview.service.score_service import InterviewAnswerScoreService
+from moview.service import IntervieweeAnswerService, InterviewActionEnum
+from moview.service.interviewee_rate.interviewee_answer_score_service import InterviewAnswerScoreService
 
 api = Namespace('answer', description='answer api')
 
@@ -17,7 +17,7 @@ class AnswerOfInterviewee(Resource):
         # load_interview_data_vo()
 
         # 서비스 호출. (면접관의 다음 행동 결정)
-        answer_service = AnswerService()
+        answer_service = IntervieweeAnswerService()
         vo, next_action = answer_service.determine_next_action_of_interviewer()
 
         # 다음 행동에 따라 다른 로직 수행

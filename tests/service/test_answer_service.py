@@ -2,13 +2,13 @@ import unittest
 from unittest.mock import patch
 
 from moview.service import IntervieweeDataVO, InterviewActionEnum, IntervieweeInitialInputData
-from moview.service.answer_service import AnswerService
+from moview.service.interviewee_answer.interviewee_answer_service import IntervieweeAnswerService
 
 
 class TestAnswerServiceWithMocking(unittest.TestCase):
 
     def setUp(self) -> None:
-        self.answer_service = AnswerService()
+        self.answer_service = IntervieweeAnswerService()
         self.initial_input_data = IntervieweeInitialInputData(interviewee_name="test_user", jop_group="IT",
                                                               recruit_announcement="공고",
                                                               cover_letter_questions=["질문1", "질문2"],
@@ -112,7 +112,7 @@ class TestAnswerServiceWithMocking(unittest.TestCase):
 class TestAnswerServiceWithoutMocking(unittest.TestCase):
 
     def setUp(self) -> None:
-        self.answer_service = AnswerService()
+        self.answer_service = IntervieweeAnswerService()
         self.initial_input_data = IntervieweeInitialInputData(interviewee_name="test_user", jop_group="IT",
                                                               recruit_announcement="공고",
                                                               cover_letter_questions=["질문1", "질문2"],

@@ -5,7 +5,7 @@ from moview.modules.initial_input.initial_input_analyzer import InitialInputAnal
 from moview.modules.initial_input.initial_question_giver import InitialQuestionGiver
 
 
-class InputService:
+class IntervieweeInputService:
     def __init__(self):
         self.INIT_QUESTION_MULTIPLIER = 2  # 각 자소서 답변에 대해 초기 질문을 몇 개씩 생성할 것인지 결정하는 상수
 

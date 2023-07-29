@@ -1,7 +1,7 @@
 import unittest
 
 from moview.service import IntervieweeDataVO, IntervieweeInitialInputData
-from moview.service.score_service import InterviewAnswerScoreService
+from moview.service.interviewee_rate.interviewee_answer_score_service import InterviewAnswerScoreService
 
 
 class TestScoreService(unittest.TestCase):

@@ -1,11 +1,11 @@
 import unittest
-from moview.service.input_service import InputService
+from moview.service.interviewee_input.input_service import IntervieweeInputService
 from moview.service import IntervieweeInitialInputData
 
 
 class TestInputService(unittest.TestCase):
     def setUp(self):
-        self.input_service = InputService()
+        self.input_service = IntervieweeInputService()
         self.recruit_announcement = "창의력이 뛰어난 프로그래밍 전문가 모집합니다"
 
     def test_cover_letter_questions_and_answers_length_are_not_not_equal(self):
