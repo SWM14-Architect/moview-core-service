@@ -1,1 +1,1 @@
-from moview.modules.prompt_loader.prompt_loader import SingletonPromptLoader
+from moview.modules.prompt_loader.prompt_loader import PromptLoader

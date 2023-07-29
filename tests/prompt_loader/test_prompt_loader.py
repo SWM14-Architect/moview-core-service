@@ -1,13 +1,13 @@
 import threading
 import unittest
-from moview.modules.prompt_loader.prompt_loader import SingletonPromptLoader
+from moview.modules.prompt_loader.prompt_loader import PromptLoader
 from moview.modules.initial_input.initial_input_analyzer import InitialInputAnalyzer
 
 
 class TestSingleton(unittest.TestCase):
     def test_singleton(self):
-        prompt_loader1 = SingletonPromptLoader()
-        prompt_loader2 = SingletonPromptLoader()
+        prompt_loader1 = PromptLoader()
+        prompt_loader2 = PromptLoader()
         self.assertEqual(id(prompt_loader1), id(prompt_loader2))
 
     def test_thread_safe(self):
@@ -19,7 +19,7 @@ class TestSingleton(unittest.TestCase):
         instances = []
 
         def create_singleton_instance():
-            created_instance = SingletonPromptLoader()
+            created_instance = PromptLoader()
             instances.append(created_instance)
 
         threads = []
@@ -38,7 +38,7 @@ class TestSingleton(unittest.TestCase):
 
 class TestLoadPrompt(unittest.TestCase):
     def test_load_prompt_json(self):
-        prompt_loader = SingletonPromptLoader()
+        prompt_loader = PromptLoader()
         prompt = prompt_loader.load_prompt_json(InitialInputAnalyzer.__name__)
 
         self.assertTrue(prompt is not None)

@@ -6,12 +6,12 @@ from langchain.prompts.chat import (
 )
 from langchain.chat_models import ChatOpenAI
 from langchain.callbacks.streaming_stdout import StreamingStdOutCallbackHandler
-from moview.modules.prompt_loader.prompt_loader import SingletonPromptLoader
+from moview.modules.prompt_loader.prompt_loader import PromptLoader
 
 
 class InitialInputAnalyzer:
     def __init__(self):
-        prompt_loader = SingletonPromptLoader()
+        prompt_loader = PromptLoader()
         self.prompt = prompt_loader.load_prompt_json(InitialInputAnalyzer.__name__)
 
     def analyze_initial_input(self, job_group: str, recruitment_announcement: str, cover_letter_question: str,

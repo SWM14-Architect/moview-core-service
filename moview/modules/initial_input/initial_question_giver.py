@@ -9,12 +9,12 @@ from langchain.prompts.chat import (
 )
 from langchain.chat_models import ChatOpenAI
 from langchain.callbacks.streaming_stdout import StreamingStdOutCallbackHandler
-from moview.modules.prompt_loader.prompt_loader import SingletonPromptLoader
+from moview.modules.prompt_loader.prompt_loader import PromptLoader
 
 
 class InitialQuestionGiver:
     def __init__(self):
-        prompt_loader = SingletonPromptLoader()
+        prompt_loader = PromptLoader()
         self.prompt = prompt_loader.load_prompt_json(InitialQuestionGiver.__name__)
 
     def give_initial_questions(self, analysis_about_one_cover_letter: str, question_count: int) -> List[str]:

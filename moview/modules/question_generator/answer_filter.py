@@ -6,13 +6,13 @@ from langchain.prompts.chat import (
 )
 from langchain.chat_models import ChatOpenAI
 from langchain.callbacks.streaming_stdout import StreamingStdOutCallbackHandler
-from moview.modules.prompt_loader.prompt_loader import SingletonPromptLoader
+from moview.modules.prompt_loader.prompt_loader import PromptLoader
 
 
 class AnswerFilter:
 
     def __init__(self):
-        prompt_loader = SingletonPromptLoader()
+        prompt_loader = PromptLoader()
         self.prompt = prompt_loader.load_prompt_json(AnswerFilter.__name__)
 
     def exclude_invalid_answer(self, job_group: str, question: str, answer: str) -> str:

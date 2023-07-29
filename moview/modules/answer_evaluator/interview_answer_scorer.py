@@ -6,7 +6,7 @@ from langchain.chains import ConversationChain
 from langchain.chains.router.llm_router import LLMRouterChain, RouterOutputParser
 from langchain.chains.router.multi_prompt_prompt import MULTI_PROMPT_ROUTER_TEMPLATE
 from langchain.callbacks.streaming_stdout import StreamingStdOutCallbackHandler
-from moview.modules.prompt_loader.prompt_loader import SingletonPromptLoader
+from moview.modules.prompt_loader.prompt_loader import PromptLoader
 
 CATEGORIES = ["Behavioral Questions", "Situational Questions", "Technical Job-related Questions",
               "Cultural Fit Questions", "Personal Character Questions"]
@@ -26,7 +26,7 @@ SUB_CATEGORIES = {
 
 class InterviewAnswerScorer:
     def __init__(self):
-        prompt_loader = SingletonPromptLoader()
+        prompt_loader = PromptLoader()
 
         self.multi_prompt = prompt_loader.load_multi_prompt_chain_json_for_interview_answer_scorer(
             InterviewAnswerScorer.__name__)

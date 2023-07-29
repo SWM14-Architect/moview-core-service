@@ -30,7 +30,7 @@ class SingletonPromptLoaderMeta(type):
         return cls._instance
 
 
-class SingletonPromptLoader(metaclass=SingletonPromptLoaderMeta):
+class PromptLoader(metaclass=SingletonPromptLoaderMeta):
     def load_prompt_json(self, class_name: str) -> dict:
         """
         json 파일을 읽어서 prompt를 반환하는 메서드
