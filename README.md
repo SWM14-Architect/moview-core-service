@@ -5,7 +5,9 @@
 (request,response에서 인덱스로 되어 있는 부분은 MVP v2에서 db id로 변경해야 합니다.)
 
 ### API 명세서
-#### /api/interviewee/analysis
+
+#### /api/interviewee/input
+
 ```
 method : POST
 request: json(직군,모집 공고,(자소서 문항, 자소서 답변) 리스트)
@@ -16,6 +18,7 @@ GPT call: O
 ```
 
 #### /api/interviewee/answer
+
 ```
 method : POST
 request:cookie(세션id),json(초기 질문 인덱스, 꼬리질문 인덱스, 현재 질문 Q, 면접자 답변 A)
@@ -36,6 +39,7 @@ GPT call: O
 ```
 
 #### /api/interviewee/feedback
+
 ```
 method : POST
 request: cookie(세션id), json(각 답변분석에 대한 유저의 평가)
@@ -49,13 +53,15 @@ GPT call: X
 
 ### 시퀀스 다이어그램
 
-#### /api/interviewee/analysis
-![interviewee_analysis](resources/interviewee_analysis.png)
+#### /api/interviewee/input
 
+![interviewee_input](resources/interviewee_input.png)
 
 #### /api/interviewee/answer
+
 ![interviewee_answer](resources/interviewee_answer.png)
 
 #### /api/interviewee/feedback
+
 ![interviwee_feedback](resources/interviewee_feedback.png)
 ***
