@@ -1,4 +1,4 @@
-name: Flask Test and Deploy to AWS for Push
+name: Main branch Push Workflow (Test and Deploy)
 
 on:
   push:
@@ -12,12 +12,10 @@ env:
   PYTHON_VERSION: '3.10'
 
 jobs:
-  # 환경 설정 및 테스트 진행
-  setup:
+  test_and_deploy:
     runs-on: ubuntu-latest
-    outputs:
-      coverage: ${{ steps.coverage-check.outputs.coverage }}
     steps:
+      # 1. 환경 설정
       - name: Checkout source code
         uses: actions/checkout@v3
 
@@ -39,6 +37,7 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
 
+#      # 2. 테스트 진행
 #      - name: Run tests with coverage
 #        run: ./venv/bin/python -m coverage run -m unittest discover -s tests -p "test_*.py"
 #        shell: bash
@@ -46,22 +45,16 @@ jobs:
 #      - name: Check test coverage
 #        id: coverage-check
 #        run: |
-#          ./venv/bin/python -m coverage report -m
 #          COVERAGE=$(./venv/bin/python -m coverage report -m | grep TOTAL | awk '{print $6}' | sed 's/%//')
 #          echo "Test coverage: $COVERAGE%"
 #          echo "::set-output name=coverage::$COVERAGE"
 #        shell: bash
-
-  # main에 대한 push일 경우, 테스트 커버리지가 60% 이상이면 배포 진행
-  deploy:
-    needs: setup
-    runs-on: ubuntu-latest
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    steps:
+#
+#      # 3. 배포 진행 (테스트 커버리지가 60% 이상일 경우)
 #      - name: Check Test Coverage Threshold
 #        id: check-coverage-threshold
 #        run: |
-#          COVERAGE=$(echo "${{ needs.setup.outputs.coverage }}" | awk '{print $1}')
+#          COVERAGE=${{ steps.coverage-check.outputs.coverage }}
 #          if (( $(echo "$COVERAGE < 60" | bc -l) )); then
 #            echo "테스트 커버리지가 부족하여 배포를 취소합니다."
 #            exit 1
