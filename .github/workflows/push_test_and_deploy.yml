@@ -1,10 +1,9 @@
-name: Flask Test and Deploy to AWS
+name: Flask Test and Deploy to AWS for Push
 
 on:
-  pull_request:
+  push:
     branches:
       - main
-  push:
   workflow_dispatch:  # Run workflow(수동 실행) 기능 활성화
     branches:
       - main
@@ -52,20 +51,6 @@ jobs:
 #          echo "Test coverage: $COVERAGE%"
 #          echo "::set-output name=coverage::$COVERAGE"
 #        shell: bash
-
-#  # PR일 경우, 테스트 커버리지를 PR Comment에 기록
-#  post-comment:
-#    needs: setup
-#    runs-on: ubuntu-latest
-#    if: github.event_name == 'pull_request'
-#    steps:
-#      - name: Post Test Coverage Report as PR Comment
-#        run: |
-#          COVERAGE=$(echo "${{ needs.setup.outputs.coverage }}" | awk '{print $1}')
-#          COMMENT="#### Test Coverage Report\n\`\`\`\nTest coverage: ${COVERAGE}%\n\`\`\`"
-#          echo $COMMENT | gh pr review ${{ github.event.pull_request.number }} --comment
-#        env:
-#          GH_TOKEN: ${{ github.token }}
 
   # main에 대한 push일 경우, 테스트 커버리지가 60% 이상이면 배포 진행
   deploy:
