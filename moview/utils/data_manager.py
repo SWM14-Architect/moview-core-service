@@ -1,21 +1,17 @@
-import os
-import sys
 from typing import *
 
 from langchain.callbacks.base import BaseCallbackHandler
 from moview.handlers.custom_callback_handler import CustomCallbackHandler
 from langchain.chat_models import ChatOpenAI
 
+import moview.utils.aws_interface as aws
+
+OPENAI_API_KEY_PARAM = "openai-api-key"
+
 
 class KeyManager:
     def __init__(self):
-        self.openai_api_key = None
-        if sys.platform == 'darwin':
-            # MacOS
-            self.openai_api_key = os.environ["OPENAI_API_KEY"]
-        elif sys.platform == 'win32' or sys.platform == 'linux':
-            # Windows, Linux
-            self.openai_api_key = os.getenv("OPENAI_API_KEY")
+        self.openai_api_key = aws.getparam(OPENAI_API_KEY_PARAM)
 
 
 class ChatManager:
