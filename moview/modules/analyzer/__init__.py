@@ -1,2 +1,0 @@
-from moview.modules.analyzer.answer_analyzer import AnswerAnalyzer
-from moview.modules.analyzer.input_info_analyzer import InputInfoAnalyzer

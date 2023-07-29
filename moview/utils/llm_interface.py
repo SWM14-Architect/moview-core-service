@@ -35,30 +35,3 @@ class LLMModelFactory:
         return ChatOpenAI(openai_api_key=LLMApiKeyLoader().openai_api_key,
                           temperature=temperature, model_name='gpt-3.5-turbo', verbose=True, streaming=True,
                           callbacks=[StreamingStdOutCallbackHandler()])
-
-
-class ChatManager:
-    def __init__(
-            self,
-            callback_handler: Type[BaseCallbackHandler] = CustomCallbackHandler(),
-            streaming: bool = True,
-            model: str = "gpt-3.5-turbo",
-            temperature: float = 0.5
-    ):
-        """
-        Args:
-            callback_handler: CallbackHandler
-            streaming: Streaming
-            model: GPT Model
-            temperature: Temperature
-        """
-        self.chat = ChatOpenAI(
-            openai_api_key=LLMApiKeyLoader().openai_api_key,
-            streaming=streaming,
-            callbacks=[callback_handler],
-            model_name=model,
-            temperature=temperature,
-        )
-
-    def get_chat_model(self) -> ChatOpenAI:
-        return self.chat
