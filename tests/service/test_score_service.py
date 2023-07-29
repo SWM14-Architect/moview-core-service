@@ -1,16 +1,17 @@
 import unittest
 
 from moview.service import IntervieweeDataVO, IntervieweeInitialInputData
-from moview.service.score_service import ScoreService
+from moview.service.interviewee_rate.interviewee_answer_score_service import InterviewAnswerScoreService
 
 
 class TestScoreService(unittest.TestCase):
 
     def setUp(self) -> None:
-        self.score_service = ScoreService()
-        self.initial_input_data = IntervieweeInitialInputData(jop_group="IT", recruit_announcement="공고",
-                                                              cover_letter_questions=["질문1", "질문2"],
-                                                              cover_letter_answers=["답변1", "답변2"])
+        self.score_service = InterviewAnswerScoreService()
+        self.initial_input_data = IntervieweeInitialInputData(
+            interviewee_name="test_user", jop_group="IT", recruit_announcement="공고",
+            cover_letter_questions=["질문1", "질문2"],
+            cover_letter_answers=["답변1", "답변2"])
 
         self.vo = IntervieweeDataVO(session_id=1, initial_question_list=["질문1", "질문2"],
                                     initial_interview_analysis=["분석1", "분석 2"],

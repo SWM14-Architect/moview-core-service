@@ -5,7 +5,7 @@ from moview.modules.initial_input.initial_input_analyzer import InitialInputAnal
 from moview.modules.initial_input.initial_question_giver import InitialQuestionGiver
 
 
-class InputService:
+class IntervieweeInputService:
     def __init__(self):
         self.INIT_QUESTION_MULTIPLIER = 2  # 각 자소서 답변에 대해 초기 질문을 몇 개씩 생성할 것인지 결정하는 상수
 
@@ -28,12 +28,12 @@ class InputService:
         filtered_input_data = self.__filter_initial_inputs_of_interviewee(initial_input_data)
 
         # 사용자 입력 정보 분석 (직군, 공고, 자소서 문항 리스트, 자소서 답변 리스트)-> 분석 결과 문자열 리스트 (자소서 입력 개수만큼 분석 내용이 나옵니다.)
-        analyzed_intial_inputs_of_interviewee = self.__analyze_initial_inputs_of_interviewee(filtered_input_data)
+        analyzed_initial_inputs_of_interviewee = self.__analyze_initial_inputs_of_interviewee(filtered_input_data)
 
         initial_question_list = []  # List[str]
 
         # 각 자소서 답변 분석 내용에 대해 2개씩 초기 질문 생성.
-        for analysis_about_one_cover_letter in analyzed_intial_inputs_of_interviewee:
+        for analysis_about_one_cover_letter in analyzed_initial_inputs_of_interviewee:
 
             # 길이 (INIT_QUESTION_MULTIPLIER) 의 질문 리스트 생성 List[str]
             created_questions = self.initial_question_giver.give_initial_questions(
@@ -46,8 +46,9 @@ class InputService:
                 initial_question_list.append(created_questions.pop())
 
         return IntervieweeDataVO(session_id=session_id,
-                                 initial_question_list=initial_question_list,  # (자소서 문항, 답변) 순서쌍 길이 * (INIT_QUESTION_MULTIPLIER) 만큼 초기질문이 들어있음.
-                                 initial_interview_analysis=analyzed_intial_inputs_of_interviewee,
+                                 initial_question_list=initial_question_list,
+                                 # (자소서 문항, 답변) 순서쌍 길이 * (INIT_QUESTION_MULTIPLIER) 만큼 초기질문이 들어있음.
+                                 initial_interview_analysis=analyzed_initial_inputs_of_interviewee,
                                  initial_input_data=filtered_input_data)
 
     def __filter_initial_inputs_of_interviewee(self, initial_input_data: IntervieweeInitialInputData) \

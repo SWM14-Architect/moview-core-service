@@ -1,9 +1,6 @@
 import unittest
+from common_code_for_test import is_not_none_string
 from moview.modules.initial_input.initial_input_analyzer import InitialInputAnalyzer
-
-
-def is_not_none_string(s):
-    return s is not None and isinstance(s, str)
 
 
 class TestInitialInputAnalyzer(unittest.TestCase):

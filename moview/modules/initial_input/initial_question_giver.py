@@ -7,14 +7,13 @@ from langchain.prompts.chat import (
     ChatPromptTemplate,
     HumanMessagePromptTemplate
 )
-from langchain.chat_models import ChatOpenAI
-from langchain.callbacks.streaming_stdout import StreamingStdOutCallbackHandler
-from moview.modules.prompt_loader.prompt_loader import SingletonPromptLoader
+from moview.modules.prompt_loader.prompt_loader import PromptLoader
+from moview.utils.llm_interface import LLMModelFactory
 
 
 class InitialQuestionGiver:
     def __init__(self):
-        prompt_loader = SingletonPromptLoader()
+        prompt_loader = PromptLoader()
         self.prompt = prompt_loader.load_prompt_json(InitialQuestionGiver.__name__)
 
     def give_initial_questions(self, analysis_about_one_cover_letter: str, question_count: int) -> List[str]:
@@ -41,8 +40,8 @@ class InitialQuestionGiver:
             input_variables=["analysis"],
         )
 
-        llm = ChatOpenAI(temperature=0.7, model_name='gpt-3.5-turbo', verbose=True, streaming=True,
-                         callbacks=[StreamingStdOutCallbackHandler()])
+        llm = LLMModelFactory.create_chat_open_ai(temperature=0.7)
+
         chain = LLMChain(llm=llm, prompt=prompt)
 
         initial_questions_from_llm = chain.run({

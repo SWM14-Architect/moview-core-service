@@ -1,11 +1,7 @@
 import unittest
 from unittest.mock import patch
-
+from common_code_for_test import is_not_none_string
 from moview.modules.question_generator.answer_filter import AnswerFilter
-
-
-def is_not_none_string(s):
-    return s is not None and isinstance(s, str)
 
 
 class TestAnswerFilter(unittest.TestCase):

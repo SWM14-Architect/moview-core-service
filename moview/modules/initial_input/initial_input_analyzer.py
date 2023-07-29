@@ -4,14 +4,13 @@ from langchain.prompts.chat import (
     ChatPromptTemplate,
     HumanMessagePromptTemplate
 )
-from langchain.chat_models import ChatOpenAI
-from langchain.callbacks.streaming_stdout import StreamingStdOutCallbackHandler
-from moview.modules.prompt_loader.prompt_loader import SingletonPromptLoader
+from moview.modules.prompt_loader.prompt_loader import PromptLoader
+from moview.utils.llm_interface import LLMModelFactory
 
 
 class InitialInputAnalyzer:
     def __init__(self):
-        prompt_loader = SingletonPromptLoader()
+        prompt_loader = PromptLoader()
         self.prompt = prompt_loader.load_prompt_json(InitialInputAnalyzer.__name__)
 
     def analyze_initial_input(self, job_group: str, recruitment_announcement: str, cover_letter_question: str,
@@ -43,8 +42,8 @@ class InitialInputAnalyzer:
             input_variables=["job_posting", "cover_letter_question", "cover_letter_answer"],
         )
 
-        llm = ChatOpenAI(temperature=0.5, model_name='gpt-3.5-turbo', verbose=True, streaming=True,
-                         callbacks=[StreamingStdOutCallbackHandler()])
+        llm = LLMModelFactory.create_chat_open_ai(temperature=0.5)
+
         chain = LLMChain(llm=llm, prompt=prompt)
 
         return chain.run({

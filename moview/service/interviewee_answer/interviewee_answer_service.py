@@ -2,7 +2,7 @@ import re
 from moview.modules.question_generator import AnswerFilter, AnswerCategoryClassifier, AnswerSubCategoryClassifier, \
     FollowUpQuestionGiver
 from moview.service.interviewee_data_vo import IntervieweeDataVO
-from moview.service.interview_action_enum import InterviewActionEnum
+from moview.service.interviewee_answer.interview_action_enum import InterviewActionEnum
 
 
 # 정규 표현식으로 짜긴 했는데, 간혹 출력값이 이상하게 나올 수 있음. 이럴 떄는 문장 유사도 평가가 좋아보임. 그래서 이러한 함수 간 접합 부분에는 vector db를 쓰는게 나을 듯?
@@ -35,7 +35,7 @@ class ResubmissionRequestError(Exception):
         super().__init__(self.message)
 
 
-class AnswerService:
+class IntervieweeAnswerService:
     def __init__(self):
         self.filter = AnswerFilter()
         self.major_classifier = AnswerCategoryClassifier()

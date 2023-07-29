@@ -1,12 +1,11 @@
 from langchain.chains.router import MultiPromptChain
-from langchain.chat_models import ChatOpenAI
 from langchain.chains.llm import LLMChain
 from langchain.prompts import PromptTemplate
 from langchain.chains import ConversationChain
 from langchain.chains.router.llm_router import LLMRouterChain, RouterOutputParser
 from langchain.chains.router.multi_prompt_prompt import MULTI_PROMPT_ROUTER_TEMPLATE
-from langchain.callbacks.streaming_stdout import StreamingStdOutCallbackHandler
-from moview.modules.prompt_loader.prompt_loader import SingletonPromptLoader
+from moview.modules.prompt_loader.prompt_loader import PromptLoader
+from moview.utils.llm_interface import LLMModelFactory
 
 CATEGORIES = ["Behavioral Questions", "Situational Questions", "Technical Job-related Questions",
               "Cultural Fit Questions", "Personal Character Questions"]
@@ -26,7 +25,7 @@ SUB_CATEGORIES = {
 
 class InterviewAnswerScorer:
     def __init__(self):
-        prompt_loader = SingletonPromptLoader()
+        prompt_loader = PromptLoader()
 
         self.multi_prompt = prompt_loader.load_multi_prompt_chain_json_for_interview_answer_scorer(
             InterviewAnswerScorer.__name__)
@@ -42,8 +41,7 @@ class InterviewAnswerScorer:
         )
 
     def __make_multi_prompt_chain(self):
-        llm_router = ChatOpenAI(model_name='gpt-3.5-turbo',
-                                streaming=True, callbacks=[StreamingStdOutCallbackHandler()])
+        llm_router = LLMModelFactory.create_chat_open_ai(temperature=0.7)
 
         prompt_info = self.__create_prompt_info()
 
@@ -74,7 +72,8 @@ class InterviewAnswerScorer:
         multi_prompt_chain = MultiPromptChain(
             router_chain=router_chain,
             destination_chains=destination_chains,
-            default_chain=ConversationChain(llm=ChatOpenAI(), output_key="text"))
+            default_chain=ConversationChain(llm=LLMModelFactory.create_chat_open_ai(temperature=0.7),
+                                            output_key="text"))
 
         return multi_prompt_chain
 

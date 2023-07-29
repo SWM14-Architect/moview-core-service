@@ -1,9 +1,7 @@
 import unittest
+
+from common_code_for_test import is_not_none_string
 from moview.modules.answer_evaluator.interview_answer_scorer import InterviewAnswerScorer
-
-
-def is_not_none_string(s):
-    return s is not None and isinstance(s, str)
 
 
 class TestInterviewAnswerScorer(unittest.TestCase):

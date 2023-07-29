@@ -1,4 +1,4 @@
-from moview.service.input_service import InputService
-from moview.service.answer_service import AnswerService
+from moview.service.interviewee_input.input_service import IntervieweeInputService
+from moview.service.interviewee_answer.interviewee_answer_service import IntervieweeAnswerService
 from moview.service.interviewee_data_vo import IntervieweeDataVO, IntervieweeInitialInputData
-from moview.service.interview_action_enum import InterviewActionEnum
+from moview.service.interviewee_answer.interview_action_enum import InterviewActionEnum

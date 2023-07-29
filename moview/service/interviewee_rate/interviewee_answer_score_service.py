@@ -4,7 +4,7 @@ from moview.service.interviewee_data_vo import IntervieweeDataVO
 from moview.modules.answer_evaluator.interview_answer_scorer import InterviewAnswerScorer
 
 
-class ScoreService:
+class InterviewAnswerScoreService:
     def __init__(self):
         self.scorer = InterviewAnswerScorer()
 

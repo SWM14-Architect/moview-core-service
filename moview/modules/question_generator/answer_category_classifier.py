@@ -4,14 +4,13 @@ from langchain.prompts.chat import (
     ChatPromptTemplate,
     HumanMessagePromptTemplate
 )
-from langchain.chat_models import ChatOpenAI
-from langchain.callbacks.streaming_stdout import StreamingStdOutCallbackHandler
-from moview.modules.prompt_loader.prompt_loader import SingletonPromptLoader
+from moview.modules.prompt_loader.prompt_loader import PromptLoader
+from moview.utils.llm_interface import LLMModelFactory
 
 
 class AnswerCategoryClassifier:
     def __init__(self):
-        prompt_loader = SingletonPromptLoader()
+        prompt_loader = PromptLoader()
         self.prompt = prompt_loader.load_prompt_json(AnswerCategoryClassifier.__name__)
 
     def classify_category_of_answer(self, job_group: str, question: str, answer: str) -> str:
@@ -34,8 +33,8 @@ class AnswerCategoryClassifier:
             input_variables=["question", "answer"],
         )
 
-        llm = ChatOpenAI(temperature=0.5, model_name='gpt-3.5-turbo', verbose=True, streaming=True,
-                         callbacks=[StreamingStdOutCallbackHandler()])
+        llm = LLMModelFactory.create_chat_open_ai(temperature=0.5)
+
         chain = LLMChain(llm=llm, prompt=prompt)
 
         return chain.run({"question": question, "answer": answer})
