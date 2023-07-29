@@ -1,9 +1,15 @@
-import os
-import sys
-import logging
-import pymongo
 import datetime
+import logging
 import traceback
+
+import pymongo
+
+import moview.utils.aws_interface as aws
+
+DB_HOST_PARAM = "db-host"
+DB_PORT_PARAM = "db-port"
+DB_USERNAME_PARAM = "db-username"
+DB_PASSWORD_PARAM = "db-password"
 
 
 class MongoHandler(logging.Handler):
@@ -15,20 +21,10 @@ class MongoHandler(logging.Handler):
         logging.Handler.__init__(self, level)
 
         # MongoClient를 만들고, database를 가져 온다.
-        if sys.platform == 'darwin':
-            # MacOS
-            self.conn = pymongo.MongoClient(host=os.environ["CORE_DEV_DB_HOST"],
-                                            port=int(os.environ["CORE_DEV_DB_PORT"]),
-                                            username=os.environ["CORE_DEV_DB_USERNAME"],
-                                            password=os.environ["CORE_DEV_DB_PASSWORD"])
-            self.db = self.conn.get_database(database_name)
-        elif sys.platform == 'win32' or sys.platform == 'linux':
-            # Windows, linux
-            self.conn = pymongo.MongoClient(host=os.getenv("CORE_DEV_DB_HOST"),
-                                            port=int(os.getenv("CORE_DEV_DB_PORT")),
-                                            username=os.getenv("CORE_DEV_DB_USERNAME"),
-                                            password=os.getenv("CORE_DEV_DB_PASSWORD"))
-            self.db = self.conn.get_database(database_name)
+        self.conn = pymongo.MongoClient(host=aws.getparam(DB_HOST_PARAM),
+                                        port=int(aws.getparam(DB_PORT_PARAM)),
+                                        username=aws.getparam(DB_USERNAME_PARAM),
+                                        password=aws.getparam(DB_PASSWORD_PARAM))
 
         # 데이터베이스 컬렉션을 가져온다
         if collection_name in self.db.list_collection_names():  # 만들려는 컬렉션 이름이 DB에 이미 있을 때

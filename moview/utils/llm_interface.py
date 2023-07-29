@@ -9,17 +9,14 @@ from moview.handlers.custom_callback_handler import CustomCallbackHandler
 from langchain.chat_models import ChatOpenAI
 
 from moview.utils.singleton_meta_class import SingletonMeta
+import moview.utils.aws_interface as aws
+
+OPENAI_API_KEY_PARAM = "openai-api-key"
 
 
 class LLMApiKeyLoader(metaclass=SingletonMeta):
     def __init__(self):
-        self.openai_api_key = None
-        if sys.platform == 'darwin':
-            # MacOS
-            self.openai_api_key = os.environ["OPENAI_API_KEY"]
-        elif sys.platform == 'win32' or sys.platform == 'linux':
-            # Windows, Linux
-            self.openai_api_key = os.getenv("OPENAI_API_KEY")
+        self.openai_api_key = aws.getparam(OPENAI_API_KEY_PARAM)
 
 
 # 아래 코드는 팩토리 메서드 패턴이나 추상 팩토리 패턴이 적용된 것이 아닙니다.
