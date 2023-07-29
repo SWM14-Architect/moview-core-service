@@ -7,7 +7,7 @@ from moview.handlers.custom_callback_handler import CustomCallbackHandler
 from langchain.chat_models import ChatOpenAI
 
 
-class KeyManager:
+class LLMApiKeyLoader:
     def __init__(self):
         self.openai_api_key = None
         if sys.platform == 'darwin':
@@ -34,7 +34,7 @@ class ChatManager:
             temperature: Temperature
         """
         self.chat = ChatOpenAI(
-            openai_api_key=KeyManager().openai_api_key,
+            openai_api_key=LLMApiKeyLoader().openai_api_key,
             streaming=streaming,
             callbacks=[callback_handler],
             model_name=model,
