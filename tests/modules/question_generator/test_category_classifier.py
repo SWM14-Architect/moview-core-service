@@ -4,9 +4,17 @@ from unittest.mock import patch
 from moview.modules.question_generator.answer_category_classifier import AnswerCategoryClassifier
 
 
+def is_not_none_string(s):
+    return s is not None and isinstance(s, str)
+
+
 class TestAnswerCategoryClassifier(unittest.TestCase):
     def setUp(self) -> None:
         self.answer_category_classifier = AnswerCategoryClassifier()
+
+    def test_load_prompt(self):
+        self.assertTrue(is_not_none_string(self.answer_category_classifier.prompt))
+        print(self.answer_category_classifier.prompt.format(job_group="테스트 직군"))
 
     @patch(
         'moview.modules.question_generator.answer_category_classifier.AnswerCategoryClassifier'

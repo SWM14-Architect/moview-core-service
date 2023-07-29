@@ -35,7 +35,7 @@ frontend:
 GPT call: O
 ```
 
-#### /api/interview/feedback
+#### /api/interviewee/feedback
 ```
 method : POST
 request: cookie(세션id), json(각 답변분석에 대한 유저의 평가)
@@ -56,6 +56,6 @@ GPT call: X
 #### /api/interviewee/answer
 ![interviewee_answer](resources/interviewee_answer.png)
 
-#### /api/interview/feedback
-
+#### /api/interviewee/feedback
+![interviwee_feedback](resources/interviewee_feedback.png)
 ***

@@ -4,10 +4,18 @@ from unittest.mock import patch
 from moview.modules.question_generator.answer_filter import AnswerFilter
 
 
+def is_not_none_string(s):
+    return s is not None and isinstance(s, str)
+
+
 class TestAnswerFilter(unittest.TestCase):
 
     def setUp(self) -> None:
         self.answer_filter = AnswerFilter()
+
+    def test_load_prompt(self):
+        self.assertTrue(is_not_none_string(self.answer_filter.prompt))
+        print(self.answer_filter.prompt.format(job_group="테스트 직군"))
 
     @patch('moview.modules.question_generator.answer_filter.AnswerFilter.exclude_invalid_answer')
     def test_check_answer_appropriate_if_direct_request(self, mock_method):

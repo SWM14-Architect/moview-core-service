@@ -1,6 +1,4 @@
 from typing import List
-import json
-import os
 import re
 
 from langchain import LLMChain
@@ -11,16 +9,13 @@ from langchain.prompts.chat import (
 )
 from langchain.chat_models import ChatOpenAI
 from langchain.callbacks.streaming_stdout import StreamingStdOutCallbackHandler
+from moview.modules.prompt_loader.prompt_loader import SingletonPromptLoader
 
 
 class InitialQuestionGiver:
     def __init__(self):
-        abs_path = os.path.dirname(os.path.abspath(__file__))
-
-        with open(abs_path + '/initial_question_giver.json', 'r') as f:
-            data = json.load(f)
-
-        self.prompt = data['prompt']
+        prompt_loader = SingletonPromptLoader()
+        self.prompt = prompt_loader.load_prompt_json(InitialQuestionGiver.__name__)
 
     def give_initial_questions(self, analysis_about_one_cover_letter: str, question_count: int) -> List[str]:
         """
@@ -72,6 +67,6 @@ class InitialQuestionGiver:
 
         inital_questions = []
         for match in matches:
-            inital_questions.append(match[1].rstrip(' #')) # '#'를 제거한 질문을 리스트에 추가합니다.
+            inital_questions.append(match[1].rstrip(' #'))  # '#'를 제거한 질문을 리스트에 추가합니다.
 
         return inital_questions
