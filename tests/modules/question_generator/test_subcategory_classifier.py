@@ -1,12 +1,16 @@
 import unittest
 from unittest.mock import patch
-
+from common_code_for_test import is_not_none_string
 from moview.modules.question_generator.answer_subcategory_classifier import AnswerSubCategoryClassifier
 
 
 class TestAnswerSubCategoryClassifier(unittest.TestCase):
     def setUp(self) -> None:
         self.answer_subcategory_classifier = AnswerSubCategoryClassifier()
+
+    def test_load_prompt(self):
+        self.assertTrue(is_not_none_string(self.answer_subcategory_classifier.prompt))
+        print(self.answer_subcategory_classifier.prompt.format(job_group="테스트 직군", categories="테스트 카테고리"))
 
     @patch(
         'moview.modules.question_generator.answer_subcategory_classifier.AnswerSubCategoryClassifier'

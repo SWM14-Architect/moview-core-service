@@ -1,11 +1,17 @@
 import unittest
 from unittest.mock import patch
+from common_code_for_test import is_not_none_string
 from moview.modules.question_generator.followup_question_giver import FollowUpQuestionGiver
 
 
 class TestFollowUpQuestionGiver(unittest.TestCase):
     def setUp(self) -> None:
         self.followup_question_giver = FollowUpQuestionGiver()
+
+    def test_load_prompt(self):
+        self.assertTrue(is_not_none_string(self.followup_question_giver.prompt))
+        print(self.followup_question_giver.prompt.format(job_group="테스트 직군", categories_ordered_pair="테스트 카테고리 쌍",
+                                                         previous_question="테스트 이전 질문"))
 
     @patch(
         'moview.modules.question_generator.followup_question_giver.FollowUpQuestionGiver'

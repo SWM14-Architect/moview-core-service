@@ -1,9 +1,9 @@
-from moview.utils.data_manager import KeyManager
+from moview.utils.llm_interface import LLMApiKeyLoader
 from flask import session, Response, make_response, jsonify
 from http import HTTPStatus
 
 # 전역으로 관리하기 위한 객체
-key_manager = KeyManager()
+key_manager = LLMApiKeyLoader()
 
 
 def is_manager_missing(manager_name: str) -> bool:

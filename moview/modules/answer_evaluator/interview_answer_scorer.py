@@ -1,14 +1,11 @@
-import json
-import os
-
 from langchain.chains.router import MultiPromptChain
-from langchain.chat_models import ChatOpenAI
 from langchain.chains.llm import LLMChain
 from langchain.prompts import PromptTemplate
 from langchain.chains import ConversationChain
 from langchain.chains.router.llm_router import LLMRouterChain, RouterOutputParser
 from langchain.chains.router.multi_prompt_prompt import MULTI_PROMPT_ROUTER_TEMPLATE
-from langchain.callbacks.streaming_stdout import StreamingStdOutCallbackHandler
+from moview.modules.prompt_loader.prompt_loader import PromptLoader
+from moview.utils.llm_interface import LLMModelFactory
 
 CATEGORIES = ["Behavioral Questions", "Situational Questions", "Technical Job-related Questions",
               "Cultural Fit Questions", "Personal Character Questions"]
@@ -28,54 +25,23 @@ SUB_CATEGORIES = {
 
 class InterviewAnswerScorer:
     def __init__(self):
-        self.prompt = self.__load_prompt_for_multi_prompt_chain_from_json_file()
-        self.templates_for_prompt_info = self.__load_prompt_for_routing_from_json_file()
+        prompt_loader = PromptLoader()
 
-    def score_by_main_and_subcategories(self, question: str, answer: str, categories_ordered_pair: str) -> str:
+        self.multi_prompt = prompt_loader.load_multi_prompt_chain_json_for_interview_answer_scorer(
+            InterviewAnswerScorer.__name__)
+        self.prompt_info_for_router_chain = prompt_loader.load_routing_prompt_json_for_interview_answer_scorer(
+            InterviewAnswerScorer.__name__)
+
+    def rate_by_main_and_subcategories(self, question: str, answer: str, categories_ordered_pair: str) -> str:
 
         multi_prompt_chain = self.__make_multi_prompt_chain()
 
         return multi_prompt_chain.run(
-            self.prompt.format(categories_ordered_pair=categories_ordered_pair, question=question, answer=answer)
+            self.multi_prompt.format(categories_ordered_pair=categories_ordered_pair, question=question, answer=answer)
         )
 
-    def __load_prompt_for_multi_prompt_chain_from_json_file(self):
-        abs_path = os.path.dirname(os.path.abspath(__file__))
-
-        with open(abs_path + '/score_category.json', 'r') as f:
-            data = json.load(f)
-
-        return data['multi_prompt_template']
-
-    def __load_prompt_for_routing_from_json_file(self):
-        abs_path = os.path.dirname(os.path.abspath(__file__))
-
-        with open(abs_path + '/score_category.json', 'r') as f:
-            data = json.load(f)
-
-        return {
-            "Details": data['details_template'],
-            "Results and Learnings": data['results_learnings_template'],
-            "Reaction and Coping Strategies": data['coping_strategies_template'],
-            "Job-related Scenarios": data['job_scenarios_template'],
-            "Scenarios Reflecting Company Culture and Values": data['culture_values_template'],
-            "Adaptability and Problem-solving Skills": data['problem_solving_template'],
-            "Ethical Judgment": data['ethical_judgment_template'],
-            "Technical Details": data['tech_details_template'],
-            "Real-world Application": data['real_world_application_template'],
-            "Learning and Development": data['learning_development_template'],
-            "Core Values and Principles of the Company": data['core_values_principles_template'],
-            "Teamwork and Communication Style": data['teamwork_communication_template'],
-            "Candidate's Traits and Values": data['candidate_traits_values_template'],
-            "Adaptability": data['adaptability_template'],
-            "Thinking Style and Behavioral Patterns": data['thinking_style_behavioral_patterns_template'],
-            "Growth and Development": data['growth_development_template'],
-            "Motivation and Values": data['motivation_values_template']
-        }
-
     def __make_multi_prompt_chain(self):
-        llm_router = ChatOpenAI(model_name='gpt-3.5-turbo',
-                                streaming=True, callbacks=[StreamingStdOutCallbackHandler()])
+        llm_router = LLMModelFactory.create_chat_open_ai(temperature=0.7)
 
         prompt_info = self.__create_prompt_info()
 
@@ -106,8 +72,8 @@ class InterviewAnswerScorer:
         multi_prompt_chain = MultiPromptChain(
             router_chain=router_chain,
             destination_chains=destination_chains,
-            default_chain=ConversationChain(llm=ChatOpenAI(), output_key="text"),
-            verbose=True)
+            default_chain=ConversationChain(llm=LLMModelFactory.create_chat_open_ai(temperature=0.7),
+                                            output_key="text"))
 
         return multi_prompt_chain
 
@@ -118,7 +84,7 @@ class InterviewAnswerScorer:
             for sub_category in SUB_CATEGORIES[category]:
                 prompt_name = f"{category}, {sub_category}"
                 prompt_description = f"This question and response pertain to the '{category}' area and '{sub_category}' sub area."
-                prompt_template = self.templates_for_prompt_info[sub_category]
+                prompt_template = self.prompt_info_for_router_chain[sub_category]
 
                 prompt_info.append(
                     {
