@@ -1,4 +1,4 @@
-name: Flask Test for PR
+name: Main branch PR Workflow
 
 on:
   pull_request:
@@ -9,12 +9,10 @@ env:
   PYTHON_VERSION: '3.10'
 
 jobs:
-  # 환경 설정 및 테스트 진행
-  setup:
+  test_and_comment:
     runs-on: ubuntu-latest
-    outputs:
-      coverage: ${{ steps.coverage-check.outputs.coverage }}
     steps:
+      # 1. 환경 설정
       - name: Checkout source code
         uses: actions/checkout@v3
 
@@ -36,6 +34,7 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
 
+#      # 2. 테스트 진행
 #      - name: Run tests with coverage
 #        run: ./venv/bin/python -m coverage run -m unittest discover -s tests -p "test_*.py"
 #        shell: bash
@@ -43,21 +42,15 @@ jobs:
 #      - name: Check test coverage
 #        id: coverage-check
 #        run: |
-#          ./venv/bin/python -m coverage report -m
 #          COVERAGE=$(./venv/bin/python -m coverage report -m | grep TOTAL | awk '{print $6}' | sed 's/%//')
 #          echo "Test coverage: $COVERAGE%"
 #          echo "::set-output name=coverage::$COVERAGE"
 #        shell: bash
 #
-#  # PR일 경우, 테스트 커버리지를 PR Comment에 기록
-#  post-comment:
-#    needs: setup
-#    runs-on: ubuntu-latest
-#    if: github.event_name == 'pull_request'
-#    steps:
+#      # 3. 테스트 커버리지를 PR Comment에 기록
 #      - name: Post Test Coverage Report as PR Comment
 #        run: |
-#          COVERAGE=$(echo "${{ needs.setup.outputs.coverage }}" | awk '{print $1}')
+#          COVERAGE=${{ steps.coverage-check.outputs.coverage }}
 #          COMMENT="#### Test Coverage Report\n\`\`\`\nTest coverage: ${COVERAGE}%\n\`\`\`"
 #          echo $COMMENT | gh pr review ${{ github.event.pull_request.number }} --comment
 #        env:
