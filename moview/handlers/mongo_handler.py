@@ -25,6 +25,8 @@ class MongoHandler(logging.Handler):
                                         username=EnvironmentLoader.get_param(DB_USERNAME_PARAM),
                                         password=EnvironmentLoader.get_param(DB_PASSWORD_PARAM))
 
+        self.db = self.conn.get_database(database_name)
+
         # 데이터베이스 컬렉션을 가져온다
         if collection_name in self.db.list_collection_names():  # 만들려는 컬렉션 이름이 DB에 이미 있을 때
             if is_collection_drop:  # 컬렉션을 삭제하고 다시 만들고 싶다면
