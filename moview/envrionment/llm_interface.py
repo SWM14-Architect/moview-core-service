@@ -13,7 +13,7 @@ OPENAI_API_KEY_PARAM = "openai-api-key"
 
 class LLMApiKeyLoader(metaclass=SingletonMeta):
     def __init__(self):
-        if EnvironmentLoader.get_environment() == EnvironmentEnum.LOCAL.value:
+        if EnvironmentLoader.get_environment() == EnvironmentEnum.TEST.value:
             self.openai_api_key = os.environ.get(OPENAI_API_KEY_PARAM)
         elif EnvironmentLoader.get_environment() == EnvironmentEnum.DEVELOPMENT.value:
             self.openai_api_key = aws.getparam(OPENAI_API_KEY_PARAM)

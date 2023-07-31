@@ -4,7 +4,7 @@ from enum import Enum
 
 
 class EnvironmentEnum(Enum):
-    LOCAL = "local"
+    TEST = "test"
     DEVELOPMENT = "DEV"
     STAGING = "STA"
     PRODUCTION = "PROD"
