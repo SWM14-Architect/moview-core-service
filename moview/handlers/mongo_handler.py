@@ -3,7 +3,7 @@ import logging
 import traceback
 
 import pymongo
-from moview.envrionment.environment_loader import EnvironmentLoader
+from moview.environment.environment_loader import EnvironmentLoader
 
 DB_HOST_PARAM = "db-host"
 DB_PORT_PARAM = "db-port"

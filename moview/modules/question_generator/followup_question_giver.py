@@ -5,7 +5,7 @@ from langchain.prompts.chat import (
     HumanMessagePromptTemplate
 )
 from moview.modules.prompt_loader.prompt_loader import PromptLoader
-from moview.envrionment.llm_factory import LLMModelFactory
+from moview.environment.llm_factory import LLMModelFactory
 
 
 class FollowUpQuestionGiver:

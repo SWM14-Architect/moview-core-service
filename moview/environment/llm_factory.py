@@ -5,7 +5,7 @@ from langchain.callbacks.streaming_stdout import StreamingStdOutCallbackHandler
 from langchain.chat_models import ChatOpenAI
 
 from moview.utils.singleton_meta_class import SingletonMeta
-from moview.envrionment.environment_loader import EnvironmentLoader, EnvironmentEnum
+from moview.environment.environment_loader import EnvironmentLoader, EnvironmentEnum
 
 
 # 아래 코드는 팩토리 메서드 패턴이나 추상 팩토리 패턴이 적용된 것이 아닙니다.
