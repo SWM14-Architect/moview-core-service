@@ -27,7 +27,7 @@ class InterviewQuestions(BaseModel):
     인터뷰 초기 질문과 꼬리질문을 관리하는 클래스입니다.
     """
     initial_question_list: List[str]
-    excluded_questions_for_giving_followup_question: List[str]  # 꼬리질문 출제에서 제외할 질문들 (초기 질문은 꼬리질문 출제에서 제외합니다.)
+    excluded_questions_for_giving_followup_question: List[str] =[] # 꼬리질문 출제에서 제외할 질문들 (초기 질문은 꼬리질문 출제에서 제외합니다.)
     initial_question_index: int = 0  # 초기 질문 인덱스 i
     followup_question_count: int = 0  # i 번째 초기 질문에서 출제한 꼬리질문 횟수
     MAX_FOLLOWUP_QUESTION_COUNT: int = 3  # 꼬리질문 최대 횟수

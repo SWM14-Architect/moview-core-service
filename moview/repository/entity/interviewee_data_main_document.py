@@ -25,7 +25,7 @@ class IntervieweeDataEntity(BaseModel):
     """
     메인 다큐먼트
     """
-    id: str  # 인터뷰 세션 id
+    session_id: str  # 인터뷰 세션 id
     initial_input_data: IntervieweeInitialInputData
     initial_interview_analysis: InitialInterviewAnalysis
     interview_questions: InterviewQuestions
