@@ -1,22 +1,22 @@
 import os
-import sys
-from typing import *
 
-from langchain.callbacks.base import BaseCallbackHandler
 from langchain.callbacks.streaming_stdout import StreamingStdOutCallbackHandler
 
-from moview.handlers.custom_callback_handler import CustomCallbackHandler
 from langchain.chat_models import ChatOpenAI
 
 from moview.utils.singleton_meta_class import SingletonMeta
-import moview.utils.aws_interface as aws
+import moview.envrionment.aws_interface as aws
+from moview.envrionment.environment_loader import EnvironmentLoader, EnvironmentEnum
 
 OPENAI_API_KEY_PARAM = "openai-api-key"
 
 
 class LLMApiKeyLoader(metaclass=SingletonMeta):
     def __init__(self):
-        self.openai_api_key = aws.getparam(OPENAI_API_KEY_PARAM)
+        if EnvironmentLoader.get_environment() == EnvironmentEnum.LOCAL.value:
+            self.openai_api_key = os.environ.get(OPENAI_API_KEY_PARAM)
+        elif EnvironmentLoader.get_environment() == EnvironmentEnum.DEVELOPMENT.value:
+            self.openai_api_key = aws.getparam(OPENAI_API_KEY_PARAM)
 
 
 # 아래 코드는 팩토리 메서드 패턴이나 추상 팩토리 패턴이 적용된 것이 아닙니다.

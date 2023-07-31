@@ -4,7 +4,7 @@ import traceback
 
 import pymongo
 
-import moview.utils.aws_interface as aws
+import moview.envrionment.aws_interface as aws
 
 DB_HOST_PARAM = "db-host"
 DB_PORT_PARAM = "db-port"
