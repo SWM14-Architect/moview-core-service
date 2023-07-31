@@ -8,7 +8,13 @@ from langchain.prompts.chat import (
     HumanMessagePromptTemplate
 )
 from moview.modules.prompt_loader.prompt_loader import PromptLoader
-from moview.utils.llm_interface import LLMModelFactory
+from moview.environment.llm_factory import LLMModelFactory
+
+
+class InitialQuestionParseError(Exception):
+    def __init__(self, message="initial question parse error"):
+        self.message = message
+        super().__init__(self.message)
 
 
 class InitialQuestionGiver:
@@ -47,7 +53,12 @@ class InitialQuestionGiver:
         initial_questions_from_llm = chain.run({
             "analysis": analysis_about_one_cover_letter})
 
-        return self.__parse_result_from_llm(initial_questions_from_llm)
+        parse_question = self.__parse_result_from_llm(initial_questions_from_llm)
+        # 파싱된 질문 개수가 출제할 질문 개수와 같으면, 파싱 성공으로 간주합니다. 파싱이 성공하면, 파싱된 질문 리스트를 반환합니다.
+        if len(parse_question) == question_count:
+            return parse_question
+        else:
+            raise InitialQuestionParseError()  # 파싱이 실패하면, InitialQuestionParseError를 발생시킵니다.
 
     def __parse_result_from_llm(self, initial_questions_from_llm: str) -> List[str]:
         """
@@ -64,8 +75,8 @@ class InitialQuestionGiver:
         pattern = re.compile(r'(\d\.\s)(.*#)')  # 0번쨰에는 숫자, 1번째에는 질문이 나옵니다.
         matches = pattern.findall(initial_questions_from_llm)
 
-        inital_questions = []
+        initial_questions = []
         for match in matches:
-            inital_questions.append(match[1].rstrip(' #'))  # '#'를 제거한 질문을 리스트에 추가합니다.
+            initial_questions.append(match[1].rstrip(' #'))  # '#'를 제거한 질문을 리스트에 추가합니다.
 
-        return inital_questions
+        return initial_questions

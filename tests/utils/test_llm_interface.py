@@ -1,5 +1,5 @@
 import unittest
-from moview.utils.llm_interface import LLMApiKeyLoader
+from moview.environment.llm_factory import LLMApiKeyLoader
 
 
 class TestLLMApiKeyLoader(unittest.TestCase):

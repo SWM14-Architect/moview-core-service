@@ -5,7 +5,7 @@ from langchain.prompts.chat import (
     HumanMessagePromptTemplate
 )
 from moview.modules.prompt_loader.prompt_loader import PromptLoader
-from moview.utils.llm_interface import LLMModelFactory
+from moview.environment.llm_factory import LLMModelFactory
 
 
 class InitialInputAnalyzer:

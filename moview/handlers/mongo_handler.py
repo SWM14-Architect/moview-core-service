@@ -3,8 +3,7 @@ import logging
 import traceback
 
 import pymongo
-
-import moview.utils.aws_interface as aws
+from moview.environment.environment_loader import EnvironmentLoader
 
 DB_HOST_PARAM = "db-host"
 DB_PORT_PARAM = "db-port"
@@ -21,10 +20,12 @@ class MongoHandler(logging.Handler):
         logging.Handler.__init__(self, level)
 
         # MongoClient를 만들고, database를 가져 온다.
-        self.conn = pymongo.MongoClient(host=aws.getparam(DB_HOST_PARAM),
-                                        port=int(aws.getparam(DB_PORT_PARAM)),
-                                        username=aws.getparam(DB_USERNAME_PARAM),
-                                        password=aws.getparam(DB_PASSWORD_PARAM))
+        self.conn = pymongo.MongoClient(host=EnvironmentLoader.get_param(DB_HOST_PARAM),
+                                        port=int(EnvironmentLoader.get_param(DB_PORT_PARAM)),
+                                        username=EnvironmentLoader.get_param(DB_USERNAME_PARAM),
+                                        password=EnvironmentLoader.get_param(DB_PASSWORD_PARAM))
+
+        self.db = self.conn.get_database(database_name)
 
         # 데이터베이스 컬렉션을 가져온다
         if collection_name in self.db.list_collection_names():  # 만들려는 컬렉션 이름이 DB에 이미 있을 때
