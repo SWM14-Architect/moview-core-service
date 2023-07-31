@@ -5,10 +5,10 @@ import traceback
 import pymongo
 from moview.environment.environment_loader import EnvironmentLoader
 
-DB_HOST_PARAM = "db-host"
-DB_PORT_PARAM = "db-port"
-DB_USERNAME_PARAM = "db-username"
-DB_PASSWORD_PARAM = "db-password"
+DB_HOST = "db-host"
+DB_PORT = "db-port"
+DB_USERNAME = "db-username"
+DB_PASSWORD = "db-password"
 
 
 class MongoHandler(logging.Handler):
@@ -20,11 +20,10 @@ class MongoHandler(logging.Handler):
         logging.Handler.__init__(self, level)
 
         # MongoClient를 만들고, database를 가져 온다.
-        self.conn = pymongo.MongoClient(host=EnvironmentLoader.get_param(DB_HOST_PARAM),
-                                        port=int(EnvironmentLoader.get_param(DB_PORT_PARAM)),
-                                        username=EnvironmentLoader.get_param(DB_USERNAME_PARAM),
-                                        password=EnvironmentLoader.get_param(DB_PASSWORD_PARAM))
-
+        self.conn = pymongo.MongoClient(host=EnvironmentLoader.getenv(DB_HOST),
+                                        port=int(EnvironmentLoader.getenv(DB_PORT)),
+                                        username=EnvironmentLoader.getenv(DB_USERNAME),
+                                        password=EnvironmentLoader.getenv(DB_PASSWORD))
         self.db = self.conn.get_database(database_name)
 
         # 데이터베이스 컬렉션을 가져온다
