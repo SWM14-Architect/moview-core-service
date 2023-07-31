@@ -19,7 +19,7 @@ class InitialInterviewAnalysis(BaseModel):
     인터뷰 세션을 생성할 때 입력받은 자소서 문항에 대한 분석 결과를 저장하는 클래스입니다.
     cover_letter_questions [i]에 대해 초기 분석 initial_interview_analysis[i]가 매핑됩니다.
     """
-    initial_interview_analysis: List[str]
+    initial_interview_analysis_list: List[str]
 
 
 class InterviewQuestions(BaseModel):
