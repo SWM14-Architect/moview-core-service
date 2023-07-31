@@ -7,34 +7,31 @@ from moview.utils.singleton_meta_class import SingletonMeta
 
 
 class EnvironmentEnum(Enum):
-    LOCAL = "LOCAL"
-    DEVELOPMENT = "DEV"
-    STAGING = "STA"
-    PRODUCTION = "PROD"
+    LOCAL = "local"
+    DEVELOPMENT = "dev"
+    STAGING = "sta"
+    PRODUCTION = "prod"
 
 
 class EnvironmentLoader(metaclass=SingletonMeta):
+    # 주요 환경 변수명 상수 처리
+    MOVIEW_CORE_ENV = "MOVIEW_CORE_ENV"
+    AWS_IAM = "AWS_IAM"
+
     # 개발자별로 다른 값을 사용해야 하는 파라미터인 경우, 아래 리스트에 파라미터 이름을 추가하면 됩니다.
     USER_SPECIFIC_PARAMETERS = ["openai-api-key"]
 
     @staticmethod
-    def get_aws_iam():
+    def get_local_env(local_env_name):
         if sys.platform == 'darwin':  # MacOS
-            return os.environ["AWS_IAM"]
+            return os.environ[local_env_name]
         elif sys.platform == 'win32' or sys.platform == 'linux':  # Windows, linux
-            return os.getenv("AWS_IAM")
+            return os.getenv(local_env_name)
 
     @staticmethod
-    def get_environment():
-        if sys.platform == 'darwin':  # MacOS
-            return os.environ["MOVIEW_CORE_ENV"]
-        elif sys.platform == 'win32' or sys.platform == 'linux':  # Windows, linux
-            return os.getenv("MOVIEW_CORE_ENV")
-
-    @staticmethod
-    def build_parameter_path(parameter_name):
-        environment = EnvironmentLoader.get_environment()
-        aws_iam = EnvironmentLoader.get_aws_iam()
+    def build_ssm_parameter_path(parameter_name):
+        environment = EnvironmentLoader.get_local_env(EnvironmentLoader.MOVIEW_CORE_ENV)
+        aws_iam = EnvironmentLoader.get_local_env(EnvironmentLoader.AWS_IAM)
 
         base_path = f"/moview-core/{environment}"
 
@@ -44,16 +41,16 @@ class EnvironmentLoader(metaclass=SingletonMeta):
             return f"{base_path}/{parameter_name}"
 
     @staticmethod
-    def get_param(parameter_name):
+    def get_ssm_parameter(parameter_name):
         ssm = boto3.client('ssm')
-        parameter_path = EnvironmentLoader.build_parameter_path(parameter_name)
+        parameter_path = EnvironmentLoader.build_ssm_parameter_path(parameter_name)
 
         response = ssm.get_parameter(Name=parameter_path, WithDecryption=True)
         return response['Parameter']['Value']
 
     @staticmethod
-    def get_open_ai_key():
-        if EnvironmentLoader.get_environment() == EnvironmentEnum.LOCAL.value:
-            return os.environ.get(EnvironmentLoader.USER_SPECIFIC_PARAMETERS[0])
-        elif EnvironmentLoader.get_environment() == EnvironmentEnum.DEVELOPMENT.value:
-            return EnvironmentLoader.get_param(EnvironmentLoader.USER_SPECIFIC_PARAMETERS[0])
+    def getenv(env_name):
+        if EnvironmentLoader.get_local_env(EnvironmentLoader.MOVIEW_CORE_ENV) == EnvironmentEnum.LOCAL.value:
+            return EnvironmentLoader.get_local_env(env_name.replace("-", "_").upper())  # local은 시스템 환경 변수를 사용
+        else:
+            return EnvironmentLoader.get_ssm_parameter(env_name)  # dev, stage, prod는 AWS SSM 파라미터 스토어를 사용
