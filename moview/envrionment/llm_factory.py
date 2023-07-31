@@ -5,18 +5,7 @@ from langchain.callbacks.streaming_stdout import StreamingStdOutCallbackHandler
 from langchain.chat_models import ChatOpenAI
 
 from moview.utils.singleton_meta_class import SingletonMeta
-import moview.envrionment.aws_interface as aws
 from moview.envrionment.environment_loader import EnvironmentLoader, EnvironmentEnum
-
-OPENAI_API_KEY_PARAM = "openai-api-key"
-
-
-class LLMApiKeyLoader(metaclass=SingletonMeta):
-    def __init__(self):
-        if EnvironmentLoader.get_environment() == EnvironmentEnum.TEST.value:
-            self.openai_api_key = os.environ.get(OPENAI_API_KEY_PARAM)
-        elif EnvironmentLoader.get_environment() == EnvironmentEnum.DEVELOPMENT.value:
-            self.openai_api_key = aws.getparam(OPENAI_API_KEY_PARAM)
 
 
 # 아래 코드는 팩토리 메서드 패턴이나 추상 팩토리 패턴이 적용된 것이 아닙니다.
@@ -29,6 +18,6 @@ class LLMModelFactory:
 
     @staticmethod
     def create_chat_open_ai(temperature: float) -> ChatOpenAI:
-        return ChatOpenAI(openai_api_key=LLMApiKeyLoader().openai_api_key,
+        return ChatOpenAI(openai_api_key=EnvironmentLoader.get_open_ai_key(),
                           temperature=temperature, model_name='gpt-3.5-turbo', verbose=True, streaming=True,
                           callbacks=[StreamingStdOutCallbackHandler()])
