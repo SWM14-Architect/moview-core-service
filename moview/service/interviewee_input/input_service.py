@@ -2,7 +2,7 @@ from typing import List
 
 from moview.service.interviewee_data_vo import IntervieweeDataVO, IntervieweeInitialInputData
 from moview.modules.initial_input.initial_input_analyzer import InitialInputAnalyzer
-from moview.modules.initial_input.initial_question_giver import InitialQuestionGiver
+from moview.modules.initial_input.initial_question_giver import InitialQuestionGiver, InitialQuestionParseError
 
 
 class IntervieweeInputService:
@@ -35,15 +35,20 @@ class IntervieweeInputService:
         # 각 자소서 답변 분석 내용에 대해 2개씩 초기 질문 생성.
         for analysis_about_one_cover_letter in analyzed_initial_inputs_of_interviewee:
 
-            # 길이 (INIT_QUESTION_MULTIPLIER) 의 질문 리스트 생성 List[str]
-            created_questions = self.initial_question_giver.give_initial_questions(
-                analysis_about_one_cover_letter=analysis_about_one_cover_letter,
-                question_count=self.INIT_QUESTION_MULTIPLIER)
+            try:
+                # 길이 (INIT_QUESTION_MULTIPLIER) 의 질문 리스트 생성 List[str]
+                created_questions = self.initial_question_giver.give_initial_questions(
+                    analysis_about_one_cover_letter=analysis_about_one_cover_letter,
+                    question_count=self.INIT_QUESTION_MULTIPLIER)
 
-            # 생성된 초기 질문 (INIT_QUESTION_MULTIPLIER)개를 initial_question_list에 추가.
-            # List[str] (created_questions) 에서 List[str] (initial_question_list)로 옮기기 위한 코드
-            for _ in range(self.INIT_QUESTION_MULTIPLIER):
-                initial_question_list.append(created_questions.pop())
+                # 생성된 초기 질문 (INIT_QUESTION_MULTIPLIER)개를 initial_question_list에 추가.
+                # List[str] (created_questions) 에서 List[str] (initial_question_list)로 옮기기 위한 코드
+                for _ in range(self.INIT_QUESTION_MULTIPLIER):
+                    initial_question_list.append(created_questions.pop())
+
+            except InitialQuestionParseError as e:  # 파싱 실패한 경우
+                # 빈 문자열 담기
+                initial_question_list.append([])
 
         return IntervieweeDataVO(session_id=session_id,
                                  initial_question_list=initial_question_list,
