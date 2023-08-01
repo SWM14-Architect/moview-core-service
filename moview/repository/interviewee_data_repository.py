@@ -58,7 +58,7 @@ class IntervieweeDataRepository(metaclass=SingletonMeta):
             },
 
             'initial_interview_analysis': {
-                'initial_interview_analysis': interviewee_data_entity.
+                'initial_interview_analysis_list': interviewee_data_entity.
                 initial_interview_analysis.initial_interview_analysis_list
             },
 
@@ -78,7 +78,6 @@ class IntervieweeDataRepository(metaclass=SingletonMeta):
                 'score_of_answer_list': interviewee_data_entity.interviewee_answer_scores.score_of_answer_list
             },
             'interviewee_feedbacks': {
-                'answer_list': interviewee_data_entity.interviewee_feedbacks.answer_list,
                 'feedback_list': interviewee_data_entity.interviewee_feedbacks.feedback_list
             }
 

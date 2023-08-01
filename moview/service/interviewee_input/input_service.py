@@ -48,7 +48,7 @@ class IntervieweeInputService:
             cover_letter_questions=cover_letter_questions,
             cover_letter_answers=cover_letter_answers)
 
-        initial_question_list = []  # List[str]
+        initial_question_list = []  # List[List[Any]
 
         # 각 자소서 답변 분석 내용에 대해 2개씩 초기 질문 생성.
         for analysis_about_one_cover_letter in analyzed_initial_inputs_of_interviewee:
@@ -73,7 +73,9 @@ class IntervieweeInputService:
                                                        interviewee_name=interviewee_name,
                                                        job_group=job_group, recruit_announcement=recruit_announcement,
                                                        cover_letter_questions=cover_letter_questions,
-                                                       cover_letter_answers=cover_letter_answers)
+                                                       cover_letter_answers=cover_letter_answers,
+                                                       initial_question_list=initial_question_list,
+                                                       analyzed_initial_inputs_of_interviewee=analyzed_initial_inputs_of_interviewee)
 
         return self.repository.save(interviewee_data_entity=entity)
 
@@ -129,14 +131,34 @@ class IntervieweeInputService:
     def __create_interviewee_data_entity(self, session_id,
                                          interviewee_name: str, job_group: str, recruit_announcement: str,
                                          cover_letter_questions: List[str],
-                                         cover_letter_answers: List[str]) -> IntervieweeDataEntity:
-        return IntervieweeDataEntity(
+                                         cover_letter_answers: List[str],
+                                         initial_question_list: List[List[Any]],
+                                         analyzed_initial_inputs_of_interviewee: List[str]
+                                         ) -> IntervieweeDataEntity:
+
+        # 초기 엔티티 상태 저장이므로, 초기 입력 데이터, 초기 분석, 면접 초기 질문만 저장. 그 외에는 아직 비어있음.
+        entity = IntervieweeDataEntity(
+
             session_id=session_id,
+
             initial_input_data=IntervieweeInitialInputData(
                 interviewee_name=interviewee_name,
                 job_group=job_group,
                 recruit_announcement=recruit_announcement,
                 cover_letter_questions=cover_letter_questions,
                 cover_letter_answers=cover_letter_answers
-            )
+            ),
+
+            initial_interview_analysis=InitialInterviewAnalysis(
+                initial_interview_analysis_list=analyzed_initial_inputs_of_interviewee),
+
+            interview_questions=InterviewQuestions(initial_question_list=initial_question_list),
+
+            interviewee_answer_scores=IntervieweeAnswerScores(),
+
+            interviewee_feedbacks=IntervieweeFeedbacks()
         )
+
+        entity.interview_questions.exclude_initial_question(initial_question_list=initial_question_list)
+
+        return entity

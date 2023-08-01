@@ -22,7 +22,7 @@ class TestIntervieweeDataRepository(unittest.TestCase):
                 initial_interview_analysis_list=['test']
             ),
             interview_questions=InterviewQuestions(
-                initial_question_list=['test']
+                initial_question_list=[['test']]
             ),
             interviewee_answer_scores=IntervieweeAnswerScores(
                 question_list=['test'],
@@ -31,13 +31,12 @@ class TestIntervieweeDataRepository(unittest.TestCase):
                 score_of_answer_list=['test']
             ),
             interviewee_feedbacks=IntervieweeFeedbacks(
-                answer_list=['test'],
                 feedback_list=['test']
             )
         )
 
         self.repository = IntervieweeDataRepository(
-            MongoConfig(host="localhost", port=27017, db_name='test_db', collection_name='test_collection'))
+            MongoConfig())
 
     def tearDown(self) -> None:
         # 테스트용 엔티티 삭제
@@ -45,7 +44,7 @@ class TestIntervieweeDataRepository(unittest.TestCase):
 
     def test_singleton(self):
         # given
-        mongo_config = (MongoConfig(host="localhost", port=27017, db_name='test_db', collection_name='test_collection'))
+        mongo_config = (MongoConfig())
 
         # when
         repository1 = IntervieweeDataRepository(mongo_config)
@@ -89,7 +88,7 @@ class TestIntervieweeDataRepository(unittest.TestCase):
                 initial_interview_analysis_list=['update']
             ),
             interview_questions=InterviewQuestions(
-                initial_question_list=['update']
+                initial_question_list=[['update']]
             ),
             interviewee_answer_scores=IntervieweeAnswerScores(
                 question_list=['update'],
@@ -98,7 +97,6 @@ class TestIntervieweeDataRepository(unittest.TestCase):
                 score_of_answer_list=['update']
             ),
             interviewee_feedbacks=IntervieweeFeedbacks(
-                answer_list=['update'],
                 feedback_list=['update']
             ),
         )
