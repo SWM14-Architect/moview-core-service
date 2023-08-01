@@ -37,29 +37,29 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
 
-#      # 2. 테스트 진행
-#      - name: Run tests with coverage
-#        run: ./venv/bin/python -m coverage run -m unittest discover -s tests -p "test_*.py"
-#        shell: bash
-#
-#      - name: Check test coverage
-#        id: coverage-check
-#        run: |
-#          COVERAGE=$(./venv/bin/python -m coverage report -m | grep TOTAL | awk '{print $6}' | sed 's/%//')
-#          echo "Test coverage: $COVERAGE%"
-#          echo "::set-output name=coverage::$COVERAGE"
-#        shell: bash
-#
-#      # 3. 배포 진행 (테스트 커버리지가 60% 이상일 경우)
-#      - name: Check Test Coverage Threshold
-#        id: check-coverage-threshold
-#        run: |
-#          COVERAGE=${{ steps.coverage-check.outputs.coverage }}
-#          if (( $(echo "$COVERAGE < 60" | bc -l) )); then
-#            echo "테스트 커버리지가 부족하여 배포를 취소합니다."
-#            exit 1
-#          fi
-#        shell: bash
+      # 2. 테스트 진행
+      - name: Run tests with coverage
+        run: ./venv/bin/python -m coverage run -m unittest discover -s tests -p "test_*.py"
+        shell: bash
+
+      - name: Check test coverage
+        id: coverage-check
+        run: |
+          COVERAGE=$(./venv/bin/python -m coverage report -m | grep TOTAL | awk '{print $6}' | sed 's/%//')
+          echo "Test coverage: $COVERAGE%"
+          echo "::set-output name=coverage::$COVERAGE"
+        shell: bash
+
+      # 3. 배포 진행 (테스트 커버리지가 60% 이상일 경우)
+      - name: Check Test Coverage Threshold
+        id: check-coverage-threshold
+        run: |
+          COVERAGE=${{ steps.coverage-check.outputs.coverage }}
+          if (( $(echo "$COVERAGE < 60" | bc -l) )); then
+            echo "테스트 커버리지가 부족하여 배포를 취소합니다."
+            exit 1
+          fi
+        shell: bash
 
       - name: Remove venv
         run: rm -rf venv

@@ -34,12 +34,12 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
 
-#      # 2. 테스트 진행
-#      - name: Run tests with coverage
-#        run: ./venv/bin/python -m coverage run -m unittest discover -s tests -p "test_*.py"
-#        shell: bash
-#
-#      - name: Check test coverage
-#        id: coverage-check
-#        run: ./venv/bin/python -m coverage report -m
-#        shell: bash
+      # 2. 테스트 진행
+      - name: Run tests with coverage
+        run: ./venv/bin/python -m coverage run -m unittest discover -s tests -p "test_*.py"
+        shell: bash
+
+      - name: Check test coverage
+        id: coverage-check
+        run: ./venv/bin/python -m coverage report -m
+        shell: bash
