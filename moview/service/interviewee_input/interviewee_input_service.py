@@ -147,8 +147,8 @@ class IntervieweeInputService:
                 cover_letter_answers=cover_letter_answers
             ),
 
-            initial_interview_analysis=InitialInterviewAnalysis(
-                initial_interview_analysis_list=analyzed_initial_inputs_of_interviewee),
+            input_data_analysis_result=InputDataAnalysisResult(
+                input_data_analysis_list=analyzed_initial_inputs_of_interviewee),
 
             interview_questions=InterviewQuestions(initial_question_list=initial_question_list),
 
@@ -156,7 +156,5 @@ class IntervieweeInputService:
 
             interviewee_feedbacks=IntervieweeFeedbacks()
         )
-
-        entity.interview_questions.exclude_initial_question(initial_question_list=initial_question_list)
 
         return entity

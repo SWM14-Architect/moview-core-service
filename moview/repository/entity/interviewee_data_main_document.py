@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from moview.repository.entity.interviewee_data_subdocument import IntervieweeInitialInputData, InitialInterviewAnalysis, \
+from moview.repository.entity.interviewee_data_subdocument import IntervieweeInitialInputData, InputDataAnalysisResult, \
     InterviewQuestions, IntervieweeAnswerScores, IntervieweeFeedbacks
 
 """
@@ -26,7 +26,7 @@ class IntervieweeDataEntity(BaseModel):
     """
     session_id: str  # 인터뷰 세션 id
     initial_input_data: IntervieweeInitialInputData
-    initial_interview_analysis: InitialInterviewAnalysis
+    input_data_analysis_result: InputDataAnalysisResult
     interview_questions: InterviewQuestions
     interviewee_answer_scores: IntervieweeAnswerScores
     interviewee_feedbacks: IntervieweeFeedbacks
