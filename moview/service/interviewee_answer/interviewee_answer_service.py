@@ -2,7 +2,7 @@ import re
 from moview.modules.question_generator import AnswerFilter, AnswerCategoryClassifier, AnswerSubCategoryClassifier, \
     FollowUpQuestionGiver
 from moview.service.interviewee_data_vo import IntervieweeDataVO
-from moview.service.interviewee_answer.interview_action_enum import InterviewActionEnum
+from moview.service.interviewee_answer.interviewer_action_enum import InterviewerActionEnum
 
 
 # 정규 표현식으로 짜긴 했는데, 간혹 출력값이 이상하게 나올 수 있음. 이럴 떄는 문장 유사도 평가가 좋아보임. 그래서 이러한 함수 간 접합 부분에는 vector db를 쓰는게 나을 듯?
@@ -44,7 +44,7 @@ class IntervieweeAnswerService:
         self.giver = FollowUpQuestionGiver()
 
     def determine_next_action_of_interviewer(self, question: str, answer: str,
-                                             vo: IntervieweeDataVO) -> (IntervieweeDataVO, InterviewActionEnum):
+                                             vo: IntervieweeDataVO) -> (IntervieweeDataVO, InterviewerActionEnum):
         """
         interviewer의 질문과 interviewee의 답변을 받아서, intervieweer의 다음 행동을 결정하는 메서드
 
@@ -69,22 +69,22 @@ class IntervieweeAnswerService:
         except InappropriateAnswerError:
             # 적절하지 않은 답변인 경우, 다음 초기 질문 진행
             vo.give_next_initial_question()
-            return vo, InterviewActionEnum.INAPPROPRIATE_ANSWER
+            return vo, InterviewerActionEnum.INAPPROPRIATE_ANSWER
         except ResubmissionRequestError:
             # todo 재요청인 경우, 좀 더 구체적인 질문 생성 요청으로 바꿔야 함. 현재는 다음 초기 질문 진행으로 해놓음.
             vo.give_next_initial_question()
-            return vo, InterviewActionEnum.DIRECT_REQUEST
+            return vo, InterviewerActionEnum.DIRECT_REQUEST
 
         # 답변에 대한 대분류, 중분류 저장
         vo.save_categories_ordered_pair(question=question, answer=answer,
                                         categories_ordered_pair=category_and_sub_category)
         if vo.is_initial_questions_end() and vo.is_followup_questions_end():
             # 다음 초기 질문 x, 심화질문 x인 경우, interview 종료
-            return vo, InterviewActionEnum.END_INTERVIEW
+            return vo, InterviewerActionEnum.END_INTERVIEW
         elif not vo.is_initial_questions_end() and vo.is_followup_questions_end():
             # 다음 초기 질문 o, 심화질문 x인 경우, 다음 초기 질문 진행
             vo.give_next_initial_question()
-            return vo, InterviewActionEnum.NEXT_INITIAL_QUESTION
+            return vo, InterviewerActionEnum.NEXT_INITIAL_QUESTION
         else:
             # 꼬리질문 출제
             followup_question = self.__get_followup_question(question=question, answer=answer,
@@ -93,7 +93,7 @@ class IntervieweeAnswerService:
             vo.save_followup_question(followup_question)
 
             # 그외에 심화질문 o인 경우, 다음 꼬리 질문 진행
-            return vo, InterviewActionEnum.CREATED_FOLLOWUP_QUESTION
+            return vo, InterviewerActionEnum.CREATED_FOLLOWUP_QUESTION
 
     def __classify_answer_of_interviewee(self, job_group: str, question: str, answer: str) -> str:
         # 적절하지 않은 답변을 걸러냅니다.

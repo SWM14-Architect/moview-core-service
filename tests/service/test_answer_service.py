@@ -1,7 +1,7 @@
 import unittest
 from unittest.mock import patch
 
-from moview.service import IntervieweeDataVO, InterviewActionEnum, IntervieweeInitialInputData
+from moview.service import IntervieweeDataVO, InterviewerActionEnum, IntervieweeInitialInputData
 from moview.service.interviewee_answer.interviewee_answer_service import IntervieweeAnswerService
 
 
@@ -32,7 +32,7 @@ class TestAnswerServiceWithMocking(unittest.TestCase):
                                                                                    answer="부적절한 답변", vo=vo)
         # then
         self.assertEqual(vo.interview_questions.initial_question_index, 1)
-        self.assertEqual(action_enum, InterviewActionEnum.INAPPROPRIATE_ANSWER)
+        self.assertEqual(action_enum, InterviewerActionEnum.INAPPROPRIATE_ANSWER)
 
     @patch('moview.modules.question_generator.AnswerFilter.exclude_invalid_answer')
     def test_inappropriate_answer_error_with_followup_question(self, mock_method):
@@ -56,7 +56,7 @@ class TestAnswerServiceWithMocking(unittest.TestCase):
         # then
         self.assertEqual(vo.interview_questions.initial_question_index, 1)
         self.assertEqual(vo.interview_questions.followup_question_count, 0)
-        self.assertEqual(action_enum, InterviewActionEnum.INAPPROPRIATE_ANSWER)
+        self.assertEqual(action_enum, InterviewerActionEnum.INAPPROPRIATE_ANSWER)
         self.assertEqual(len(vo.interview_questions.excluded_questions_for_giving_followup_question), 4)
 
     @patch('moview.modules.question_generator.AnswerFilter.exclude_invalid_answer')
@@ -76,7 +76,7 @@ class TestAnswerServiceWithMocking(unittest.TestCase):
                                                                                    answer="부적절한 답변", vo=vo)
         # then
         self.assertEqual(vo.interview_questions.initial_question_index, 1)
-        self.assertEqual(action_enum, InterviewActionEnum.DIRECT_REQUEST)
+        self.assertEqual(action_enum, InterviewerActionEnum.DIRECT_REQUEST)
 
     @patch('moview.modules.question_generator.AnswerFilter.exclude_invalid_answer')
     def test_resubmission_request_error_with_followup_question(self, mock_method):
@@ -100,7 +100,7 @@ class TestAnswerServiceWithMocking(unittest.TestCase):
         # then
         self.assertEqual(vo.interview_questions.initial_question_index, 1)
         self.assertEqual(vo.interview_questions.followup_question_count, 0)
-        self.assertEqual(action_enum, InterviewActionEnum.DIRECT_REQUEST)
+        self.assertEqual(action_enum, InterviewerActionEnum.DIRECT_REQUEST)
         self.assertEqual(len(vo.interview_questions.excluded_questions_for_giving_followup_question), 4)
 
 
@@ -144,7 +144,7 @@ class TestAnswerServiceWithoutMocking(unittest.TestCase):
         # then
         self.assertEqual(vo.interview_questions.initial_question_index, 2)
         self.assertEqual(vo.interview_questions.followup_question_count, 3)
-        self.assertEqual(action_enum, InterviewActionEnum.END_INTERVIEW)
+        self.assertEqual(action_enum, InterviewerActionEnum.END_INTERVIEW)
         self.assertEqual(len(vo.interview_questions.excluded_questions_for_giving_followup_question), 6)
         self.assertEqual(len(vo.answer_score_with_category.categories_ordered_pair_list), 1)
 
@@ -172,7 +172,7 @@ class TestAnswerServiceWithoutMocking(unittest.TestCase):
         # then
         self.assertEqual(vo.interview_questions.initial_question_index, 2)  # 다음 초기 질문 이동
         self.assertEqual(vo.interview_questions.followup_question_count, 0)
-        self.assertEqual(action_enum, InterviewActionEnum.NEXT_INITIAL_QUESTION)
+        self.assertEqual(action_enum, InterviewerActionEnum.NEXT_INITIAL_QUESTION)
         self.assertEqual(len(vo.interview_questions.excluded_questions_for_giving_followup_question), 6)
         self.assertEqual(len(vo.answer_score_with_category.categories_ordered_pair_list), 1)
 
@@ -198,7 +198,7 @@ class TestAnswerServiceWithoutMocking(unittest.TestCase):
         # then
         self.assertEqual(vo.interview_questions.initial_question_index, 0)  # 꼬리질문 아직 안끝냈으므로 그대로.
         self.assertEqual(vo.interview_questions.followup_question_count, 3)
-        self.assertEqual(action_enum, InterviewActionEnum.CREATED_FOLLOWUP_QUESTION)
+        self.assertEqual(action_enum, InterviewerActionEnum.CREATED_FOLLOWUP_QUESTION)
         self.assertEqual(len(vo.interview_questions.excluded_questions_for_giving_followup_question), 6)
         self.assertEqual(len(vo.answer_score_with_category.categories_ordered_pair_list), 1)
         self.assertTrue(vo.is_followup_questions_end())  # 3번째 꼬리질문이 출제됬으므로 끝났는지 테스트.
