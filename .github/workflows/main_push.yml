@@ -39,6 +39,17 @@ jobs:
           aws-region: ${{ secrets.AWS_REGION }}
 
       # 2. 테스트 진행
+      - name: Write JSON files
+        run: |
+          echo "${{ secrets.ANSWER_CATEGORY_CLASSIFIER }}" > ./moview/modules/prompt_loader/json/AnswerCategoryClassifier.json
+          echo "${{ secrets.ANSWER_EVALUATOR }}" > ./moview/modules/prompt_loader/json/AnswerEvaluator.json
+          echo "${{ secrets.ANSWER_FILTER }}" > ./moview/modules/prompt_loader/json/AnswerFilter.json
+          echo "${{ secrets.ANSWER_SCORER }}" > ./moview/modules/prompt_loader/json/AnswerScorer.json
+          echo "${{ secrets.ANSWER_SUB_CATEGORY_CLASSIFIER }}" > ./moview/modules/prompt_loader/json/AnswerSubCategoryClassifier.json
+          echo "${{ secrets.FOLLOW_UP_QUESTION_GIVER }}" > ./moview/modules/prompt_loader/json/FollowUpQuestionGiver.json
+          echo "${{ secrets.INITIAL_QUESTION_GIVER }}" > ./moview/modules/prompt_loader/json/InitialQuestionGiver.json
+          echo "${{ secrets.INPUT_ANALYZER }}" > ./moview/modules/prompt_loader/json/InputAnalyzer.json
+
       - name: Run tests with coverage
         run: ./venv/bin/python -m coverage run -m unittest discover -s tests -p "test_*.py"
         shell: bash
