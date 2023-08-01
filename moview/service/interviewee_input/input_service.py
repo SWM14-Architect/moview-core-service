@@ -3,11 +3,14 @@ from typing import List
 from moview.service.interviewee_data_vo import IntervieweeDataVO, IntervieweeInitialInputData
 from moview.modules.initial_input.initial_input_analyzer import InitialInputAnalyzer
 from moview.modules.initial_input.initial_question_giver import InitialQuestionGiver, InitialQuestionParseError
+from moview.repository.interviewee_data_repository import IntervieweeDataRepository, MongoConfig
 
 
 class IntervieweeInputService:
     def __init__(self):
         self.INIT_QUESTION_MULTIPLIER = 2  # 각 자소서 답변에 대해 초기 질문을 몇 개씩 생성할 것인지 결정하는 상수
+        # todo MongoConfig 나중에 삭제하거나 수정할 필요 있을 듯.
+        self.repository = IntervieweeDataRepository(mongo_config=MongoConfig())
 
         self.initial_input_analyzer = InitialInputAnalyzer()
         self.initial_question_giver = InitialQuestionGiver()
@@ -47,8 +50,9 @@ class IntervieweeInputService:
                     initial_question_list.append(created_questions.pop())
 
             except InitialQuestionParseError as e:  # 파싱 실패한 경우
-                # 빈 문자열 담기
-                initial_question_list.append([])
+                # question_count만큼 빈 문자열 담기
+                for _ in range(self.INIT_QUESTION_MULTIPLIER):
+                    initial_question_list.append([])
 
         return IntervieweeDataVO(session_id=session_id,
                                  initial_question_list=initial_question_list,
