@@ -10,6 +10,7 @@ on:
 
 env:
   PYTHON_VERSION: '3.10'
+  MOVIEW_CORE_ENV: 'prod'
 
 jobs:
   test_and_deploy:
