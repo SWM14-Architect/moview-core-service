@@ -1,4 +1,4 @@
-from typing import List, Any
+from typing import List
 from pydantic import BaseModel
 
 
@@ -34,7 +34,7 @@ class InterviewQuestions(BaseModel):
 
     def get_next_initial_question(self):
         if self.initial_question_index >= len(self.initial_question_list):
-            raise ValueError("초기 질문을 모두 사용하였습니다.")
+            raise StopIteration("초기 질문을 모두 사용하였습니다.")
 
         self.initial_question_index += 1
 
