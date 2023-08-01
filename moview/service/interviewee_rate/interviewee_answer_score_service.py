@@ -1,12 +1,12 @@
 
 
 from moview.service.interviewee_data_vo import IntervieweeDataVO
-from moview.modules.answer_evaluator.answer_scorer import InterviewAnswerScorer
+from moview.modules.answer_evaluator.answer_scorer import AnswerScorer
 
 
 class InterviewAnswerScoreService:
     def __init__(self):
-        self.scorer = InterviewAnswerScorer()
+        self.scorer = AnswerScorer()
 
     def score_answers_of_interviewee(self, vo: IntervieweeDataVO) -> IntervieweeDataVO:
 

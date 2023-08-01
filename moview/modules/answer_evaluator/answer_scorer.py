@@ -23,14 +23,14 @@ SUB_CATEGORIES = {
 }
 
 
-class InterviewAnswerScorer:
+class AnswerScorer:
     def __init__(self):
         prompt_loader = PromptLoader()
 
         self.multi_prompt = prompt_loader.load_multi_prompt_chain_json_for_interview_answer_scorer(
-            InterviewAnswerScorer.__name__)
+            AnswerScorer.__name__)
         self.prompt_info_for_router_chain = prompt_loader.load_routing_prompt_json_for_interview_answer_scorer(
-            InterviewAnswerScorer.__name__)
+            AnswerScorer.__name__)
 
     def rate_by_main_and_subcategories(self, question: str, answer: str, categories_ordered_pair: str) -> str:
 

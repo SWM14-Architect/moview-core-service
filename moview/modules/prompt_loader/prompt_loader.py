@@ -26,8 +26,8 @@ class PromptLoader(metaclass=SingletonMeta):
         return data['prompt']
 
     def load_multi_prompt_chain_json_for_interview_answer_scorer(self, class_name: str) -> dict:
-        if class_name != 'InterviewAnswerScorer':
-            raise ValueError('InterviewAnswerScorer만 이 메서드를 사용할 수 있습니다.')
+        if class_name != 'AnswerScorer':
+            raise ValueError('AnswerScorer만 이 메서드를 사용할 수 있습니다.')
 
         abs_path = os.path.dirname(os.path.abspath(__file__))
 
@@ -37,8 +37,8 @@ class PromptLoader(metaclass=SingletonMeta):
         return data['multi_prompt_template']
 
     def load_routing_prompt_json_for_interview_answer_scorer(self, class_name: str) -> dict:
-        if class_name != 'InterviewAnswerScorer':
-            raise ValueError('InterviewAnswerScorer만 이 메서드를 사용할 수 있습니다.')
+        if class_name != 'AnswerScorer':
+            raise ValueError('AnswerScorer만 이 메서드를 사용할 수 있습니다.')
 
         abs_path = os.path.dirname(os.path.abspath(__file__))
 
