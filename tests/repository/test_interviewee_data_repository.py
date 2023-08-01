@@ -1,5 +1,4 @@
 import unittest
-from unittest.mock import MagicMock
 from moview.repository.interviewee_data_repository import IntervieweeDataRepository, MongoConfig
 from moview.repository.entity.interviewee_data_main_document import IntervieweeDataEntity
 from moview.repository.entity.interviewee_data_subdocument import IntervieweeInitialInputData, \
@@ -17,8 +16,8 @@ class TestIntervieweeDataRepository(unittest.TestCase):
                 cover_letter_questions=['test'],
                 cover_letter_answers=['test']
             ),
-            initial_interview_analysis=InputDataAnalysisResult(
-                initial_interview_analysis_list=['test']
+            input_data_analysis_result=InputDataAnalysisResult(
+                input_data_analysis_list=['test']
             ),
             interview_questions=InterviewQuestions(
                 initial_question_list=[['test']]
@@ -83,8 +82,8 @@ class TestIntervieweeDataRepository(unittest.TestCase):
                 cover_letter_questions=['update'],
                 cover_letter_answers=['update']
             ),
-            initial_interview_analysis=InputDataAnalysisResult(
-                initial_interview_analysis_list=['update']
+            input_data_analysis_result=InputDataAnalysisResult(
+                input_data_analysis_list=['update']
             ),
             interview_questions=InterviewQuestions(
                 initial_question_list=[['update']]
