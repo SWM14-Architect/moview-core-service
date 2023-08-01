@@ -1,7 +1,7 @@
-from typing import List
+from typing import Any
 
-from moview.modules.initial_input.initial_input_analyzer import InitialInputAnalyzer
-from moview.modules.initial_input.initial_question_giver import InitialQuestionGiver, InitialQuestionParseError
+from moview.modules.input.input_analyzer import InputAnalyzer
+from moview.modules.input.initial_question_giver import InitialQuestionGiver, InitialQuestionParseError
 from moview.repository.interviewee_data_repository import IntervieweeDataRepository, MongoConfig
 from moview.repository.entity.interviewee_data_main_document import IntervieweeDataEntity
 from moview.repository.entity.interviewee_data_subdocument import *
@@ -13,7 +13,7 @@ class IntervieweeInputService:
         # todo MongoConfig 나중에 삭제하거나 수정할 필요 있을 듯.
         self.repository = IntervieweeDataRepository(mongo_config=MongoConfig())
 
-        self.initial_input_analyzer = InitialInputAnalyzer()
+        self.initial_input_analyzer = InputAnalyzer()
         self.initial_question_giver = InitialQuestionGiver()
 
     def ask_initial_question_to_interviewee(self, session_id, interviewee_name: str,
@@ -149,8 +149,8 @@ class IntervieweeInputService:
                 cover_letter_answers=cover_letter_answers
             ),
 
-            initial_interview_analysis=InitialInterviewAnalysis(
-                initial_interview_analysis_list=analyzed_initial_inputs_of_interviewee),
+            input_data_analysis_result=InputDataAnalysisResult(
+                input_data_analysis_list=analyzed_initial_inputs_of_interviewee),
 
             interview_questions=InterviewQuestions(initial_question_list=initial_question_list),
 
@@ -158,7 +158,5 @@ class IntervieweeInputService:
 
             interviewee_feedbacks=IntervieweeFeedbacks()
         )
-
-        entity.interview_questions.exclude_initial_question(initial_question_list=initial_question_list)
 
         return entity

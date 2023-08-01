@@ -1,8 +1,7 @@
 import unittest
 from unittest.mock import patch
 
-from moview.service.interviewee_input.input_service import IntervieweeInputService, InitialQuestionParseError
-from moview.service import IntervieweeInitialInputData
+from moview.service.interviewee_input.interviewee_input_service import IntervieweeInputService, InitialQuestionParseError
 from moview.repository.interviewee_data_repository import IntervieweeDataRepository, MongoConfig
 
 
@@ -28,7 +27,7 @@ class TestInputService(unittest.TestCase):
                                                                    cover_letter_questions=cover_letter_questions,
                                                                    cover_letter_answers=cover_letter_answers)
 
-    @patch('moview.modules.initial_input.initial_question_giver.InitialQuestionGiver.give_initial_questions')
+    @patch('moview.modules.input.initial_question_giver.InitialQuestionGiver.give_initial_questions')
     def test_parse_fail_initial_question(self, mock_method):
         # given
         # 예외 강제 발생
@@ -58,7 +57,7 @@ class TestInputService(unittest.TestCase):
 
         # then
         loaded_entity = self.repository.find_by_session_id(saved_id)
-        self.assertEqual(len(loaded_entity['initial_interview_analysis']['initial_interview_analysis_list']), 1)
+        self.assertEqual(len(loaded_entity['input_data_analysis_result']['input_data_analysis_list']), 1)
         self.assertEqual(len(loaded_entity['interview_questions']['initial_question_list']), 2)
 
     def test_ask_initial_question_to_interviewee_with_two_cover_letter(self):
@@ -75,7 +74,7 @@ class TestInputService(unittest.TestCase):
 
         # then
         loaded_entity = self.repository.find_by_session_id(saved_id)
-        self.assertEqual(len(loaded_entity['initial_interview_analysis']['initial_interview_analysis_list']), 2)
+        self.assertEqual(len(loaded_entity['input_data_analysis_result']['input_data_analysis_list']), 2)
         self.assertEqual(len(loaded_entity['interview_questions']['initial_question_list']), 4)
 
     def test_ask_initial_question_to_interviewee_with_three_cover_letter(self):
@@ -94,5 +93,5 @@ class TestInputService(unittest.TestCase):
 
         # then
         loaded_entity = self.repository.find_by_session_id(saved_id)
-        self.assertEqual(len(loaded_entity['initial_interview_analysis']['initial_interview_analysis_list']), 3)
+        self.assertEqual(len(loaded_entity['input_data_analysis_result']['input_data_analysis_list']), 3)
         self.assertEqual(len(loaded_entity['interview_questions']['initial_question_list']), 6)

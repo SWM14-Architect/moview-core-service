@@ -8,10 +8,10 @@ from moview.modules.prompt_loader.prompt_loader import PromptLoader
 from moview.environment.llm_factory import LLMModelFactory
 
 
-class InitialInputAnalyzer:
+class InputAnalyzer:
     def __init__(self):
         prompt_loader = PromptLoader()
-        self.prompt = prompt_loader.load_prompt_json(InitialInputAnalyzer.__name__)
+        self.prompt = prompt_loader.load_prompt_json(InputAnalyzer.__name__)
 
     def analyze_initial_input(self, job_group: str, recruitment_announcement: str, cover_letter_question: str,
                               cover_letter_answer: str) -> str:

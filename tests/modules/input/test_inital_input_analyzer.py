@@ -1,11 +1,11 @@
 import unittest
 from tests.common_code_for_test import is_not_none_string
-from moview.modules.initial_input.initial_input_analyzer import InitialInputAnalyzer
+from moview.modules.input.input_analyzer import InputAnalyzer
 
 
 class TestInitialInputAnalyzer(unittest.TestCase):
     def setUp(self) -> None:
-        self.analyzer = InitialInputAnalyzer()
+        self.analyzer = InputAnalyzer()
 
     def test_load_prompt(self):
         self.assertTrue(is_not_none_string(self.analyzer.prompt))

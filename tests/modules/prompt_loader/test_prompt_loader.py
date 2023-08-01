@@ -1,7 +1,7 @@
 import threading
 import unittest
 from moview.modules.prompt_loader.prompt_loader import PromptLoader
-from moview.modules.initial_input.initial_input_analyzer import InitialInputAnalyzer
+from moview.modules.input.input_analyzer import InputAnalyzer
 
 
 class TestSingleton(unittest.TestCase):
@@ -39,7 +39,7 @@ class TestSingleton(unittest.TestCase):
 class TestLoadPrompt(unittest.TestCase):
     def test_load_prompt_json(self):
         prompt_loader = PromptLoader()
-        prompt = prompt_loader.load_prompt_json(InitialInputAnalyzer.__name__)
+        prompt = prompt_loader.load_prompt_json(InputAnalyzer.__name__)
 
         self.assertTrue(prompt is not None)
         print(prompt)

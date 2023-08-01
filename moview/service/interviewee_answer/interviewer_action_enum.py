@@ -2,7 +2,7 @@ from enum import Enum
 
 
 # Enum 정의
-class InterviewActionEnum(Enum):
+class InterviewerActionEnum(Enum):
     CREATED_FOLLOWUP_QUESTION = 1
     DIRECT_REQUEST = 2
     INAPPROPRIATE_ANSWER = 3

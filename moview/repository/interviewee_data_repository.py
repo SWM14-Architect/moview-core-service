@@ -57,15 +57,15 @@ class IntervieweeDataRepository(metaclass=SingletonMeta):
                 'cover_letter_answers': interviewee_data_entity.initial_input_data.cover_letter_answers
             },
 
-            'initial_interview_analysis': {
-                'initial_interview_analysis_list': interviewee_data_entity.
-                initial_interview_analysis.initial_interview_analysis_list
+            'input_data_analysis_result': {
+                'input_data_analysis_list': interviewee_data_entity.
+                input_data_analysis_result.input_data_analysis_list
             },
 
             'interview_questions': {
                 'initial_question_list': interviewee_data_entity.interview_questions.initial_question_list,
-                'excluded_questions_for_giving_followup_question': interviewee_data_entity.interview_questions.
-                excluded_questions_for_giving_followup_question,
+                'followup_question_list': interviewee_data_entity.interview_questions.
+                followup_question_list,
                 'initial_question_index': interviewee_data_entity.interview_questions.initial_question_index,
                 'followup_question_count': interviewee_data_entity.interview_questions.followup_question_count,
             },

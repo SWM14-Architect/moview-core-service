@@ -5,7 +5,9 @@ from moview.utils.singleton_meta_class import SingletonMeta
 
 
 class PromptLoader(metaclass=SingletonMeta):
-    def load_prompt_json(self, class_name: str) -> dict:
+
+    @staticmethod
+    def load_prompt_json(class_name: str) -> dict:
         """
         json 파일을 읽어서 prompt를 반환하는 메서드
         Args:
@@ -25,9 +27,10 @@ class PromptLoader(metaclass=SingletonMeta):
 
         return data['prompt']
 
-    def load_multi_prompt_chain_json_for_interview_answer_scorer(self, class_name: str) -> dict:
-        if class_name != 'InterviewAnswerScorer':
-            raise ValueError('InterviewAnswerScorer만 이 메서드를 사용할 수 있습니다.')
+    @staticmethod
+    def load_multi_prompt_chain_json_for_interview_answer_scorer(class_name: str) -> dict:
+        if class_name != 'AnswerScorer':
+            raise ValueError('AnswerScorer만 이 메서드를 사용할 수 있습니다.')
 
         abs_path = os.path.dirname(os.path.abspath(__file__))
 
@@ -36,9 +39,10 @@ class PromptLoader(metaclass=SingletonMeta):
 
         return data['multi_prompt_template']
 
-    def load_routing_prompt_json_for_interview_answer_scorer(self, class_name: str) -> dict:
-        if class_name != 'InterviewAnswerScorer':
-            raise ValueError('InterviewAnswerScorer만 이 메서드를 사용할 수 있습니다.')
+    @staticmethod
+    def load_routing_prompt_json_for_interview_answer_scorer(class_name: str) -> dict:
+        if class_name != 'AnswerScorer':
+            raise ValueError('AnswerScorer만 이 메서드를 사용할 수 있습니다.')
 
         abs_path = os.path.dirname(os.path.abspath(__file__))
 
@@ -65,9 +69,10 @@ class PromptLoader(metaclass=SingletonMeta):
             "Motivation and Values": 'motivation_values_template'
         }
 
-        return self.__combine_templates(data, keys)
+        return PromptLoader.__combine_templates(data, keys)
 
-    def __combine_templates(self, data: dict, keys: dict):
+    @staticmethod
+    def __combine_templates(data: dict, keys: dict):
         return {
             key: data['header_template'] + data[template] + data.get('footer_template', '')
             for key, template in keys.items()
