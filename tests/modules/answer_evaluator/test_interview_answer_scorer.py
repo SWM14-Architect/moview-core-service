@@ -1,7 +1,7 @@
 import unittest
 
 from tests.common_code_for_test import is_not_none_string
-from moview.modules.answer_evaluator.interview_answer_scorer import InterviewAnswerScorer
+from moview.modules.answer_evaluator.answer_scorer import InterviewAnswerScorer
 
 
 class TestInterviewAnswerScorer(unittest.TestCase):

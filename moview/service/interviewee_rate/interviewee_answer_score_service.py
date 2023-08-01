@@ -1,7 +1,7 @@
 
 
 from moview.service.interviewee_data_vo import IntervieweeDataVO
-from moview.modules.answer_evaluator.interview_answer_scorer import InterviewAnswerScorer
+from moview.modules.answer_evaluator.answer_scorer import InterviewAnswerScorer
 
 
 class InterviewAnswerScoreService:

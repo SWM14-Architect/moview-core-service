@@ -1,3 +1,5 @@
+from typing import Any
+
 from moview.modules.initial_input.initial_input_analyzer import InitialInputAnalyzer
 from moview.modules.initial_input.initial_question_giver import InitialQuestionGiver, InitialQuestionParseError
 from moview.repository.interviewee_data_repository import IntervieweeDataRepository, MongoConfig
