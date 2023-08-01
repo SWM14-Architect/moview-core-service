@@ -4,7 +4,7 @@ from tests.common_code_for_test import is_not_none_string
 from moview.modules.answer_evaluator.answer_scorer import AnswerScorer
 
 
-class TestInterviewAnswerScorer(unittest.TestCase):
+class TestAnswerScorer(unittest.TestCase):
 
     def setUp(self) -> None:
         self.scorer = AnswerScorer()

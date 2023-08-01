@@ -22,7 +22,7 @@ class PromptLoader(metaclass=SingletonMeta):
 
         abs_path = os.path.dirname(os.path.abspath(__file__))
 
-        with open(abs_path + '/json/' + class_name + '.json', 'r') as f:
+        with open(abs_path + '/json/' + class_name + '.json', 'r', encoding='utf-8') as f:
             data = json.load(f)
 
         return data['prompt']
@@ -34,7 +34,7 @@ class PromptLoader(metaclass=SingletonMeta):
 
         abs_path = os.path.dirname(os.path.abspath(__file__))
 
-        with open(abs_path + '/json/' + class_name + '.json', 'r') as f:
+        with open(abs_path + '/json/' + class_name + '.json', 'r', encoding='utf-8') as f:
             data = json.load(f)
 
         return data['multi_prompt_template']
@@ -46,7 +46,7 @@ class PromptLoader(metaclass=SingletonMeta):
 
         abs_path = os.path.dirname(os.path.abspath(__file__))
 
-        with open(abs_path + '/json/' + class_name + '.json', 'r') as f:
+        with open(abs_path + '/json/' + class_name + '.json', 'r', encoding='utf-8') as f:
             data = json.load(f)
 
         keys = {
