@@ -8,7 +8,6 @@ from moview.repository.entity.interviewee_data_subdocument import IntervieweeIni
 
 class TestIntervieweeDataRepository(unittest.TestCase):
     def setUp(self):
-        self.mock_mongo_client = MagicMock()
         self.entity = IntervieweeDataEntity(
             session_id='testtest1234',
             initial_input_data=IntervieweeInitialInputData(
