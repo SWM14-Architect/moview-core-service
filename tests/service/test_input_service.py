@@ -27,7 +27,7 @@ class TestInputService(unittest.TestCase):
                                                                    cover_letter_questions=cover_letter_questions,
                                                                    cover_letter_answers=cover_letter_answers)
 
-    @patch('moview.modules.initial_input.initial_question_giver.InitialQuestionGiver.give_initial_questions')
+    @patch('moview.modules.input.initial_question_giver.InitialQuestionGiver.give_initial_questions')
     def test_parse_fail_initial_question(self, mock_method):
         # given
         # 예외 강제 발생
