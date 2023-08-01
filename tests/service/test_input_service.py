@@ -1,7 +1,7 @@
 import unittest
 from unittest.mock import patch
 
-from moview.service.interviewee_input.input_service import IntervieweeInputService, InitialQuestionParseError
+from moview.service.interviewee_input.interviewee_input_service import IntervieweeInputService, InitialQuestionParseError
 from moview.service import IntervieweeInitialInputData
 from moview.repository.interviewee_data_repository import IntervieweeDataRepository, MongoConfig
 
