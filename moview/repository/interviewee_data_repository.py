@@ -3,6 +3,7 @@ from typing import Optional
 from pymongo import MongoClient
 
 from moview.repository.entity.interviewee_data_main_document import IntervieweeDataEntity
+from moview.repository.entity.interviewee_data_subdocument import *
 from moview.utils.singleton_meta_class import SingletonMeta
 
 
@@ -27,12 +28,17 @@ class IntervieweeDataRepository(metaclass=SingletonMeta):
         self.collection.insert_one(document)
         return document['session_id']
 
-    def find_by_session_id(self, session_id: str) -> Optional[dict]:
+    def find_by_session_id(self, session_id: str) -> Optional[IntervieweeDataEntity]:
         """
         주어진 ID에 해당하는 데이터를 불러옵니다.
         해당하는 데이터가 없는 경우 None을 반환합니다.
         """
-        return self.collection.find_one({'session_id': session_id})
+        document = self.collection.find_one({'session_id': session_id})
+        if document is None:
+            return None
+        else:
+            entity = self._convert_document_to_entity(document=document)
+            return entity
 
     def update(self, session_id: str, interviewee_data_entity: IntervieweeDataEntity) -> str:
         document = self._convert_entity_to_document(interviewee_data_entity)
@@ -71,7 +77,7 @@ class IntervieweeDataRepository(metaclass=SingletonMeta):
             },
 
             'interviewee_answer_scores': {
-                'questions_list': interviewee_data_entity.interviewee_answer_scores.question_list,
+                'question_list': interviewee_data_entity.interviewee_answer_scores.question_list,
                 'answer_list': interviewee_data_entity.interviewee_answer_scores.answer_list,
                 'category_and_sub_category_list': interviewee_data_entity
                 .interviewee_answer_scores.category_and_sub_category_list,
@@ -82,3 +88,44 @@ class IntervieweeDataRepository(metaclass=SingletonMeta):
             }
 
         }
+
+    @staticmethod
+    def _convert_document_to_entity(document) -> IntervieweeDataEntity:
+        initial_input_data = IntervieweeInitialInputData(
+            interviewee_name=document['initial_input_data']['interviewee_name'],
+            job_group=document['initial_input_data']['job_group'],
+            recruit_announcement=document['initial_input_data']['recruit_announcement'],
+            cover_letter_questions=document['initial_input_data']['cover_letter_questions'],
+            cover_letter_answers=document['initial_input_data']['cover_letter_answers'],
+        )
+
+        input_data_analysis_result = InputDataAnalysisResult(
+            input_data_analysis_list=document['input_data_analysis_result']['input_data_analysis_list'],
+        )
+
+        interview_questions = InterviewQuestions(
+            initial_question_list=document['interview_questions']['initial_question_list'],
+            followup_question_list=document['interview_questions']['followup_question_list'],
+            initial_question_index=document['interview_questions']['initial_question_index'],
+            followup_question_count=document['interview_questions']['followup_question_count'],
+        )
+
+        interviewee_answer_scores = IntervieweeAnswerScores(
+            question_list=document['interviewee_answer_scores']['question_list'],
+            answer_list=document['interviewee_answer_scores']['answer_list'],
+            category_and_sub_category_list=document['interviewee_answer_scores']['category_and_sub_category_list'],
+            score_of_answer_list=document['interviewee_answer_scores']['score_of_answer_list'],
+        )
+
+        interviewee_feedbacks = IntervieweeFeedbacks(
+            feedback_list=document['interviewee_feedbacks']['feedback_list']
+        )
+
+        return IntervieweeDataEntity(
+            session_id=document['session_id'],
+            initial_input_data=initial_input_data,
+            input_data_analysis_result=input_data_analysis_result,
+            interview_questions=interview_questions,
+            interviewee_answer_scores=interviewee_answer_scores,
+            interviewee_feedbacks=interviewee_feedbacks,
+        )
