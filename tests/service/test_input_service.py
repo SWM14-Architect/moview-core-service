@@ -18,26 +18,24 @@ class TestInputService(unittest.TestCase):
         # when
         with self.assertRaises(ValueError):
             self.input_service.ask_initial_question_to_interviewee(session_id=1,
-                                                                   initial_input_data=IntervieweeInitialInputData(
-                                                                       interviewee_name="test_user",
-                                                                       jop_group="IT", recruit_announcement="공고",
-                                                                       cover_letter_questions=cover_letter_questions,
-                                                                       cover_letter_answers=cover_letter_answers))
+                                                                   interviewee_name="test_user", job_group="IT",
+                                                                   recruit_announcement="공고",
+                                                                   cover_letter_questions=cover_letter_questions,
+                                                                   cover_letter_answers=cover_letter_answers)
 
     @patch('moview.modules.initial_input.initial_question_giver.InitialQuestionGiver.give_initial_questions')
     def test_parse_fail_initial_question(self, mock_method):
         # given
-        initial_input_data = IntervieweeInitialInputData(interviewee_name="test_user", jop_group="IT",
-                                                         recruit_announcement=self.recruit_announcement,
-                                                         cover_letter_questions=["당신의 창의력을 어떻게 발휘해 왔습니까?"],
-                                                         cover_letter_answers=[
-                                                             "여러 언어를 이용한 프로그램 개발을 통해 독특한 해결책을 제시해 왔습니다."])
         # 예외 강제 발생
         mock_method.side_effect = InitialQuestionParseError()
 
         # when
         vo = self.input_service.ask_initial_question_to_interviewee(session_id=1,
-                                                                    initial_input_data=initial_input_data)
+                                                                    interviewee_name="test_user", job_group="IT",
+                                                                    recruit_announcement=self.recruit_announcement,
+                                                                    cover_letter_questions=["당신의 창의력을 어떻게 발휘해 왔습니까?"],
+                                                                    cover_letter_answers=[
+                                                                        "여러 언어를 이용한 프로그램 개발을 통해 독특한 해결책을 제시해 왔습니다."])
         # then
         self.assertEqual(vo.interview_questions.initial_question_list, [[]])
 

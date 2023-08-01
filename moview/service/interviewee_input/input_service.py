@@ -19,7 +19,7 @@ class IntervieweeInputService:
     def ask_initial_question_to_interviewee(self, session_id, interviewee_name: str,
                                             job_group: str, recruit_announcement: str,
                                             cover_letter_questions: List[str],
-                                            cover_letter_answers: List[str])->str:
+                                            cover_letter_answers: List[str]):
         """
 
         Args:
