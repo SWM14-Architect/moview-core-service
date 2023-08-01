@@ -1,7 +1,6 @@
-from typing import List
 from pydantic import BaseModel
 from moview.repository.entity.interviewee_data_subdocument import IntervieweeInitialInputData, InitialInterviewAnalysis, \
-    InterviewQuestions, IntervieweeAnswerScore
+    InterviewQuestions, IntervieweeAnswerScores, IntervieweeFeedbacks
 
 """
 IntervieweeDataEntity 클래스를 정의할 때 Pydantic의 BaseModel을 사용하였습니다.
@@ -29,7 +28,8 @@ class IntervieweeDataEntity(BaseModel):
     initial_input_data: IntervieweeInitialInputData
     initial_interview_analysis: InitialInterviewAnalysis
     interview_questions: InterviewQuestions
-    interviewee_answer_score_list: List[IntervieweeAnswerScore]
+    interviewee_answer_scores: IntervieweeAnswerScores
+    interviewee_feedbacks: IntervieweeFeedbacks
 
     def give_next_initial_question(self):
         self.interview_questions.get_next_initial_question()

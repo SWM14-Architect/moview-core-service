@@ -27,7 +27,7 @@ class InterviewQuestions(BaseModel):
     인터뷰 초기 질문과 꼬리질문을 관리하는 클래스입니다.
     """
     initial_question_list: List[str]
-    excluded_questions_for_giving_followup_question: List[str] =[] # 꼬리질문 출제에서 제외할 질문들 (초기 질문은 꼬리질문 출제에서 제외합니다.)
+    excluded_questions_for_giving_followup_question: List[str] = []  # 꼬리질문 출제에서 제외할 질문들 (초기 질문은 꼬리질문 출제에서 제외합니다.)
     initial_question_index: int = 0  # 초기 질문 인덱스 i
     followup_question_count: int = 0  # i 번째 초기 질문에서 출제한 꼬리질문 횟수
     MAX_FOLLOWUP_QUESTION_COUNT: int = 3  # 꼬리질문 최대 횟수
@@ -68,14 +68,27 @@ class InterviewQuestions(BaseModel):
         return self.followup_question_count == self.MAX_FOLLOWUP_QUESTION_COUNT
 
 
-class IntervieweeAnswerScore(BaseModel):
+class IntervieweeAnswerScores(BaseModel):
     """
     면접 지원자의 질문,
     면접 지원자의 답변 ,
     면접 지원자의 답변에 대한 대분류+중분류 문자열, (Ex: I think it is 대분류, especially 중분류)
     면접 지원자 답변에 대한 점수.
+
+    question_list[i]에 대한 답변은 answer_list[i]에 저장됩니다.
+    category_and_sub_category_list[i]에는 answer_list[i]에 대한 대분류+중분류 문자열이 저장됩니다.
+    그리고 answer_list[i]에 대한 점수는 score_of_answer_list[i]에 저장됩니다.
     """
-    question: str
-    answer: str
-    category_and_sub_category: str
-    score_of_answer: str
+    question_list: List[str]
+    answer_list: List[str]
+    category_and_sub_category_list: List[str]
+    score_of_answer_list: List[str]
+
+
+class IntervieweeFeedbacks(BaseModel):
+    """
+    면접 지원자의 인터뷰 피드백을 저장하는 클래스입니다.
+    answer_list[i]에 대한 피드백은 feedback_list[i]에 저장됩니다.
+    """
+    answer_list: List[str]
+    feedback_list: List[str]

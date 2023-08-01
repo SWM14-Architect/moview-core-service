@@ -45,6 +45,7 @@ class IntervieweeDataRepository(metaclass=SingletonMeta):
 
     @staticmethod
     def _convert_entity_to_document(interviewee_data_entity: IntervieweeDataEntity) -> dict:
+        # todo mvp v2에서 데이터 나눌 필요 있음...
         return {
             'session_id': interviewee_data_entity.session_id,
 
@@ -69,13 +70,16 @@ class IntervieweeDataRepository(metaclass=SingletonMeta):
                 'followup_question_count': interviewee_data_entity.interview_questions.followup_question_count,
             },
 
-            'interviewee_answer_score_list': [
-                {
-                    'question': score_data.question,
-                    'answer': score_data.answer,
-                    'category_and_sub_category': score_data.category_and_sub_category,
-                    'score_of_answer': score_data.score_of_answer
-                } for score_data in interviewee_data_entity.interviewee_answer_score_list
-            ]
+            'interviewee_answer_scores': {
+                'questions_list': interviewee_data_entity.interviewee_answer_scores.question_list,
+                'answer_list': interviewee_data_entity.interviewee_answer_scores.answer_list,
+                'category_and_sub_category_list': interviewee_data_entity
+                .interviewee_answer_scores.category_and_sub_category_list,
+                'score_of_answer_list': interviewee_data_entity.interviewee_answer_scores.score_of_answer_list
+            },
+            'interviewee_feedbacks': {
+                'answer_list': interviewee_data_entity.interviewee_feedbacks.answer_list,
+                'feedback_list': interviewee_data_entity.interviewee_feedbacks.feedback_list
+            }
 
         }

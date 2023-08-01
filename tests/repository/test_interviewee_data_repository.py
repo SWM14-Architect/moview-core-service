@@ -1,9 +1,9 @@
 import unittest
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock
 from moview.repository.interviewee_data_repository import IntervieweeDataRepository, MongoConfig
 from moview.repository.entity.interviewee_data_main_document import IntervieweeDataEntity
 from moview.repository.entity.interviewee_data_subdocument import IntervieweeInitialInputData, \
-    InitialInterviewAnalysis, InterviewQuestions, IntervieweeAnswerScore
+    InitialInterviewAnalysis, InterviewQuestions, IntervieweeAnswerScores, IntervieweeFeedbacks
 
 
 class TestIntervieweeDataRepository(unittest.TestCase):
@@ -24,12 +24,16 @@ class TestIntervieweeDataRepository(unittest.TestCase):
             interview_questions=InterviewQuestions(
                 initial_question_list=['test']
             ),
-            interviewee_answer_score_list=[IntervieweeAnswerScore(
-                question='test',
-                answer='test',
-                category_and_sub_category='test',
-                score_of_answer='test'
-            )]
+            interviewee_answer_scores=IntervieweeAnswerScores(
+                question_list=['test'],
+                answer_list=['test'],
+                category_and_sub_category_list=['test'],
+                score_of_answer_list=['test']
+            ),
+            interviewee_feedbacks=IntervieweeFeedbacks(
+                answer_list=['test'],
+                feedback_list=['test']
+            )
         )
 
         self.repository = IntervieweeDataRepository(
@@ -87,12 +91,16 @@ class TestIntervieweeDataRepository(unittest.TestCase):
             interview_questions=InterviewQuestions(
                 initial_question_list=['update']
             ),
-            interviewee_answer_score_list=[IntervieweeAnswerScore(
-                question='update',
-                answer='update',
-                category_and_sub_category='update',
-                score_of_answer='update'
-            )]
+            interviewee_answer_scores=IntervieweeAnswerScores(
+                question_list=['update'],
+                answer_list=['update'],
+                category_and_sub_category_list=['update'],
+                score_of_answer_list=['update']
+            ),
+            interviewee_feedbacks=IntervieweeFeedbacks(
+                answer_list=['update'],
+                feedback_list=['update']
+            ),
         )
 
         # when
