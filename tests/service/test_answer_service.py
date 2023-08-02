@@ -182,6 +182,9 @@ class TestAnswerServiceWithoutMocking(unittest.TestCase):
 
         self.session_id = "testtest1234"
 
+    def tearDown(self):
+        self.repository.delete_all_with_id_for_teardown_in_testing(session_id=self.session_id)
+
     # 초기 질문 다 출제하고, 꼬리 질문 하나만 남았을 경우 테스트.
     def test_end_interview(self):
         # given
@@ -192,7 +195,6 @@ class TestAnswerServiceWithoutMocking(unittest.TestCase):
         entity.save_followup_question(self.question)
 
         self.assertEqual(len(entity.interview_questions.initial_question_list), 3)
-        self.assertTrue(entity.is_initial_questions_end())
         self.assertEqual(entity.interview_questions.followup_question_count, 3)
         self.assertTrue(entity.is_followup_questions_end())
 
@@ -215,52 +217,59 @@ class TestAnswerServiceWithoutMocking(unittest.TestCase):
     def test_next_initial_question(self):
         # given
         entity = self.__make_entity()
-        vo.interview_questions.initial_question_index = 1  # 2번째 초기 질문 진행 상태
-        vo.save_followup_question("꼬리질문1")
-        vo.save_followup_question("꼬리질문2")
-        vo.save_followup_question(self.question)
+        entity.interview_questions.initial_question_index = 1  # 2번째 초기 질문 진행 상태
+        entity.save_followup_question("꼬리질문1")
+        entity.save_followup_question("꼬리질문2")
+        entity.save_followup_question(self.question)
 
-        self.assertEqual(len(vo.interview_questions.initial_question_list), 3)
-        self.assertFalse(vo.is_initial_questions_end())
-        self.assertEqual(vo.interview_questions.followup_question_count, 3)
-        self.assertEqual(len(vo.interview_questions.excluded_questions_for_giving_followup_question), 6)
-        self.assertTrue(vo.is_followup_questions_end())
+        self.assertEqual(len(entity.interview_questions.initial_question_list), 3)
+        self.assertFalse(entity.is_initial_questions_end())
+        self.assertEqual(entity.interview_questions.followup_question_count, 3)
+        self.assertTrue(entity.is_followup_questions_end())
+        self.assertTrue(entity.interview_questions.initial_question_index == 1)
+
+        saved_id = self.repository.save(entity)
 
         # when
-        vo, action_enum = self.answer_service.determine_next_action_of_interviewer(
+        updated_id, action_enum = self.answer_service.determine_next_action_of_interviewer(
+            session_id=saved_id,
             question=self.question,
-            answer=self.answer, vo=vo)
+            answer=self.answer)
+
+        updated_entity = self.repository.find_by_session_id(session_id=updated_id)
+
         # then
-        self.assertEqual(vo.interview_questions.initial_question_index, 2)  # 다음 초기 질문 이동
-        self.assertEqual(vo.interview_questions.followup_question_count, 0)
+        self.assertEqual(updated_entity.interview_questions.initial_question_index, 2)  # 다음 초기 질문 이동
+        self.assertEqual(updated_entity.interview_questions.followup_question_count, 0)
         self.assertEqual(action_enum, InterviewerActionEnum.NEXT_INITIAL_QUESTION)
-        self.assertEqual(len(vo.interview_questions.excluded_questions_for_giving_followup_question), 6)
-        self.assertEqual(len(vo.answer_score_with_category.categories_ordered_pair_list), 1)
 
     def test_get_followup_question(self):
         # given
         entity = self.__make_entity()
-        vo.interview_questions.initial_question_index = 0  # 1번째 초기 질문 진행 상태
-        vo.save_followup_question("꼬리질문1")
-        vo.save_followup_question(self.question)  # 2번째 꼬리질문으로 나온 상태
+        entity.interview_questions.initial_question_index = 0  # 1번째 초기 질문 진행 상태
+        entity.save_followup_question("꼬리질문1")
+        entity.save_followup_question(self.question)  # 2번째 꼬리질문으로 나온 상태
 
-        self.assertEqual(len(vo.interview_questions.initial_question_list), 3)
-        self.assertFalse(vo.is_initial_questions_end())
-        self.assertEqual(vo.interview_questions.followup_question_count, 2)
-        self.assertEqual(len(vo.interview_questions.excluded_questions_for_giving_followup_question), 5)
-        self.assertFalse(vo.is_followup_questions_end())
+        self.assertEqual(len(entity.interview_questions.initial_question_list), 3)
+        self.assertFalse(entity.is_initial_questions_end())
+        self.assertEqual(entity.interview_questions.followup_question_count, 2)
+        self.assertFalse(entity.is_followup_questions_end())
+
+        saved_id = self.repository.save(entity)
 
         # when
-        vo, action_enum = self.answer_service.determine_next_action_of_interviewer(
+        updated_id, action_enum = self.answer_service.determine_next_action_of_interviewer(
+            session_id=saved_id,
             question=self.question,
-            answer=self.answer, vo=vo)
+            answer=self.answer)
+
+        updated_entity = self.repository.find_by_session_id(session_id=updated_id)
+
         # then
-        self.assertEqual(vo.interview_questions.initial_question_index, 0)  # 꼬리질문 아직 안끝냈으므로 그대로.
-        self.assertEqual(vo.interview_questions.followup_question_count, 3)
+        self.assertEqual(updated_entity.interview_questions.initial_question_index, 0)  # 꼬리질문 아직 안끝냈으므로 그대로.
+        self.assertEqual(updated_entity.interview_questions.followup_question_count, 3)
         self.assertEqual(action_enum, InterviewerActionEnum.CREATED_FOLLOWUP_QUESTION)
-        self.assertEqual(len(vo.interview_questions.excluded_questions_for_giving_followup_question), 6)
-        self.assertEqual(len(vo.answer_score_with_category.categories_ordered_pair_list), 1)
-        self.assertTrue(vo.is_followup_questions_end())  # 3번째 꼬리질문이 출제됬으므로 끝났는지 테스트.
+        self.assertTrue(updated_entity.is_followup_questions_end())  # 3번째 꼬리질문이 출제됬으므로 끝났는지 테스트.
 
     def __make_entity(self):
         return IntervieweeDataEntity(session_id=self.session_id, initial_input_data=self.initial_input_data,
