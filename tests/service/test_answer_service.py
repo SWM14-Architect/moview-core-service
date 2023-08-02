@@ -175,12 +175,17 @@ class TestAnswerServiceWithoutMocking(unittest.TestCase):
         self.question = "프로젝트에서 어떤 언어와 프레임워크, 라이브러리를 사용하였나요?"
         self.answer = "언어는 JAVA, JavaScript를 사용했습니다.프레임워크는 스프링 부트를 사용했습니다."
 
+        self.repository = IntervieweeDataRepository(mongo_config=MongoConfig())
+
+        self.interviewee_answer_scores = IntervieweeAnswerScores()
+        self.interviewee_feedbacks = IntervieweeFeedbacks()
+
+        self.session_id = "testtest1234"
+
     # 초기 질문 다 출제하고, 꼬리 질문 하나만 남았을 경우 테스트.
     def test_end_interview(self):
         # given
-        vo = IntervieweeDataVO(session_id=1, initial_question_list=["질문1", "질문2", "마지막 질문"],
-                               initial_input_data=self.initial_input_data,
-                               initial_interview_analysis=["분석1", "분석 2", "분석 3", ])
+        entity = self.__make_entity()
         vo.interview_questions.initial_question_index = 2
         vo.save_followup_question("꼬리질문1")
         vo.save_followup_question("꼬리질문2")
@@ -206,9 +211,7 @@ class TestAnswerServiceWithoutMocking(unittest.TestCase):
     # 초기 질문이 마지막이 아니고, 꼬리 질문이 마지막일 경우 테스트.
     def test_next_initial_question(self):
         # given
-        vo = IntervieweeDataVO(session_id=1, initial_question_list=["질문1", "질문2", "마지막 질문"],
-                               initial_input_data=self.initial_input_data,
-                               initial_interview_analysis=["분석1", "분석 2", "분석 3", ])
+        entity = self.__make_entity()
         vo.interview_questions.initial_question_index = 1  # 2번째 초기 질문 진행 상태
         vo.save_followup_question("꼬리질문1")
         vo.save_followup_question("꼬리질문2")
@@ -233,9 +236,7 @@ class TestAnswerServiceWithoutMocking(unittest.TestCase):
 
     def test_get_followup_question(self):
         # given
-        vo = IntervieweeDataVO(session_id=1, initial_question_list=["질문1", "질문2", "마지막 질문"],
-                               initial_input_data=self.initial_input_data,
-                               initial_interview_analysis=["분석1", "분석 2", "분석 3", ])
+        entity = self.__make_entity()
         vo.interview_questions.initial_question_index = 0  # 1번째 초기 질문 진행 상태
         vo.save_followup_question("꼬리질문1")
         vo.save_followup_question(self.question)  # 2번째 꼬리질문으로 나온 상태
@@ -257,6 +258,15 @@ class TestAnswerServiceWithoutMocking(unittest.TestCase):
         self.assertEqual(len(vo.interview_questions.excluded_questions_for_giving_followup_question), 6)
         self.assertEqual(len(vo.answer_score_with_category.categories_ordered_pair_list), 1)
         self.assertTrue(vo.is_followup_questions_end())  # 3번째 꼬리질문이 출제됬으므로 끝났는지 테스트.
+
+    def __make_entity(self):
+        return IntervieweeDataEntity(session_id=self.session_id, initial_input_data=self.initial_input_data,
+                                     input_data_analysis_result=InputDataAnalysisResult(
+                                         input_data_analysis_list=["분석1", "분석 2", "분석 3", ]),
+                                     interview_questions=InterviewQuestions(
+                                         initial_question_list=["질문1", "질문2", "마지막 질문"]),
+                                     interviewee_answer_scores=self.interviewee_answer_scores,
+                                     interviewee_feedbacks=self.interviewee_feedbacks)
 
 
 if __name__ == '__main__':
