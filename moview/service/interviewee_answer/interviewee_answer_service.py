@@ -1,8 +1,9 @@
 import re
 from moview.modules.question_generator import AnswerFilter, AnswerCategoryClassifier, AnswerSubCategoryClassifier, \
     FollowUpQuestionGiver
-from moview.service.interviewee_data_vo import IntervieweeDataVO
 from moview.service.interviewee_answer.interviewer_action_enum import InterviewerActionEnum
+from moview.repository.interviewee_data_repository import IntervieweeDataRepository, MongoConfig
+from moview.repository.entity.interviewee_data_main_document import IntervieweeDataEntity
 
 
 # 정규 표현식으로 짜긴 했는데, 간혹 출력값이 이상하게 나올 수 있음. 이럴 떄는 문장 유사도 평가가 좋아보임. 그래서 이러한 함수 간 접합 부분에는 vector db를 쓰는게 나을 듯?
@@ -37,19 +38,20 @@ class ResubmissionRequestError(Exception):
 
 class IntervieweeAnswerService:
     def __init__(self):
+        self.repository = IntervieweeDataRepository(mongo_config=MongoConfig())
+
         self.filter = AnswerFilter()
         self.major_classifier = AnswerCategoryClassifier()
         self.sub_classifier = AnswerSubCategoryClassifier()
 
         self.giver = FollowUpQuestionGiver()
 
-    def determine_next_action_of_interviewer(self, question: str, answer: str,
-                                             vo: IntervieweeDataVO) -> (IntervieweeDataVO, InterviewerActionEnum):
+    def determine_next_action_of_interviewer(self, session_id, question: str, answer: str):
         """
         interviewer의 질문과 interviewee의 답변을 받아서, intervieweer의 다음 행동을 결정하는 메서드
 
         Args:
-            vo: 인터뷰 세션 모든 정보를 다 갖고 있는 vo. (db에 저장하는 걸로 바꿔야 합니다.)
+            session_id: flask session_id
             question: interviewer의 질문
             answer: interviewee의 답변
 
@@ -61,39 +63,66 @@ class IntervieweeAnswerService:
 
         """
 
+        found_interview_data = self.repository.find_by_session_id(session_id=session_id)
+
+        if found_interview_data is None:
+            raise Exception("Interview history not found.")
+
         # 답변 내용을 분류 (적절한가, 재요청인가 등) -> 대분류, 중분류를 받음.
         try:
-            category_and_sub_category = self.__classify_answer_of_interviewee(job_group=vo.initial_input_data.job_group,
-                                                                              question=question,
-                                                                              answer=answer)
+            category_and_sub_category = self.__classify_answer_of_interviewee(
+                job_group=found_interview_data.initial_input_data.job_group,
+                question=question,
+                answer=answer)
+
         except InappropriateAnswerError:
             # 적절하지 않은 답변인 경우, 다음 초기 질문 진행
-            vo.give_next_initial_question()
-            return vo, InterviewerActionEnum.INAPPROPRIATE_ANSWER
+            found_interview_data.give_next_initial_question()
+            updated_id = self.repository.update(session_id=session_id, interviewee_data_entity=found_interview_data)
+
+            return updated_id, InterviewerActionEnum.INAPPROPRIATE_ANSWER
+
         except ResubmissionRequestError:
             # todo 재요청인 경우, 좀 더 구체적인 질문 생성 요청으로 바꿔야 함. 현재는 다음 초기 질문 진행으로 해놓음.
-            vo.give_next_initial_question()
-            return vo, InterviewerActionEnum.DIRECT_REQUEST
+            found_interview_data.give_next_initial_question()
+            updated_id = self.repository.update(session_id=session_id, interviewee_data_entity=found_interview_data)
+
+            return updated_id, InterviewerActionEnum.DIRECT_REQUEST
 
         # 답변에 대한 대분류, 중분류 저장
-        vo.save_categories_ordered_pair(question=question, answer=answer,
-                                        categories_ordered_pair=category_and_sub_category)
-        if vo.is_initial_questions_end() and vo.is_followup_questions_end():
+        found_interview_data.save_category_in_interviewee_answer_scores(question=question, answer=answer,
+                                                                        category_and_sub_category=category_and_sub_category)
+
+        updated_category_id = self.repository.update(session_id=session_id,
+                                                     interviewee_data_entity=found_interview_data)
+
+        if found_interview_data.is_initial_questions_end() and found_interview_data.is_followup_questions_end():
+
             # 다음 초기 질문 x, 심화질문 x인 경우, interview 종료
-            return vo, InterviewerActionEnum.END_INTERVIEW
-        elif not vo.is_initial_questions_end() and vo.is_followup_questions_end():
+            return updated_category_id, InterviewerActionEnum.END_INTERVIEW
+
+        elif not found_interview_data.is_initial_questions_end() and found_interview_data.is_followup_questions_end():
+
             # 다음 초기 질문 o, 심화질문 x인 경우, 다음 초기 질문 진행
-            vo.give_next_initial_question()
-            return vo, InterviewerActionEnum.NEXT_INITIAL_QUESTION
+            found_interview_data.give_next_initial_question()
+
+            updated_id = self.repository.update(session_id=updated_category_id,
+                                                interviewee_data_entity=found_interview_data)
+
+            return updated_id, InterviewerActionEnum.NEXT_INITIAL_QUESTION
         else:
             # 꼬리질문 출제
             followup_question = self.__get_followup_question(question=question, answer=answer,
                                                              categories_ordered_pair=category_and_sub_category,
-                                                             vo=vo)
-            vo.save_followup_question(followup_question)
+                                                             found_interview_data=found_interview_data)
+
+            found_interview_data.save_followup_question(followup_question=followup_question)
+
+            updated_followup_id = self.repository.update(session_id=updated_category_id,
+                                                         interviewee_data_entity=found_interview_data)
 
             # 그외에 심화질문 o인 경우, 다음 꼬리 질문 진행
-            return vo, InterviewerActionEnum.CREATED_FOLLOWUP_QUESTION
+            return updated_followup_id, InterviewerActionEnum.CREATED_FOLLOWUP_QUESTION
 
     def __classify_answer_of_interviewee(self, job_group: str, question: str, answer: str) -> str:
         # 적절하지 않은 답변을 걸러냅니다.
@@ -116,10 +145,13 @@ class IntervieweeAnswerService:
             answer=answer, categories=categories)
 
     def __get_followup_question(self, question: str, answer: str, categories_ordered_pair: str,
-                                vo: IntervieweeDataVO) -> str:
+                                found_interview_data: IntervieweeDataEntity) -> str:
+
+        previous_questions = found_interview_data.interview_questions.initial_question_list.extend(
+            found_interview_data.interview_questions.followup_question_list)
 
         # 꼬리 질문 출제
         return self.giver.give_followup_question(
-            job_group=vo.initial_input_data.job_group, question=question, answer=answer,
-            previous_questions=str(vo.interview_questions.excluded_questions_for_giving_followup_question),
+            job_group=found_interview_data.initial_input_data.job_group, question=question, answer=answer,
+            previous_questions=str(previous_questions),
             categories_ordered_pair=categories_ordered_pair)

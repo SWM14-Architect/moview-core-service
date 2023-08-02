@@ -67,7 +67,7 @@ class TestIntervieweeDataRepository(unittest.TestCase):
         loaded_entity = self.repository.find_by_session_id(session_id)
 
         # Assert
-        self.assertEqual(loaded_entity['session_id'], session_id)
+        self.assertEqual(loaded_entity.session_id, session_id)
 
     def test_update(self):
         # given
