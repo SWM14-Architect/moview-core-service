@@ -4,9 +4,13 @@ on:
   push:
     branches-ignore:
       - main
+  workflow_dispatch: # Run workflow(수동 실행) 기능 활성화
+    branches-ignore:
+      - main
 
 env:
   PYTHON_VERSION: '3.10'
+  MOVIEW_CORE_ENV: 'prod'
 
 jobs:
   test:

@@ -1,7 +1,7 @@
 import unittest
 from unittest.mock import patch
 from tests.common_code_for_test import is_not_none_string
-from moview.modules.question_generator.answer_subcategory_classifier import AnswerSubCategoryClassifier
+from moview.modules.question_generator.answer_sub_category_classifier import AnswerSubCategoryClassifier
 
 
 class TestAnswerSubCategoryClassifier(unittest.TestCase):
@@ -13,7 +13,7 @@ class TestAnswerSubCategoryClassifier(unittest.TestCase):
         print(self.answer_subcategory_classifier.prompt.format(job_group="테스트 직군", categories="테스트 카테고리"))
 
     @patch(
-        'moview.modules.question_generator.answer_subcategory_classifier.AnswerSubCategoryClassifier'
+        'moview.modules.question_generator.answer_sub_category_classifier.AnswerSubCategoryClassifier'
         '.classify_sub_category_of_answer')
     def test_classify_sub_category_of_answer(self, mock_method):
         # given
