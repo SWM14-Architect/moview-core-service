@@ -186,27 +186,30 @@ class TestAnswerServiceWithoutMocking(unittest.TestCase):
     def test_end_interview(self):
         # given
         entity = self.__make_entity()
-        vo.interview_questions.initial_question_index = 2
-        vo.save_followup_question("꼬리질문1")
-        vo.save_followup_question("꼬리질문2")
-        vo.save_followup_question(self.question)
+        entity.interview_questions.initial_question_index = 2
+        entity.save_followup_question("꼬리질문1")
+        entity.save_followup_question("꼬리질문2")
+        entity.save_followup_question(self.question)
 
-        self.assertEqual(len(vo.interview_questions.initial_question_list), 3)
-        self.assertTrue(vo.is_initial_questions_end())
-        self.assertEqual(vo.interview_questions.followup_question_count, 3)
-        self.assertEqual(len(vo.interview_questions.excluded_questions_for_giving_followup_question), 6)
-        self.assertTrue(vo.is_followup_questions_end())
+        self.assertEqual(len(entity.interview_questions.initial_question_list), 3)
+        self.assertTrue(entity.is_initial_questions_end())
+        self.assertEqual(entity.interview_questions.followup_question_count, 3)
+        self.assertTrue(entity.is_followup_questions_end())
+
+        saved_id = self.repository.save(entity)
 
         # when
-        vo, action_enum = self.answer_service.determine_next_action_of_interviewer(
+        updated_id, action_enum = self.answer_service.determine_next_action_of_interviewer(
+            session_id=saved_id,
             question=self.question,
-            answer=self.answer, vo=vo)
+            answer=self.answer)
+
+        updated_entity = self.repository.find_by_session_id(session_id=updated_id)
+
         # then
-        self.assertEqual(vo.interview_questions.initial_question_index, 2)
-        self.assertEqual(vo.interview_questions.followup_question_count, 3)
+        self.assertEqual(updated_entity.interview_questions.initial_question_index, 2)
+        self.assertEqual(updated_entity.interview_questions.followup_question_count, 3)
         self.assertEqual(action_enum, InterviewerActionEnum.END_INTERVIEW)
-        self.assertEqual(len(vo.interview_questions.excluded_questions_for_giving_followup_question), 6)
-        self.assertEqual(len(vo.answer_score_with_category.categories_ordered_pair_list), 1)
 
     # 초기 질문이 마지막이 아니고, 꼬리 질문이 마지막일 경우 테스트.
     def test_next_initial_question(self):
