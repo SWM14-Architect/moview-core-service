@@ -31,7 +31,7 @@ class TestAnswerServiceWithMocking(unittest.TestCase):
     @patch('moview.modules.question_generator.AnswerFilter.exclude_invalid_answer')
     def test_inappropriate_answer_error_without_followup_question(self, mock_method):
         # given
-        interview_questions = InterviewQuestions(initial_question_list=["질문1", "질문2"])
+        interview_questions = self.__make_initial_questions()
         input_data_analysis_result = InputDataAnalysisResult(input_data_analysis_list=["분석1", "분석 2"])
 
         entity = IntervieweeDataEntity(session_id=self.session_id, initial_input_data=self.initial_input_data,
@@ -48,9 +48,7 @@ class TestAnswerServiceWithMocking(unittest.TestCase):
         mock_method.return_value = "4"
 
         # when
-        updated_id, action_enum = self.answer_service.determine_next_action_of_interviewer(session_id=saved_id,
-                                                                                           question="질문",
-                                                                                           answer="부적절한 답변")
+        updated_id, action_enum = self.__determine_next_action(saved_id)
         # then
         found_entity = self.repository.find_by_session_id(session_id=updated_id)
 
@@ -61,17 +59,7 @@ class TestAnswerServiceWithMocking(unittest.TestCase):
     def test_inappropriate_answer_error_with_followup_question(self, mock_method):
         # given
 
-        interview_questions = InterviewQuestions(initial_question_list=["질문1", "질문2"])
-        input_data_analysis_result = InputDataAnalysisResult(input_data_analysis_list=["분석1", "분석 2"])
-
-        entity = IntervieweeDataEntity(session_id=self.session_id, initial_input_data=self.initial_input_data,
-                                       input_data_analysis_result=input_data_analysis_result,
-                                       interview_questions=interview_questions,
-                                       interviewee_answer_scores=self.interviewee_answer_scores,
-                                       interviewee_feedbacks=self.interviewee_feedbacks)
-
-        entity.save_followup_question("꼬리질문1")
-        entity.save_followup_question("꼬리질문2")
+        entity = self.__make_followup_question()
 
         self.assertEqual(len(entity.interview_questions.initial_question_list), 2)
         self.assertEqual(entity.interview_questions.initial_question_index, 0)
@@ -83,10 +71,7 @@ class TestAnswerServiceWithMocking(unittest.TestCase):
         mock_method.return_value = "2"
 
         # when
-        updated_id, action_enum = self.answer_service.determine_next_action_of_interviewer(session_id=saved_id,
-                                                                                           question="질문",
-                                                                                           answer="부적절한 답변")
-
+        updated_id, action_enum = self.__determine_next_action(saved_id)
         updated_entity = self.repository.find_by_session_id(session_id=updated_id)
 
         # then
@@ -99,7 +84,7 @@ class TestAnswerServiceWithMocking(unittest.TestCase):
     def test_resubmission_request_error_without_followup_question(self, mock_method):
         # given
 
-        interview_questions = InterviewQuestions(initial_question_list=["질문1", "질문2"])
+        interview_questions = self.__make_initial_questions()
         input_data_analysis_result = InputDataAnalysisResult(input_data_analysis_list=["분석1", "분석 2"])
 
         entity = IntervieweeDataEntity(session_id=self.session_id, initial_input_data=self.initial_input_data,
@@ -116,9 +101,7 @@ class TestAnswerServiceWithMocking(unittest.TestCase):
         mock_method.return_value = "1"
 
         # when
-        updated_id, action_enum = self.answer_service.determine_next_action_of_interviewer(session_id=saved_id,
-                                                                                           question="질문",
-                                                                                           answer="부적절한 답변")
+        updated_id, action_enum = self.__determine_next_action(saved_id)
         updated_entity = self.repository.find_by_session_id(session_id=updated_id)
 
         # then
@@ -131,17 +114,7 @@ class TestAnswerServiceWithMocking(unittest.TestCase):
     def test_resubmission_request_error_with_followup_question(self, mock_method):
         # given
 
-        interview_questions = InterviewQuestions(initial_question_list=["질문1", "질문2"])
-        input_data_analysis_result = InputDataAnalysisResult(input_data_analysis_list=["분석1", "분석 2"])
-
-        entity = IntervieweeDataEntity(session_id=self.session_id, initial_input_data=self.initial_input_data,
-                                       input_data_analysis_result=input_data_analysis_result,
-                                       interview_questions=interview_questions,
-                                       interviewee_answer_scores=self.interviewee_answer_scores,
-                                       interviewee_feedbacks=self.interviewee_feedbacks)
-
-        entity.save_followup_question("꼬리질문1")
-        entity.save_followup_question("꼬리질문2")
+        entity = self.__make_followup_question()
 
         self.assertEqual(len(entity.interview_questions.initial_question_list), 2)
         self.assertEqual(entity.interview_questions.initial_question_index, 0)
@@ -153,9 +126,7 @@ class TestAnswerServiceWithMocking(unittest.TestCase):
         saved_id = self.repository.save(entity)
 
         # when
-        updated_id, action_enum = self.answer_service.determine_next_action_of_interviewer(session_id=saved_id,
-                                                                                           question="질문",
-                                                                                           answer="부적절한 답변")
+        updated_id, action_enum = self.__determine_next_action(saved_id)
         updated_entity = self.repository.find_by_session_id(session_id=updated_id)
 
         # then
@@ -163,6 +134,29 @@ class TestAnswerServiceWithMocking(unittest.TestCase):
         self.assertEqual(action_enum, InterviewerActionEnum.DIRECT_REQUEST)
         self.assertEqual(updated_entity.interview_questions.followup_question_count, 0)
         self.assertEqual(len(updated_entity.interview_questions.followup_question_list), 2)
+
+    def __make_initial_questions(self) -> InterviewQuestions:
+        return InterviewQuestions(initial_question_list=["질문1", "질문2"])
+
+    def __determine_next_action(self, saved_id):
+        return self.answer_service.determine_next_action_of_interviewer(session_id=saved_id,
+                                                                        question="질문",
+                                                                        answer="부적절한 답변")
+
+    def __make_followup_question(self):
+        interview_questions = self.__make_initial_questions()
+        input_data_analysis_result = InputDataAnalysisResult(input_data_analysis_list=["분석1", "분석 2"])
+
+        entity = IntervieweeDataEntity(session_id=self.session_id, initial_input_data=self.initial_input_data,
+                                       input_data_analysis_result=input_data_analysis_result,
+                                       interview_questions=interview_questions,
+                                       interviewee_answer_scores=self.interviewee_answer_scores,
+                                       interviewee_feedbacks=self.interviewee_feedbacks)
+
+        entity.save_followup_question("꼬리질문1")
+        entity.save_followup_question("꼬리질문2")
+
+        return entity
 
 
 """
