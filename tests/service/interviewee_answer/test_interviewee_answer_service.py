@@ -2,8 +2,6 @@ import unittest
 from unittest.mock import patch
 
 from moview.service.interviewee_answer.interviewer_action_enum import InterviewerActionEnum
-from moview.service.interviewee_input.interviewee_input_service import IntervieweeInputService, \
-    InitialQuestionParseError
 from moview.repository.interviewee_data_repository import IntervieweeDataRepository, MongoConfig
 from moview.repository.entity.interviewee_data_subdocument import *
 from moview.repository.entity.interviewee_data_main_document import IntervieweeDataEntity

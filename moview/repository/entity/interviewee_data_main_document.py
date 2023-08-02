@@ -47,3 +47,6 @@ class IntervieweeDataEntity(BaseModel):
         self.interviewee_answer_scores.question_list.append(question)
         self.interviewee_answer_scores.answer_list.append(answer)
         self.interviewee_answer_scores.category_and_sub_category_list.append(category_and_sub_category)
+
+    def save_score_in_interviewee_answer_scores(self, score: str):
+        self.interviewee_answer_scores.score_of_answer_list.append(score)
