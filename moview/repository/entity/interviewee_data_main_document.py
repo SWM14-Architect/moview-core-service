@@ -42,3 +42,8 @@ class IntervieweeDataEntity(BaseModel):
 
     def is_followup_questions_end(self) -> bool:
         return self.interview_questions.is_followup_questions_end()
+
+    def save_category_in_interviewee_answer_scores(self, question: str, answer: str, category_and_sub_category: str):
+        self.interviewee_answer_scores.question_list.append(question)
+        self.interviewee_answer_scores.answer_list.append(answer)
+        self.interviewee_answer_scores.category_and_sub_category_list.append(category_and_sub_category)

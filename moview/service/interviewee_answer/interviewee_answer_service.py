@@ -90,10 +90,8 @@ class IntervieweeAnswerService:
             return updated_id, InterviewerActionEnum.DIRECT_REQUEST
 
         # 답변에 대한 대분류, 중분류 저장
-        # todo mvp v2에서 다큐먼트 찢은 후에 다시 작성해야 함 ... 업데이트가 몇번이냐 ...
-        found_interview_data.interviewee_answer_scores.question_list.append(question)
-        found_interview_data.interviewee_answer_scores.answer_list.append(answer)
-        found_interview_data.interviewee_answer_scores.category_and_sub_category_list.append(category_and_sub_category)
+        found_interview_data.save_category_in_interviewee_answer_scores(question=question, answer=answer,
+                                                                        category_and_sub_category=category_and_sub_category)
 
         updated_category_id = self.repository.update(session_id=session_id,
                                                      interviewee_data_entity=found_interview_data)
