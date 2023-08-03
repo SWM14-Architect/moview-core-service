@@ -32,7 +32,7 @@ class IntervieweeDataEntity(BaseModel):
     interviewee_feedbacks: IntervieweeFeedbacks
 
     def give_next_initial_question(self):
-        self.interview_questions.get_next_initial_question()
+        return self.interview_questions.get_next_initial_question()
 
     def save_followup_question(self, followup_question: str):
         self.interview_questions.save_followup_question(followup_question)

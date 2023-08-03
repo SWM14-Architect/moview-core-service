@@ -77,17 +77,17 @@ class IntervieweeAnswerService:
 
         except InappropriateAnswerError:
             # 적절하지 않은 답변인 경우, 다음 초기 질문 진행
-            found_interview_data.give_next_initial_question()
-            updated_id = self.repository.update(session_id=session_id, interviewee_data_entity=found_interview_data)
+            next_initial_question = found_interview_data.give_next_initial_question()
+            self.repository.update(session_id=session_id, interviewee_data_entity=found_interview_data)
 
-            return updated_id, InterviewerActionEnum.INAPPROPRIATE_ANSWER
+            return next_initial_question, InterviewerActionEnum.INAPPROPRIATE_ANSWER
 
         except ResubmissionRequestError:
             # todo 재요청인 경우, 좀 더 구체적인 질문 생성 요청으로 바꿔야 함. 현재는 다음 초기 질문 진행으로 해놓음.
-            found_interview_data.give_next_initial_question()
-            updated_id = self.repository.update(session_id=session_id, interviewee_data_entity=found_interview_data)
+            next_initial_question = found_interview_data.give_next_initial_question()
+            self.repository.update(session_id=session_id, interviewee_data_entity=found_interview_data)
 
-            return updated_id, InterviewerActionEnum.DIRECT_REQUEST
+            return next_initial_question, InterviewerActionEnum.DIRECT_REQUEST
 
         # 답변에 대한 대분류, 중분류 저장
         found_interview_data.save_category_in_interviewee_answer_scores(question=question, answer=answer,
@@ -99,17 +99,17 @@ class IntervieweeAnswerService:
         if found_interview_data.is_initial_questions_end() and found_interview_data.is_followup_questions_end():
 
             # 다음 초기 질문 x, 심화질문 x인 경우, interview 종료
-            return updated_category_id, InterviewerActionEnum.END_INTERVIEW
+            return [], InterviewerActionEnum.END_INTERVIEW
 
         elif not found_interview_data.is_initial_questions_end() and found_interview_data.is_followup_questions_end():
 
             # 다음 초기 질문 o, 심화질문 x인 경우, 다음 초기 질문 진행
-            found_interview_data.give_next_initial_question()
+            next_initial_question = found_interview_data.give_next_initial_question()
 
-            updated_id = self.repository.update(session_id=updated_category_id,
-                                                interviewee_data_entity=found_interview_data)
+            self.repository.update(session_id=updated_category_id,
+                                   interviewee_data_entity=found_interview_data)
 
-            return updated_id, InterviewerActionEnum.NEXT_INITIAL_QUESTION
+            return next_initial_question, InterviewerActionEnum.NEXT_INITIAL_QUESTION
         else:
             # 꼬리질문 출제
             followup_question = self.__get_followup_question(question=question, answer=answer,
@@ -118,11 +118,11 @@ class IntervieweeAnswerService:
 
             found_interview_data.save_followup_question(followup_question=followup_question)
 
-            updated_followup_id = self.repository.update(session_id=updated_category_id,
-                                                         interviewee_data_entity=found_interview_data)
+            self.repository.update(session_id=updated_category_id,
+                                   interviewee_data_entity=found_interview_data)
 
             # 그외에 심화질문 o인 경우, 다음 꼬리 질문 진행
-            return updated_followup_id, InterviewerActionEnum.CREATED_FOLLOWUP_QUESTION
+            return followup_question, InterviewerActionEnum.CREATED_FOLLOWUP_QUESTION
 
     def __classify_answer_of_interviewee(self, job_group: str, question: str, answer: str) -> str:
         # 적절하지 않은 답변을 걸러냅니다.

@@ -35,7 +35,7 @@ class TestInputService(unittest.TestCase):
         mock_method.side_effect = InitialQuestionParseError()
 
         # when
-        saved_id = self.input_service.ask_initial_question_to_interviewee(session_id="testtest1234",
+        self.input_service.ask_initial_question_to_interviewee(session_id="testtest1234",
                                                                           interviewee_name="test_user", job_group="IT",
                                                                           recruit_announcement=self.recruit_announcement,
                                                                           cover_letter_questions=[
@@ -43,12 +43,12 @@ class TestInputService(unittest.TestCase):
                                                                           cover_letter_answers=[
                                                                               "여러 언어를 이용한 프로그램 개발을 통해 독특한 해결책을 제시해 왔습니다."])
         # then
-        loaded_entity = self.repository.find_by_session_id(saved_id)
+        loaded_entity = self.repository.find_by_session_id("testtest1234")
         self.assertEqual(loaded_entity.interview_questions.initial_question_list, [[], []])
 
     def test_ask_initial_question_to_interviewee_with_one_cover_letter(self):
         # when
-        saved_id = self.input_service.ask_initial_question_to_interviewee(session_id="testtest1234",
+        self.input_service.ask_initial_question_to_interviewee(session_id="testtest1234",
                                                                           interviewee_name="test_user", job_group="IT",
                                                                           recruit_announcement=self.recruit_announcement,
                                                                           cover_letter_questions=[
@@ -57,13 +57,13 @@ class TestInputService(unittest.TestCase):
                                                                               "여러 언어를 이용한 프로그램 개발을 통해 독특한 해결책을 제시해 왔습니다."])
 
         # then
-        loaded_entity = self.repository.find_by_session_id(saved_id)
+        loaded_entity = self.repository.find_by_session_id("testtest1234")
         self.assertEqual(len(loaded_entity.input_data_analysis_result.input_data_analysis_list), 1)
         self.assertEqual(len(loaded_entity.interview_questions.initial_question_list), 2)
 
     def test_ask_initial_question_to_interviewee_with_two_cover_letter(self):
         # when
-        saved_id = self.input_service.ask_initial_question_to_interviewee(session_id="testtest1234",
+        self.input_service.ask_initial_question_to_interviewee(session_id="testtest1234",
                                                                           interviewee_name="test_user", job_group="IT",
                                                                           recruit_announcement=self.recruit_announcement,
                                                                           cover_letter_questions=[
@@ -74,13 +74,13 @@ class TestInputService(unittest.TestCase):
                                                                               "빅데이터 분석을 위한 알고리즘 개발 프로젝트에서 주도적인 역할을 수행하였습니다."])
 
         # then
-        loaded_entity = self.repository.find_by_session_id(saved_id)
+        loaded_entity = self.repository.find_by_session_id("testtest1234")
         self.assertEqual(len(loaded_entity.input_data_analysis_result.input_data_analysis_list), 2)
         self.assertEqual(len(loaded_entity.interview_questions.initial_question_list), 4)
 
     def test_ask_initial_question_to_interviewee_with_three_cover_letter(self):
         # when
-        saved_id = self.input_service.ask_initial_question_to_interviewee(session_id="testtest1234",
+        self.input_service.ask_initial_question_to_interviewee(session_id="testtest1234",
                                                                           interviewee_name="test_user", job_group="IT",
                                                                           recruit_announcement=self.recruit_announcement,
                                                                           cover_letter_questions=[
@@ -93,6 +93,6 @@ class TestInputService(unittest.TestCase):
                                                                               "빠른 학습력과 뛰어난 커뮤니케이션 능력을 갖추고 있습니다."])
 
         # then
-        loaded_entity = self.repository.find_by_session_id(saved_id)
+        loaded_entity = self.repository.find_by_session_id("testtest1234")
         self.assertEqual(len(loaded_entity.input_data_analysis_result.input_data_analysis_list), 3)
         self.assertEqual(len(loaded_entity.interview_questions.initial_question_list), 6)
