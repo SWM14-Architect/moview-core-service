@@ -21,11 +21,11 @@ class InputOfInterviewee(Resource):
 
         input_service = IntervieweeInputService()
 
-        saved_id = input_service.ask_initial_question_to_interviewee(
+        first_question = input_service.ask_initial_question_to_interviewee(
             session_id=session_id, interviewee_name=interviewee_name, job_group=job_group,
             recruit_announcement=recruit_announcement, cover_letter_questions=cover_letter_questions,
             cover_letter_answers=cover_letter_answers
         )
 
         # todo dto로 리스폰스 바꾸기
-        return make_response(jsonify({'message': saved_id}), HTTPStatus.OK)
+        return make_response(jsonify({'message': first_question}), HTTPStatus.OK)

@@ -77,7 +77,9 @@ class IntervieweeInputService:
                                                        initial_question_list=initial_question_list,
                                                        analyzed_initial_inputs_of_interviewee=analyzed_initial_inputs_of_interviewee)
 
-        return self.repository.save(interviewee_data_entity=entity)
+        self.repository.save(interviewee_data_entity=entity)
+
+        return entity.interview_questions.initial_question_list[0] # 초기 질문 첫 번째
 
     def __filter_initial_inputs_of_interviewee(self, interviewee_name: str, job_group: str, recruit_announcement: str,
                                                cover_letter_questions: List[str], cover_letter_answers: List[str]):
