@@ -61,8 +61,8 @@ class IntervieweeInputService:
 
                 # 생성된 초기 질문 (INIT_QUESTION_MULTIPLIER)개를 initial_question_list에 추가.
                 # List[str] (created_questions) 에서 List[str] (initial_question_list)로 옮기기 위한 코드
-                for _ in range(self.INIT_QUESTION_MULTIPLIER):
-                    initial_question_list.append(created_questions.pop())
+                for i in range(self.INIT_QUESTION_MULTIPLIER):
+                    initial_question_list.append(created_questions[i])
 
             except InitialQuestionParseError as e:  # 파싱 실패한 경우
                 # question_count만큼 빈 문자열 담기
@@ -79,7 +79,7 @@ class IntervieweeInputService:
 
         self.repository.save(interviewee_data_entity=entity)
 
-        return entity.interview_questions.initial_question_list[0] # 초기 질문 첫 번째
+        return entity.interview_questions.initial_question_list[0]  # 초기 질문 첫 번째
 
     def __filter_initial_inputs_of_interviewee(self, interviewee_name: str, job_group: str, recruit_announcement: str,
                                                cover_letter_questions: List[str], cover_letter_answers: List[str]):

@@ -2,6 +2,7 @@ from flask import make_response, jsonify, request
 from flask_restx import Resource, Namespace
 from http import HTTPStatus
 from moview.service.interviewee_input.interviewee_input_service import IntervieweeInputService
+from moview.service.interviewee_answer.interviewer_action_enum import InterviewerActionEnum
 
 api = Namespace('input', description='input api')
 
@@ -27,5 +28,7 @@ class InputOfInterviewee(Resource):
             cover_letter_answers=cover_letter_answers
         )
 
-        # todo dto로 리스폰스 바꾸기
-        return make_response(jsonify({'message': first_question}), HTTPStatus.OK)
+        return make_response(jsonify({'message': {
+            'next_question': first_question,
+            'interview_enum': str(InterviewerActionEnum.START_INTERVIEW)
+        }}), HTTPStatus.OK)
