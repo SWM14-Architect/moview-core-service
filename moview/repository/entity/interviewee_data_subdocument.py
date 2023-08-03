@@ -40,6 +40,7 @@ class InterviewQuestions(BaseModel):
 
         # 꼬리질문 초기화
         self.followup_question_count = 0
+        return self.initial_question_list[self.initial_question_index - 1]
 
     def save_followup_question(self, followup_question: str):
         self.followup_question_count += 1
