@@ -29,6 +29,6 @@ class InputOfInterviewee(Resource):
         )
 
         return make_response(jsonify({'message': {
-            'next_question': first_question,
-            'interview_enum': str(InterviewerActionEnum.START_INTERVIEW)
+            'content': first_question,
+            'flag': str(InterviewerActionEnum.START_INTERVIEW)
         }}), HTTPStatus.OK)

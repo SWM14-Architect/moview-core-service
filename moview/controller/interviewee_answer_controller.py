@@ -32,11 +32,11 @@ class AnswerOfInterviewee(Resource):
             # todo score_service 호출해야 함
 
             return make_response(jsonify({'message': {
-                'next_question': [],
-                'interview_enum': str(next_action)
+                'content': [],  # todo score_service에서 평가한 리스트가 들어가야 함.
+                'flag': str(next_action)
             }}), HTTPStatus.OK)
         else:
             return make_response(jsonify({'message': {
-                'next_question': next_question,
-                'interview_enum': str(next_action)
+                'content': next_question,
+                'flag': str(next_action)
             }}), HTTPStatus.OK)
