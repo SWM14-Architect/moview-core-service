@@ -2,7 +2,7 @@ from flask import request
 from flask_restx import Resource, Namespace
 
 from moview.service import IntervieweeAnswerService, InterviewerActionEnum
-from moview.service.interviewee_rate.interviewee_answer_score_service import InterviewAnswerScoreService
+from moview.service.interviewee_evaluation.interviewee_answer_evaluation_service import InterviewAnswerEvaluationService
 
 api = Namespace('answer', description='answer api')
 
@@ -23,7 +23,7 @@ class AnswerOfInterviewee(Resource):
         # 다음 행동에 따라 다른 로직 수행
         if next_action == InterviewerActionEnum.END_INTERVIEW:
             # 끝났을 경우, 결과 페이지로 이동하라고 프론트에 알려주기 (score_service 호출해야 함)
-            score_service = InterviewAnswerScoreService()
+            score_service = InterviewAnswerEvaluationService()
             scored_vo = score_service.score_answers_of_interviewee(vo=vo)
             pass
         elif next_action == InterviewerActionEnum.NEXT_INITIAL_QUESTION:

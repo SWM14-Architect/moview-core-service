@@ -52,7 +52,7 @@ class InterviewQuestions(BaseModel):
         return self.followup_question_count >= self.MAX_FOLLOWUP_QUESTION_COUNT
 
 
-class IntervieweeAnswerScores(BaseModel):
+class IntervieweeAnswerEvaluations(BaseModel):
     """
     면접 지원자의 질문,
     면접 지원자의 답변 ,
@@ -67,6 +67,7 @@ class IntervieweeAnswerScores(BaseModel):
     answer_list: List[str] = []
     category_and_sub_category_list: List[str] = []
     score_of_answer_list: List[str] = []
+    analysis_of_answer_list: List[str] = []
 
 
 class IntervieweeFeedbacks(BaseModel):

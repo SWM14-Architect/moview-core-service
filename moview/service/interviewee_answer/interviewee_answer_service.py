@@ -90,8 +90,8 @@ class IntervieweeAnswerService:
             return updated_id, InterviewerActionEnum.DIRECT_REQUEST
 
         # 답변에 대한 대분류, 중분류 저장
-        found_interview_data.save_category_in_interviewee_answer_scores(question=question, answer=answer,
-                                                                        category_and_sub_category=category_and_sub_category)
+        found_interview_data.save_category_in_interviewee_answer_evaluations(question=question, answer=answer,
+                                                                             category_and_sub_category=category_and_sub_category)
 
         updated_category_id = self.repository.update(session_id=session_id,
                                                      interviewee_data_entity=found_interview_data)

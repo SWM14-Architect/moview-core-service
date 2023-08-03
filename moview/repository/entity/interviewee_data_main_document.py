@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 from moview.repository.entity.interviewee_data_subdocument import IntervieweeInitialInputData, InputDataAnalysisResult, \
-    InterviewQuestions, IntervieweeAnswerScores, IntervieweeFeedbacks
+    InterviewQuestions, IntervieweeAnswerEvaluations, IntervieweeFeedbacks
 
 """
 IntervieweeDataEntity 클래스를 정의할 때 Pydantic의 BaseModel을 사용하였습니다.
@@ -28,7 +28,7 @@ class IntervieweeDataEntity(BaseModel):
     initial_input_data: IntervieweeInitialInputData
     input_data_analysis_result: InputDataAnalysisResult
     interview_questions: InterviewQuestions
-    interviewee_answer_scores: IntervieweeAnswerScores
+    interviewee_answer_evaluations: IntervieweeAnswerEvaluations
     interviewee_feedbacks: IntervieweeFeedbacks
 
     def give_next_initial_question(self):
@@ -43,10 +43,13 @@ class IntervieweeDataEntity(BaseModel):
     def is_followup_questions_end(self) -> bool:
         return self.interview_questions.is_followup_questions_end()
 
-    def save_category_in_interviewee_answer_scores(self, question: str, answer: str, category_and_sub_category: str):
-        self.interviewee_answer_scores.question_list.append(question)
-        self.interviewee_answer_scores.answer_list.append(answer)
-        self.interviewee_answer_scores.category_and_sub_category_list.append(category_and_sub_category)
+    def save_category_in_interviewee_answer_evaluations(self, question: str, answer: str, category_and_sub_category: str):
+        self.interviewee_answer_evaluations.question_list.append(question)
+        self.interviewee_answer_evaluations.answer_list.append(answer)
+        self.interviewee_answer_evaluations.category_and_sub_category_list.append(category_and_sub_category)
 
-    def save_score_in_interviewee_answer_scores(self, score: str):
-        self.interviewee_answer_scores.score_of_answer_list.append(score)
+    def save_score_in_interviewee_answer_evaluations(self, score: str):
+        self.interviewee_answer_evaluations.score_of_answer_list.append(score)
+
+    def save_analysis_in_interviewee_answer_evaluations(self, analysis: str):
+        self.interviewee_answer_evaluations.analysis_of_answer_list.append(analysis)

@@ -154,7 +154,7 @@ class IntervieweeInputService:
 
             interview_questions=InterviewQuestions(initial_question_list=initial_question_list),
 
-            interviewee_answer_scores=IntervieweeAnswerScores(),
+            interviewee_answer_evaluations=IntervieweeAnswerEvaluations(),
 
             interviewee_feedbacks=IntervieweeFeedbacks()
         )
