@@ -46,9 +46,9 @@ class TestAnswerServiceWithMocking(unittest.TestCase):
         mock_method.return_value = "4"
 
         # when
-        updated_id, action_enum = self.__determine_next_action(saved_id)
+        next_question, action_enum = self.__determine_next_action(saved_id)
         # then
-        found_entity = self.repository.find_by_session_id(session_id=updated_id)
+        found_entity = self.repository.find_by_session_id(session_id=saved_id)
 
         self.assertEqual(found_entity.interview_questions.initial_question_index, 1)
         self.assertEqual(action_enum, InterviewerActionEnum.INAPPROPRIATE_ANSWER)
@@ -69,8 +69,8 @@ class TestAnswerServiceWithMocking(unittest.TestCase):
         mock_method.return_value = "2"
 
         # when
-        updated_id, action_enum = self.__determine_next_action(saved_id)
-        updated_entity = self.repository.find_by_session_id(session_id=updated_id)
+        next_question, action_enum = self.__determine_next_action(saved_id)
+        updated_entity = self.repository.find_by_session_id(session_id=saved_id)
 
         # then
         self.assertEqual(updated_entity.interview_questions.initial_question_index, 1)
@@ -99,8 +99,8 @@ class TestAnswerServiceWithMocking(unittest.TestCase):
         mock_method.return_value = "1"
 
         # when
-        updated_id, action_enum = self.__determine_next_action(saved_id)
-        updated_entity = self.repository.find_by_session_id(session_id=updated_id)
+        next_question, action_enum = self.__determine_next_action(saved_id)
+        updated_entity = self.repository.find_by_session_id(session_id=saved_id)
 
         # then
         self.assertEqual(updated_entity.interview_questions.initial_question_index, 1)
@@ -124,8 +124,8 @@ class TestAnswerServiceWithMocking(unittest.TestCase):
         saved_id = self.repository.save(entity)
 
         # when
-        updated_id, action_enum = self.__determine_next_action(saved_id)
-        updated_entity = self.repository.find_by_session_id(session_id=updated_id)
+        next_question, action_enum = self.__determine_next_action(saved_id)
+        updated_entity = self.repository.find_by_session_id(session_id=saved_id)
 
         # then
         self.assertEqual(updated_entity.interview_questions.initial_question_index, 1)
@@ -199,12 +199,12 @@ class TestAnswerServiceWithoutMocking(unittest.TestCase):
         saved_id = self.repository.save(entity)
 
         # when
-        updated_id, action_enum = self.answer_service.determine_next_action_of_interviewer(
+        next_question, action_enum = self.answer_service.determine_next_action_of_interviewer(
             session_id=saved_id,
             question=self.question,
             answer=self.answer)
 
-        updated_entity = self.repository.find_by_session_id(session_id=updated_id)
+        updated_entity = self.repository.find_by_session_id(session_id=saved_id)
 
         # then
         self.assertEqual(updated_entity.interview_questions.initial_question_index, 2)
@@ -229,12 +229,12 @@ class TestAnswerServiceWithoutMocking(unittest.TestCase):
         saved_id = self.repository.save(entity)
 
         # when
-        updated_id, action_enum = self.answer_service.determine_next_action_of_interviewer(
+        next_question, action_enum = self.answer_service.determine_next_action_of_interviewer(
             session_id=saved_id,
             question=self.question,
             answer=self.answer)
 
-        updated_entity = self.repository.find_by_session_id(session_id=updated_id)
+        updated_entity = self.repository.find_by_session_id(session_id=saved_id)
 
         # then
         self.assertEqual(updated_entity.interview_questions.initial_question_index, 2)  # 다음 초기 질문 이동
@@ -256,12 +256,12 @@ class TestAnswerServiceWithoutMocking(unittest.TestCase):
         saved_id = self.repository.save(entity)
 
         # when
-        updated_id, action_enum = self.answer_service.determine_next_action_of_interviewer(
+        next_question, action_enum = self.answer_service.determine_next_action_of_interviewer(
             session_id=saved_id,
             question=self.question,
             answer=self.answer)
 
-        updated_entity = self.repository.find_by_session_id(session_id=updated_id)
+        updated_entity = self.repository.find_by_session_id(session_id=saved_id)
 
         # then
         self.assertEqual(updated_entity.interview_questions.initial_question_index, 0)  # 꼬리질문 아직 안끝냈으므로 그대로.
