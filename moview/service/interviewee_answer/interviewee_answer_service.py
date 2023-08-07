@@ -110,20 +110,21 @@ class IntervieweeAnswerService:
         updated_category_id = self.repository.update(session_id=session_id,
                                                      interviewee_data_entity=found_interview_data)
 
-        if found_interview_data.is_initial_questions_end() and found_interview_data.is_followup_questions_end():
-            execution_trace_logger("END_INTERVIEW", args1=[])
-            # 다음 초기 질문 x, 심화질문 x인 경우, interview 종료
-            return [], InterviewerActionEnum.END_INTERVIEW
+        if not found_interview_data.is_initial_questions_end() and found_interview_data.is_followup_questions_end():
 
-        elif not found_interview_data.is_initial_questions_end() and found_interview_data.is_followup_questions_end():
-
-            # 다음 초기 질문 o, 심화질문 x인 경우, 다음 초기 질문 진행
+            # 초기 질문 출제해보기
             next_initial_question = found_interview_data.give_next_initial_question()
 
-            self.repository.update(session_id=updated_category_id,
-                                   interviewee_data_entity=found_interview_data)
-            execution_trace_logger("NEXT_INITIAL_QUESTION", args1=next_initial_question)
-            return next_initial_question, InterviewerActionEnum.NEXT_INITIAL_QUESTION
+            # 다음 초기 질문 x인 경우, interview 종료
+            if found_interview_data.is_initial_questions_end():
+                execution_trace_logger("END_INTERVIEW", args1=[])
+                return [], InterviewerActionEnum.END_INTERVIEW
+            # 다음 초기 질문 o인 경우, 다음 초기 질문 진행
+            else:
+                self.repository.update(session_id=updated_category_id,
+                                       interviewee_data_entity=found_interview_data)
+                execution_trace_logger("NEXT_INITIAL_QUESTION", args1=next_initial_question)
+                return next_initial_question, InterviewerActionEnum.NEXT_INITIAL_QUESTION
         else:
             # 꼬리질문 출제
             followup_question = self.__get_followup_question(question=question, answer=answer,
