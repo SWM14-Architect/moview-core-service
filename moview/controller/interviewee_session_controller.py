@@ -11,6 +11,6 @@ class SessionOfInterviewee(Resource):
     def post(self):
         session['session_id'] = 'interviewee_session'
 
-        execution_trace_logger("start session", args1=session['session_id'])
+        execution_trace_logger("start session", session_id=session['session_id'])
 
         return make_response(jsonify({'message': session['session_id']}), HTTPStatus.OK)

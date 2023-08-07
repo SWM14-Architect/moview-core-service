@@ -81,7 +81,7 @@ class IntervieweeAnswerService:
             # 적절하지 않은 답변인 경우, 다음 초기 질문 진행
             next_initial_question = found_interview_data.give_next_initial_question()
 
-            error_logger("InappropriateAnswerError", args1=next_initial_question)
+            error_logger("InappropriateAnswerError", next_initial_question=next_initial_question)
 
             self.repository.update(session_id=session_id, interviewee_data_entity=found_interview_data)
 
@@ -94,7 +94,7 @@ class IntervieweeAnswerService:
             # todo 재요청인 경우, 좀 더 구체적인 질문 생성 요청으로 바꿔야 함. 현재는 다음 초기 질문 진행으로 해놓음.
             next_initial_question = found_interview_data.give_next_initial_question()
 
-            error_logger("ResubmissionRequestError", args1=next_initial_question)
+            error_logger("ResubmissionRequestError", next_initial_question=next_initial_question)
 
             self.repository.update(session_id=session_id, interviewee_data_entity=found_interview_data)
 
@@ -117,13 +117,13 @@ class IntervieweeAnswerService:
 
             # 다음 초기 질문 x인 경우, interview 종료
             if found_interview_data.is_initial_questions_end():
-                execution_trace_logger("END_INTERVIEW", args1=[])
+                execution_trace_logger("END_INTERVIEW", followup_question=[])
                 return [], InterviewerActionEnum.END_INTERVIEW
             # 다음 초기 질문 o인 경우, 다음 초기 질문 진행
             else:
                 self.repository.update(session_id=updated_category_id,
                                        interviewee_data_entity=found_interview_data)
-                execution_trace_logger("NEXT_INITIAL_QUESTION", args1=next_initial_question)
+                execution_trace_logger("NEXT_INITIAL_QUESTION", next_initial_question=next_initial_question)
                 return next_initial_question, InterviewerActionEnum.NEXT_INITIAL_QUESTION
         else:
             # 꼬리질문 출제
@@ -136,7 +136,7 @@ class IntervieweeAnswerService:
             self.repository.update(session_id=updated_category_id,
                                    interviewee_data_entity=found_interview_data)
 
-            execution_trace_logger("CREATED_FOLLOWUP_QUESTION", args1=followup_question)
+            execution_trace_logger("CREATED_FOLLOWUP_QUESTION", followup_question=followup_question)
 
             # 그외에 심화질문 o인 경우, 다음 꼬리 질문 진행
             return followup_question, InterviewerActionEnum.CREATED_FOLLOWUP_QUESTION

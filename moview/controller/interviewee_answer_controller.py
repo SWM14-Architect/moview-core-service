@@ -18,7 +18,7 @@ class AnswerOfInterviewee(Resource):
         session_id = request.cookies.get('session')
         request_body = request.get_json()
 
-        execution_trace_logger("start answer", args1=request_body, args2=session_id)
+        execution_trace_logger("start answer", request_body=request_body, session_id=session_id)
 
         question = request_body['question']
         answer = request_body['answer']
@@ -38,14 +38,14 @@ class AnswerOfInterviewee(Resource):
             
             formatted_evaluations = AnswerOfInterviewee._format_evaluations(interviewee_answer_evaluations)
 
-            execution_trace_logger("end_interview", args1=next_question, args2=next_action.value)
+            execution_trace_logger("end_interview", next_question=next_question, next_action=next_action.value)
             
             return make_response(jsonify({'message': {
                 'content': formatted_evaluations,
                 'flag': str(next_action)
             }}), HTTPStatus.OK)
         else:
-            execution_trace_logger("next_question", args1=next_question, args2=next_action.value)
+            execution_trace_logger("next_question", next_question=next_question, next_action=next_action.value)
 
             return make_response(jsonify({'message': {
                 'content': next_question,

@@ -2,6 +2,7 @@ from flask import request, make_response, jsonify
 from flask_restx import Resource, Namespace
 
 from moview.service.interviewee_feedback.interviewee_feedback_service import IntervieweeFeedbackService
+from moview.loggers.mongo_logger import *
 
 api = Namespace('feedback', description='feedback api')
 
@@ -11,6 +12,8 @@ class FeedbackOfInterviewee(Resource):
     def post(self):
         session_id = request.cookies.get('session')
         request_body = request.get_json()
+
+        execution_trace_logger("start feedback", request_body=request_body, session_id=session_id)
 
         feedback_list = request_body['feedbacks']
 
