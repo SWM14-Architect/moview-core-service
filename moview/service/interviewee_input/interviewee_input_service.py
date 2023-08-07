@@ -89,8 +89,6 @@ class IntervieweeInputService:
 
         self.repository.save(interviewee_data_entity=entity)
 
-        execution_trace_logger("save entity", args1=entity)
-
         return entity.interview_questions.initial_question_list[0]  # 초기 질문 첫 번째
 
     def __filter_initial_inputs_of_interviewee(self, interviewee_name: str, job_group: str, recruit_announcement: str,

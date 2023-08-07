@@ -32,14 +32,14 @@ class AnswerOfInterviewee(Resource):
         if next_action == InterviewerActionEnum.END_INTERVIEW:
             evaluation_service = InterviewAnswerEvaluationService()
 
-            execution_trace_logger("end_interview", args1=next_question, args2=next_action)
+            execution_trace_logger("end_interview", args1=next_question, args2=next_action.value)
 
             return make_response(jsonify({'message': {
                 'content': [],  # todo score_service에서 평가한 리스트가 들어가야 함.
                 'flag': str(next_action)
             }}), HTTPStatus.OK)
         else:
-            execution_trace_logger("next_question", args1=next_question, args2=next_action)
+            execution_trace_logger("next_question", args1=next_question, args2=next_action.value)
 
             return make_response(jsonify({'message': {
                 'content': next_question,
