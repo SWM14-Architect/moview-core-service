@@ -5,6 +5,7 @@ from moview.modules.input.initial_question_giver import InitialQuestionGiver, In
 from moview.repository.interviewee_data_repository import IntervieweeDataRepository, MongoConfig
 from moview.repository.entity.interviewee_data_main_document import IntervieweeDataEntity
 from moview.repository.entity.interviewee_data_subdocument import *
+from moview.loggers.mongo_logger import *
 
 
 class IntervieweeInputService:
@@ -41,12 +42,17 @@ class IntervieweeInputService:
             cover_letter_questions=cover_letter_questions,
             cover_letter_answers=cover_letter_answers)
 
+        execution_trace_logger("filter input", args1=interviewee_name, args2=job_group, args3=recruit_announcement,
+                               args4=cover_letter_questions, args5=cover_letter_answers)
+
         # 사용자 입력 정보 분석 (직군, 공고, 자소서 문항 리스트, 자소서 답변 리스트)-> 분석 결과 문자열 리스트 (자소서 입력 개수만큼 분석 내용이 나옵니다.)
         analyzed_initial_inputs_of_interviewee = self.__analyze_initial_inputs_of_interviewee(
             job_group=job_group,
             recruit_announcement=recruit_announcement,
             cover_letter_questions=cover_letter_questions,
             cover_letter_answers=cover_letter_answers)
+
+        execution_trace_logger("analyze input", args1=analyzed_initial_inputs_of_interviewee)
 
         initial_question_list = []  # List[List[Any]
 
@@ -65,9 +71,13 @@ class IntervieweeInputService:
                     initial_question_list.append(created_questions[i])
 
             except InitialQuestionParseError as e:  # 파싱 실패한 경우
+                error_logger("InitialQuestionParseError")
+
                 # question_count만큼 빈 문자열 담기
                 for _ in range(self.INIT_QUESTION_MULTIPLIER):
                     initial_question_list.append([])
+
+        execution_trace_logger("initial question", args1=initial_question_list)
 
         entity = self.__create_interviewee_data_entity(session_id=session_id,
                                                        interviewee_name=interviewee_name,
@@ -78,6 +88,8 @@ class IntervieweeInputService:
                                                        analyzed_initial_inputs_of_interviewee=analyzed_initial_inputs_of_interviewee)
 
         self.repository.save(interviewee_data_entity=entity)
+
+        execution_trace_logger("save entity", args1=entity)
 
         return entity.interview_questions.initial_question_list[0]  # 초기 질문 첫 번째
 
@@ -113,6 +125,8 @@ class IntervieweeInputService:
 
         """
         if len(cover_letter_questions) != len(cover_letter_answers):
+            error_logger("자소서 문항과 자소서 답변의 개수가 일치하지 않습니다.", args1=len(cover_letter_questions),
+                         args2=len(cover_letter_answers))
             raise ValueError("자소서 문항과 자소서 답변의 개수가 일치하지 않습니다.")
 
         analysis_count = len(cover_letter_questions)
