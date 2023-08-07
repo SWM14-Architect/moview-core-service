@@ -53,3 +53,6 @@ class IntervieweeDataEntity(BaseModel):
 
     def save_analysis_in_interviewee_answer_evaluations(self, analysis: str):
         self.interviewee_answer_evaluations.analysis_of_answer_list.append(analysis)
+
+    def save_feedback_in_interviewee_feedback(self, feedback: str):
+        self.interviewee_feedbacks.feedback_list.append(feedback)

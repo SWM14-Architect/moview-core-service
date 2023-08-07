@@ -45,13 +45,18 @@ class TestIntervieweeAnswerEvaluationService(unittest.TestCase):
         saved_id = self.repository.save(interviewee_data_entity=entity)
 
         # when
-        updated_id = self.evaluation_service.evaluate_answers_of_interviewee(session_id=saved_id)
+        interviewee_answer_evaluations_result = self.evaluation_service.evaluate_answers_of_interviewee(session_id=saved_id)
 
         # then
-        found_entity = self.repository.find_by_session_id(session_id=updated_id)
+        found_entity = self.repository.find_by_session_id(session_id=saved_id)
 
         self.assertEqual(len(found_entity.interviewee_answer_evaluations.score_of_answer_list), 1)
         self.assertEqual(len(found_entity.interviewee_answer_evaluations.analysis_of_answer_list), 1)
+        self.assertEqual(found_entity.interviewee_answer_evaluations.score_of_answer_list,
+                         interviewee_answer_evaluations_result.score_of_answer_list)
+        self.assertEqual(found_entity.interviewee_answer_evaluations.analysis_of_answer_list,
+                         interviewee_answer_evaluations_result.analysis_of_answer_list)
+
         print("\nPRINT\n")
         print("\n", found_entity.interviewee_answer_evaluations.score_of_answer_list)
         print("\n", found_entity.interviewee_answer_evaluations.analysis_of_answer_list)
@@ -75,12 +80,16 @@ class TestIntervieweeAnswerEvaluationService(unittest.TestCase):
         saved_id = self.repository.save(interviewee_data_entity=entity)
 
         # when
-        updated_id = self.evaluation_service.evaluate_answers_of_interviewee(session_id=saved_id)
+        interviewee_answer_evaluations_result = self.evaluation_service.evaluate_answers_of_interviewee(session_id=saved_id)
 
         # then
-        found_entity = self.repository.find_by_session_id(session_id=updated_id)
+        found_entity = self.repository.find_by_session_id(session_id=saved_id)
         self.assertEqual(len(found_entity.interviewee_answer_evaluations.score_of_answer_list), ANSWER_COUNT)
         self.assertEqual(len(found_entity.interviewee_answer_evaluations.analysis_of_answer_list), ANSWER_COUNT)
+        self.assertEqual(found_entity.interviewee_answer_evaluations.score_of_answer_list,
+                         interviewee_answer_evaluations_result.score_of_answer_list)
+        self.assertEqual(found_entity.interviewee_answer_evaluations.analysis_of_answer_list,
+                         interviewee_answer_evaluations_result.analysis_of_answer_list)
 
         print("\nPRINT\n")
         for i in range(len(found_entity.interviewee_answer_evaluations.score_of_answer_list)):
