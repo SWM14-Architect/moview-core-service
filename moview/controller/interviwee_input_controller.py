@@ -3,6 +3,7 @@ from flask_restx import Resource, Namespace
 from http import HTTPStatus
 from moview.service.interviewee_input.interviewee_input_service import IntervieweeInputService
 from moview.service.interviewee_answer.interviewer_action_enum import InterviewerActionEnum
+from moview.loggers.mongo_logger import *
 
 api = Namespace('input', description='input api')
 
@@ -13,6 +14,8 @@ class InputOfInterviewee(Resource):
     def post(self):
         session_id = request.cookies.get('session')
         request_body = request.get_json()
+
+        execution_trace_logger("start input", args1=request_body, args2=session_id)
 
         interviewee_name = request_body['interviewee_name']
         job_group = request_body['job_group']

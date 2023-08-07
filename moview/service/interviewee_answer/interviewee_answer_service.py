@@ -4,6 +4,7 @@ from moview.modules.question_generator import AnswerFilter, AnswerCategoryClassi
 from moview.service.interviewee_answer.interviewer_action_enum import InterviewerActionEnum
 from moview.repository.interviewee_data_repository import IntervieweeDataRepository, MongoConfig
 from moview.repository.entity.interviewee_data_main_document import IntervieweeDataEntity
+from moview.loggers.mongo_logger import *
 
 
 # 정규 표현식으로 짜긴 했는데, 간혹 출력값이 이상하게 나올 수 있음. 이럴 떄는 문장 유사도 평가가 좋아보임. 그래서 이러한 함수 간 접합 부분에는 vector db를 쓰는게 나을 듯?
@@ -66,6 +67,7 @@ class IntervieweeAnswerService:
         found_interview_data = self.repository.find_by_session_id(session_id=session_id)
 
         if found_interview_data is None:
+            error_logger("Interview history not found.")
             raise Exception("Interview history not found.")
 
         # 답변 내용을 분류 (적절한가, 재요청인가 등) -> 대분류, 중분류를 받음.
@@ -78,16 +80,28 @@ class IntervieweeAnswerService:
         except InappropriateAnswerError:
             # 적절하지 않은 답변인 경우, 다음 초기 질문 진행
             next_initial_question = found_interview_data.give_next_initial_question()
+
+            error_logger("InappropriateAnswerError", args1=next_initial_question)
+
             self.repository.update(session_id=session_id, interviewee_data_entity=found_interview_data)
 
-            return next_initial_question, InterviewerActionEnum.INAPPROPRIATE_ANSWER
+            if found_interview_data.is_initial_questions_end():  # 초기 질문 다 떨어지면 인터뷰 종료
+                return [], InterviewerActionEnum.END_INTERVIEW
+            else:
+                return next_initial_question, InterviewerActionEnum.INAPPROPRIATE_ANSWER
 
         except ResubmissionRequestError:
             # todo 재요청인 경우, 좀 더 구체적인 질문 생성 요청으로 바꿔야 함. 현재는 다음 초기 질문 진행으로 해놓음.
             next_initial_question = found_interview_data.give_next_initial_question()
+
+            error_logger("ResubmissionRequestError", args1=next_initial_question)
+
             self.repository.update(session_id=session_id, interviewee_data_entity=found_interview_data)
 
-            return next_initial_question, InterviewerActionEnum.DIRECT_REQUEST
+            if found_interview_data.is_initial_questions_end():  # 초기 질문 다 떨어지면 인터뷰 종료
+                return [], InterviewerActionEnum.END_INTERVIEW
+            else:
+                return next_initial_question, InterviewerActionEnum.DIRECT_REQUEST
 
         # 답변에 대한 대분류, 중분류 저장
         found_interview_data.save_category_in_interviewee_answer_evaluations(question=question, answer=answer,
@@ -96,20 +110,21 @@ class IntervieweeAnswerService:
         updated_category_id = self.repository.update(session_id=session_id,
                                                      interviewee_data_entity=found_interview_data)
 
-        if found_interview_data.is_initial_questions_end() and found_interview_data.is_followup_questions_end():
+        if not found_interview_data.is_initial_questions_end() and found_interview_data.is_followup_questions_end():
 
-            # 다음 초기 질문 x, 심화질문 x인 경우, interview 종료
-            return [], InterviewerActionEnum.END_INTERVIEW
-
-        elif not found_interview_data.is_initial_questions_end() and found_interview_data.is_followup_questions_end():
-
-            # 다음 초기 질문 o, 심화질문 x인 경우, 다음 초기 질문 진행
+            # 초기 질문 출제해보기
             next_initial_question = found_interview_data.give_next_initial_question()
 
-            self.repository.update(session_id=updated_category_id,
-                                   interviewee_data_entity=found_interview_data)
-
-            return next_initial_question, InterviewerActionEnum.NEXT_INITIAL_QUESTION
+            # 다음 초기 질문 x인 경우, interview 종료
+            if found_interview_data.is_initial_questions_end():
+                execution_trace_logger("END_INTERVIEW", args1=[])
+                return [], InterviewerActionEnum.END_INTERVIEW
+            # 다음 초기 질문 o인 경우, 다음 초기 질문 진행
+            else:
+                self.repository.update(session_id=updated_category_id,
+                                       interviewee_data_entity=found_interview_data)
+                execution_trace_logger("NEXT_INITIAL_QUESTION", args1=next_initial_question)
+                return next_initial_question, InterviewerActionEnum.NEXT_INITIAL_QUESTION
         else:
             # 꼬리질문 출제
             followup_question = self.__get_followup_question(question=question, answer=answer,
@@ -120,6 +135,8 @@ class IntervieweeAnswerService:
 
             self.repository.update(session_id=updated_category_id,
                                    interviewee_data_entity=found_interview_data)
+
+            execution_trace_logger("CREATED_FOLLOWUP_QUESTION", args1=followup_question)
 
             # 그외에 심화질문 o인 경우, 다음 꼬리 질문 진행
             return followup_question, InterviewerActionEnum.CREATED_FOLLOWUP_QUESTION
@@ -147,8 +164,7 @@ class IntervieweeAnswerService:
     def __get_followup_question(self, question: str, answer: str, categories_ordered_pair: str,
                                 found_interview_data: IntervieweeDataEntity) -> str:
 
-        previous_questions = found_interview_data.interview_questions.initial_question_list.extend(
-            found_interview_data.interview_questions.followup_question_list)
+        previous_questions = found_interview_data.interview_questions.initial_question_list + found_interview_data.interview_questions.followup_question_list
 
         # 꼬리 질문 출제
         return self.giver.give_followup_question(
