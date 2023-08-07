@@ -191,7 +191,7 @@ class TestAnswerServiceWithoutMocking(unittest.TestCase):
     def test_end_interview(self):
         # given
         entity = self.__make_entity()
-        entity.interview_questions.initial_question_index = 2
+        entity.interview_questions.initial_question_index = 3
         entity.save_followup_question("꼬리질문1")
         entity.save_followup_question("꼬리질문2")
         entity.save_followup_question(self.question)
@@ -211,7 +211,7 @@ class TestAnswerServiceWithoutMocking(unittest.TestCase):
         updated_entity = self.repository.find_by_session_id(session_id=saved_id)
 
         # then
-        self.assertEqual(updated_entity.interview_questions.initial_question_index, 2)
+        self.assertEqual(updated_entity.interview_questions.initial_question_index, 3)
         self.assertEqual(updated_entity.interview_questions.followup_question_count, 3)
         self.assertEqual(action_enum, InterviewerActionEnum.END_INTERVIEW)
 
