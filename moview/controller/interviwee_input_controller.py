@@ -15,7 +15,7 @@ class InputOfInterviewee(Resource):
         session_id = request.cookies.get('session')
         request_body = request.get_json()
 
-        execution_trace_logger("start input", args1=request_body, args2=session_id)
+        execution_trace_logger("start input", request_body=request_body, session_id=session_id)
 
         interviewee_name = request_body['interviewee_name']
         job_group = request_body['job_group']
