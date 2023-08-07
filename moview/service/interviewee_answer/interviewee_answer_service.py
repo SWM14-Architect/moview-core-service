@@ -163,8 +163,7 @@ class IntervieweeAnswerService:
     def __get_followup_question(self, question: str, answer: str, categories_ordered_pair: str,
                                 found_interview_data: IntervieweeDataEntity) -> str:
 
-        previous_questions = found_interview_data.interview_questions.initial_question_list.extend(
-            found_interview_data.interview_questions.followup_question_list)
+        previous_questions = found_interview_data.interview_questions.initial_question_list + found_interview_data.interview_questions.followup_question_list
 
         # 꼬리 질문 출제
         return self.giver.give_followup_question(
