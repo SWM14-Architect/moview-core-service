@@ -2,7 +2,7 @@ import unittest
 from moview.repository.interviewee_data_repository import IntervieweeDataRepository, MongoConfig
 from moview.repository.entity.interviewee_data_main_document import IntervieweeDataEntity
 from moview.repository.entity.interviewee_data_subdocument import IntervieweeInitialInputData, \
-    InputDataAnalysisResult, InterviewQuestions, IntervieweeAnswerScores, IntervieweeFeedbacks
+    InputDataAnalysisResult, InterviewQuestions, IntervieweeAnswerEvaluations, IntervieweeFeedbacks
 
 
 class TestIntervieweeDataRepository(unittest.TestCase):
@@ -22,11 +22,12 @@ class TestIntervieweeDataRepository(unittest.TestCase):
             interview_questions=InterviewQuestions(
                 initial_question_list=[['test']]
             ),
-            interviewee_answer_scores=IntervieweeAnswerScores(
+            interviewee_answer_evaluations=IntervieweeAnswerEvaluations(
                 question_list=['test'],
                 answer_list=['test'],
                 category_and_sub_category_list=['test'],
-                score_of_answer_list=['test']
+                score_of_answer_list=['test'],
+                analysis_of_answer_list=['test']
             ),
             interviewee_feedbacks=IntervieweeFeedbacks(
                 feedback_list=['test']
@@ -88,11 +89,12 @@ class TestIntervieweeDataRepository(unittest.TestCase):
             interview_questions=InterviewQuestions(
                 initial_question_list=[['update']]
             ),
-            interviewee_answer_scores=IntervieweeAnswerScores(
+            interviewee_answer_evaluations=IntervieweeAnswerEvaluations(
                 question_list=['update'],
                 answer_list=['update'],
                 category_and_sub_category_list=['update'],
-                score_of_answer_list=['update']
+                score_of_answer_list=['update'],
+                analysis_of_answer_list=['update']
             ),
             interviewee_feedbacks=IntervieweeFeedbacks(
                 feedback_list=['update']

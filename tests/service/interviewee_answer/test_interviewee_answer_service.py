@@ -17,7 +17,7 @@ class TestAnswerServiceWithMocking(unittest.TestCase):
                                                               recruit_announcement="공고",
                                                               cover_letter_questions=["질문1", "질문2"],
                                                               cover_letter_answers=["답변1", "답변2"])
-        self.interviewee_answer_scores = IntervieweeAnswerScores()
+        self.interviewee_answer_evaluations = IntervieweeAnswerEvaluations()
         self.interviewee_feedbacks = IntervieweeFeedbacks()
 
         self.session_id = "testtest1234"
@@ -35,7 +35,7 @@ class TestAnswerServiceWithMocking(unittest.TestCase):
         entity = IntervieweeDataEntity(session_id=self.session_id, initial_input_data=self.initial_input_data,
                                        input_data_analysis_result=input_data_analysis_result,
                                        interview_questions=interview_questions,
-                                       interviewee_answer_scores=self.interviewee_answer_scores,
+                                       interviewee_answer_evaluations=self.interviewee_answer_evaluations,
                                        interviewee_feedbacks=self.interviewee_feedbacks)
         saved_id = self.repository.save(entity)
 
@@ -88,7 +88,7 @@ class TestAnswerServiceWithMocking(unittest.TestCase):
         entity = IntervieweeDataEntity(session_id=self.session_id, initial_input_data=self.initial_input_data,
                                        input_data_analysis_result=input_data_analysis_result,
                                        interview_questions=interview_questions,
-                                       interviewee_answer_scores=self.interviewee_answer_scores,
+                                       interviewee_answer_evaluations=self.interviewee_answer_evaluations,
                                        interviewee_feedbacks=self.interviewee_feedbacks)
 
         self.assertEqual(len(entity.interview_questions.initial_question_list), 2)
@@ -148,7 +148,7 @@ class TestAnswerServiceWithMocking(unittest.TestCase):
         entity = IntervieweeDataEntity(session_id=self.session_id, initial_input_data=self.initial_input_data,
                                        input_data_analysis_result=input_data_analysis_result,
                                        interview_questions=interview_questions,
-                                       interviewee_answer_scores=self.interviewee_answer_scores,
+                                       interviewee_answer_evaluations=self.interviewee_answer_evaluations,
                                        interviewee_feedbacks=self.interviewee_feedbacks)
 
         entity.save_followup_question("꼬리질문1")
@@ -175,7 +175,7 @@ class TestAnswerServiceWithoutMocking(unittest.TestCase):
 
         self.repository = IntervieweeDataRepository(mongo_config=MongoConfig())
 
-        self.interviewee_answer_scores = IntervieweeAnswerScores()
+        self.interviewee_answer_evaluations = IntervieweeAnswerEvaluations()
         self.interviewee_feedbacks = IntervieweeFeedbacks()
 
         self.session_id = "testtest1234"
@@ -275,7 +275,7 @@ class TestAnswerServiceWithoutMocking(unittest.TestCase):
                                          input_data_analysis_list=["분석1", "분석 2", "분석 3", ]),
                                      interview_questions=InterviewQuestions(
                                          initial_question_list=["질문1", "질문2", "마지막 질문"]),
-                                     interviewee_answer_scores=self.interviewee_answer_scores,
+                                     interviewee_answer_evaluations=self.interviewee_answer_evaluations,
                                      interviewee_feedbacks=self.interviewee_feedbacks)
 
 

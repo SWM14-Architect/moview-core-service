@@ -64,25 +64,24 @@ class IntervieweeDataRepository(metaclass=SingletonMeta):
             },
 
             'input_data_analysis_result': {
-                'input_data_analysis_list': interviewee_data_entity.
-                input_data_analysis_result.input_data_analysis_list
+                'input_data_analysis_list': interviewee_data_entity.input_data_analysis_result.input_data_analysis_list
             },
 
             'interview_questions': {
                 'initial_question_list': interviewee_data_entity.interview_questions.initial_question_list,
-                'followup_question_list': interviewee_data_entity.interview_questions.
-                followup_question_list,
+                'followup_question_list': interviewee_data_entity.interview_questions.followup_question_list,
                 'initial_question_index': interviewee_data_entity.interview_questions.initial_question_index,
-                'followup_question_count': interviewee_data_entity.interview_questions.followup_question_count,
+                'followup_question_count': interviewee_data_entity.interview_questions.followup_question_count
             },
 
-            'interviewee_answer_scores': {
-                'question_list': interviewee_data_entity.interviewee_answer_scores.question_list,
-                'answer_list': interviewee_data_entity.interviewee_answer_scores.answer_list,
-                'category_and_sub_category_list': interviewee_data_entity
-                .interviewee_answer_scores.category_and_sub_category_list,
-                'score_of_answer_list': interviewee_data_entity.interviewee_answer_scores.score_of_answer_list
+            'interviewee_answer_evaluations': {
+                'question_list': interviewee_data_entity.interviewee_answer_evaluations.question_list,
+                'answer_list': interviewee_data_entity.interviewee_answer_evaluations.answer_list,
+                'category_and_sub_category_list': interviewee_data_entity.interviewee_answer_evaluations.category_and_sub_category_list,
+                'score_of_answer_list': interviewee_data_entity.interviewee_answer_evaluations.score_of_answer_list,
+                'analysis_of_answer_list': interviewee_data_entity.interviewee_answer_evaluations.analysis_of_answer_list
             },
+
             'interviewee_feedbacks': {
                 'feedback_list': interviewee_data_entity.interviewee_feedbacks.feedback_list
             }
@@ -110,11 +109,12 @@ class IntervieweeDataRepository(metaclass=SingletonMeta):
             followup_question_count=document['interview_questions']['followup_question_count'],
         )
 
-        interviewee_answer_scores = IntervieweeAnswerScores(
-            question_list=document['interviewee_answer_scores']['question_list'],
-            answer_list=document['interviewee_answer_scores']['answer_list'],
-            category_and_sub_category_list=document['interviewee_answer_scores']['category_and_sub_category_list'],
-            score_of_answer_list=document['interviewee_answer_scores']['score_of_answer_list'],
+        interviewee_answer_evaluations = IntervieweeAnswerEvaluations(
+            question_list=document['interviewee_answer_evaluations']['question_list'],
+            answer_list=document['interviewee_answer_evaluations']['answer_list'],
+            category_and_sub_category_list=document['interviewee_answer_evaluations']['category_and_sub_category_list'],
+            score_of_answer_list=document['interviewee_answer_evaluations']['score_of_answer_list'],
+            analysis_of_answer_list=document['interviewee_answer_evaluations']['analysis_of_answer_list'],
         )
 
         interviewee_feedbacks = IntervieweeFeedbacks(
@@ -126,6 +126,6 @@ class IntervieweeDataRepository(metaclass=SingletonMeta):
             initial_input_data=initial_input_data,
             input_data_analysis_result=input_data_analysis_result,
             interview_questions=interview_questions,
-            interviewee_answer_scores=interviewee_answer_scores,
+            interviewee_answer_evaluations=interviewee_answer_evaluations,
             interviewee_feedbacks=interviewee_feedbacks,
         )
