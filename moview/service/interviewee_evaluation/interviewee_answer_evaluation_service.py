@@ -34,6 +34,10 @@ class InterviewAnswerEvaluationService:
             found_interview_data.save_score_in_interviewee_answer_evaluations(score=score_from_llm)
             found_interview_data.save_analysis_in_interviewee_answer_evaluations(analysis=evaluation_from_llm)
 
+        # DB에 저장
         updated_id = self.repository.update(session_id=session_id, interviewee_data_entity=found_interview_data)
 
-        return updated_id
+        # return을 위해 found_interview_data에서 interviewee_answer_evaluations를 가져옴
+        interviewee_answer_evaluations = found_interview_data.interviewee_answer_evaluations
+
+        return interviewee_answer_evaluations
