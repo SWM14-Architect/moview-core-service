@@ -85,7 +85,10 @@ class IntervieweeAnswerService:
 
             self.repository.update(session_id=session_id, interviewee_data_entity=found_interview_data)
 
-            return next_initial_question, InterviewerActionEnum.INAPPROPRIATE_ANSWER
+            if found_interview_data.is_initial_questions_end():  # 초기 질문 다 떨어지면 인터뷰 종료
+                return [], InterviewerActionEnum.END_INTERVIEW
+            else:
+                return next_initial_question, InterviewerActionEnum.INAPPROPRIATE_ANSWER
 
         except ResubmissionRequestError:
             # todo 재요청인 경우, 좀 더 구체적인 질문 생성 요청으로 바꿔야 함. 현재는 다음 초기 질문 진행으로 해놓음.
@@ -95,7 +98,10 @@ class IntervieweeAnswerService:
 
             self.repository.update(session_id=session_id, interviewee_data_entity=found_interview_data)
 
-            return next_initial_question, InterviewerActionEnum.DIRECT_REQUEST
+            if found_interview_data.is_initial_questions_end():  # 초기 질문 다 떨어지면 인터뷰 종료
+                return [], InterviewerActionEnum.END_INTERVIEW
+            else:
+                return next_initial_question, InterviewerActionEnum.DIRECT_REQUEST
 
         # 답변에 대한 대분류, 중분류 저장
         found_interview_data.save_category_in_interviewee_answer_evaluations(question=question, answer=answer,
