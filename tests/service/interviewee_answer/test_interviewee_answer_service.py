@@ -10,7 +10,9 @@ from moview.service.interviewee_answer.interviewee_answer_service import Intervi
 
 class TestAnswerServiceWithMocking(unittest.TestCase):
 
-    def setUp(self) -> None:
+    @patch('moview.loggers.mongo_logger.MongoLogger', autospec=True)
+    def setUp(self, mock_mongo_logger):
+        self.mock_mongo_logger = mock_mongo_logger
         self.answer_service = IntervieweeAnswerService()
         self.repository = IntervieweeDataRepository(mongo_config=MongoConfig())
         self.initial_input_data = IntervieweeInitialInputData(interviewee_name="test_user", jop_group="IT",
@@ -164,7 +166,9 @@ class TestAnswerServiceWithMocking(unittest.TestCase):
 
 class TestAnswerServiceWithoutMocking(unittest.TestCase):
 
-    def setUp(self) -> None:
+    @patch('moview.loggers.mongo_logger.MongoLogger', autospec=True)
+    def setUp(self, mock_mongo_logger):
+        self.mock_mongo_logger = mock_mongo_logger
         self.answer_service = IntervieweeAnswerService()
         self.initial_input_data = IntervieweeInitialInputData(interviewee_name="test_user", jop_group="IT",
                                                               recruit_announcement="공고",
@@ -187,7 +191,7 @@ class TestAnswerServiceWithoutMocking(unittest.TestCase):
     def test_end_interview(self):
         # given
         entity = self.__make_entity()
-        entity.interview_questions.initial_question_index = 2
+        entity.interview_questions.initial_question_index = 3
         entity.save_followup_question("꼬리질문1")
         entity.save_followup_question("꼬리질문2")
         entity.save_followup_question(self.question)
@@ -207,7 +211,7 @@ class TestAnswerServiceWithoutMocking(unittest.TestCase):
         updated_entity = self.repository.find_by_session_id(session_id=saved_id)
 
         # then
-        self.assertEqual(updated_entity.interview_questions.initial_question_index, 2)
+        self.assertEqual(updated_entity.interview_questions.initial_question_index, 3)
         self.assertEqual(updated_entity.interview_questions.followup_question_count, 3)
         self.assertEqual(action_enum, InterviewerActionEnum.END_INTERVIEW)
 

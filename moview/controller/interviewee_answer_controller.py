@@ -6,6 +6,7 @@ from http import HTTPStatus
 from moview.service.interviewee_answer.interviewee_answer_service import IntervieweeAnswerService
 from moview.service.interviewee_answer.interviewer_action_enum import InterviewerActionEnum
 from moview.service.interviewee_evaluation.interviewee_answer_evaluation_service import InterviewAnswerEvaluationService
+from moview.loggers.mongo_logger import *
 
 api = Namespace('answer', description='answer api')
 
@@ -16,6 +17,8 @@ class AnswerOfInterviewee(Resource):
     def post(self):
         session_id = request.cookies.get('session')
         request_body = request.get_json()
+
+        execution_trace_logger("start answer", args1=request_body, args2=session_id)
 
         question = request_body['question']
         answer = request_body['answer']
@@ -30,15 +33,20 @@ class AnswerOfInterviewee(Resource):
         if next_action == InterviewerActionEnum.END_INTERVIEW:
             # 끝났을 경우, 면접자 답변 평가 서비스를 호출하여 점수와 분석 내용을 불러옴
             evaluation_service = InterviewAnswerEvaluationService()
+            
             interviewee_answer_evaluations = evaluation_service.evaluate_answers_of_interviewee(session_id=session_id)
-
+            
             formatted_evaluations = AnswerOfInterviewee._format_evaluations(interviewee_answer_evaluations)
 
+            execution_trace_logger("end_interview", args1=next_question, args2=next_action.value)
+            
             return make_response(jsonify({'message': {
                 'content': formatted_evaluations,
                 'flag': str(next_action)
             }}), HTTPStatus.OK)
         else:
+            execution_trace_logger("next_question", args1=next_question, args2=next_action.value)
+
             return make_response(jsonify({'message': {
                 'content': next_question,
                 'flag': str(next_action)

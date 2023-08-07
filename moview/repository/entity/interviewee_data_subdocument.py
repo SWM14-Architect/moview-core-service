@@ -51,7 +51,7 @@ class InterviewQuestions(BaseModel):
         self.followup_question_list.append(followup_question)
 
     def is_initial_questions_end(self) -> bool:
-        return self.initial_question_index >= len(self.initial_question_list) - 1
+        return self.initial_question_index >= len(self.initial_question_list)
 
     def is_followup_questions_end(self) -> bool:
         return self.followup_question_count >= self.MAX_FOLLOWUP_QUESTION_COUNT

@@ -1,4 +1,5 @@
 import unittest
+from unittest.mock import patch
 
 from moview.repository.entity.interviewee_data_subdocument import *
 from moview.repository.entity.interviewee_data_main_document import IntervieweeDataEntity
@@ -8,7 +9,9 @@ from moview.repository.interviewee_data_repository import IntervieweeDataReposit
 
 class TestIntervieweeAnswerEvaluationService(unittest.TestCase):
 
-    def setUp(self) -> None:
+    @patch('moview.loggers.mongo_logger.MongoLogger', autospec=True)
+    def setUp(self, mock_mongo_logger):
+        self.mock_mongo_logger = mock_mongo_logger
         self.evaluation_service = InterviewAnswerEvaluationService()
         self.initial_input_data = IntervieweeInitialInputData(interviewee_name="test_user", jop_group="IT",
                                                               recruit_announcement="공고",
