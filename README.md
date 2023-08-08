@@ -2,16 +2,25 @@
 
 ## MVP v1 기준
 
-(request,response에서 인덱스로 되어 있는 부분은 MVP v2에서 db id로 변경해야 합니다.)
-
 ### API 명세서
+
+#### /interviewee/session
+
+```
+method : POST
+request: X
+response: cookie(세션id)
+description: 플라스크 세션 발급용 API. v2에선 필요 없어짐.
+frontend: 변환 없음.
+GPT call: X
+```
 
 #### /api/interviewee/input
 
 ```
 method : POST
 request: json(직군,모집 공고,(자소서 문항, 자소서 답변) 리스트)
-response: cookie(세션id) ,json(초기 질문 첫 번째,인터뷰 플래그)
+response: cookie(세션id) ,json(초기 질문 첫 번째, START_INTERVIEW)
 description: 자소서 분석, 초기 질문리스트 생성
 frontend: InputPage → ChatPage
 GPT call: O
