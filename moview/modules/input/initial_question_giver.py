@@ -7,17 +7,21 @@ from langchain.prompts.chat import (
     ChatPromptTemplate,
     HumanMessagePromptTemplate
 )
+
 from moview.modules.prompt_loader.prompt_loader import PromptLoader
 from moview.environment.llm_factory import LLMModelFactory
+from moview.loggers.mongo_logger import *
 
 
 class InitialQuestionParseError(Exception):
+
     def __init__(self, message="initial question parse error"):
         self.message = message
         super().__init__(self.message)
 
 
 class InitialQuestionGiver:
+
     def __init__(self):
         prompt_loader = PromptLoader()
         self.prompt = prompt_loader.load_prompt_json(InitialQuestionGiver.__name__)
@@ -52,6 +56,8 @@ class InitialQuestionGiver:
 
         initial_questions_from_llm = chain.run({
             "analysis": analysis_about_one_cover_letter})
+
+        prompt_result_logger("initial question prompt result", prompt_result=initial_questions_from_llm)
 
         parse_question = self.__parse_result_from_llm(initial_questions_from_llm)
         # 파싱된 질문 개수가 출제할 질문 개수와 같으면, 파싱 성공으로 간주합니다. 파싱이 성공하면, 파싱된 질문 리스트를 반환합니다.

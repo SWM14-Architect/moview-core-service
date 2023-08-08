@@ -25,10 +25,9 @@ class InterviewAnswerEvaluationService:
 
         for i in range(len(question_list)):
             # 질문과 답변 내용, 대분류와 중분류를 전달하여 사용자 답변에 대한 평가
-            score_from_llm = self.scorer.rate_by_main_and_subcategories(question=question_list[i],
-                                                                        answer=answer_list[i],
-                                                                        categories_ordered_pair=
-                                                                        category_and_sub_category_list[i])
+            score_from_llm = self.scorer.score_by_main_and_subcategories(question=question_list[i],
+                                                                         answer=answer_list[i],
+                                                                         categories_ordered_pair=category_and_sub_category_list[i])
             evaluation_from_llm = self.analyzer.analyze_answer_by_main_and_subcategories(question=question_list[i],
                                                                                          answer=answer_list[i],
                                                                                          categories_ordered_pair=category_and_sub_category_list[i])

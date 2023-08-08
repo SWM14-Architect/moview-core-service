@@ -1,10 +1,12 @@
 import unittest
 from unittest.mock import patch
+
 from tests.common_code_for_test import is_not_none_string
 from moview.modules.question_generator.answer_category_classifier import AnswerCategoryClassifier
 
 
 class TestAnswerCategoryClassifier(unittest.TestCase):
+
     def setUp(self) -> None:
         self.answer_category_classifier = AnswerCategoryClassifier()
 

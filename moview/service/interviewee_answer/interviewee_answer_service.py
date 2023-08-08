@@ -81,7 +81,7 @@ class IntervieweeAnswerService:
             # 적절하지 않은 답변인 경우, 다음 초기 질문 진행
             next_initial_question = found_interview_data.give_next_initial_question()
 
-            error_logger("InappropriateAnswerError", next_initial_question=next_initial_question)
+            execution_trace_logger("InappropriateAnswerError", next_initial_question=next_initial_question)
 
             self.repository.update(session_id=session_id, interviewee_data_entity=found_interview_data)
 
@@ -94,7 +94,7 @@ class IntervieweeAnswerService:
             # todo 재요청인 경우, 좀 더 구체적인 질문 생성 요청으로 바꿔야 함. 현재는 다음 초기 질문 진행으로 해놓음.
             next_initial_question = found_interview_data.give_next_initial_question()
 
-            error_logger("ResubmissionRequestError", next_initial_question=next_initial_question)
+            execution_trace_logger("ResubmissionRequestError", next_initial_question=next_initial_question)
 
             self.repository.update(session_id=session_id, interviewee_data_entity=found_interview_data)
 

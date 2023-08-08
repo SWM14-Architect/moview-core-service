@@ -6,6 +6,7 @@ from langchain.prompts.chat import (
 )
 from moview.modules.prompt_loader.prompt_loader import PromptLoader
 from moview.environment.llm_factory import LLMModelFactory
+from moview.loggers.mongo_logger import *
 
 
 class InputAnalyzer:
@@ -46,7 +47,11 @@ class InputAnalyzer:
 
         chain = LLMChain(llm=llm, prompt=prompt)
 
-        return chain.run({
+        prompt_result = chain.run({
             "job_posting": recruitment_announcement,
             "cover_letter_question": cover_letter_question,
             "cover_letter_answer": cover_letter_answer})
+
+        prompt_result_logger("input analyzer prompt result", prompt_result=prompt_result)
+
+        return prompt_result
