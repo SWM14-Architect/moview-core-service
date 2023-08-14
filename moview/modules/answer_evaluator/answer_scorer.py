@@ -4,8 +4,10 @@ from langchain.prompts import PromptTemplate
 from langchain.chains import ConversationChain
 from langchain.chains.router.llm_router import LLMRouterChain, RouterOutputParser
 from langchain.chains.router.multi_prompt_prompt import MULTI_PROMPT_ROUTER_TEMPLATE
+
 from moview.modules.prompt_loader.prompt_loader import PromptLoader
 from moview.environment.llm_factory import LLMModelFactory
+from moview.loggers.mongo_logger import *
 
 CATEGORIES = ["Behavioral Questions", "Situational Questions", "Technical Job-related Questions",
               "Cultural Fit Questions", "Personal Character Questions"]
@@ -32,13 +34,17 @@ class AnswerScorer:
         self.prompt_info_for_router_chain = prompt_loader.load_routing_prompt_json_for_interview_answer_scorer(
             AnswerScorer.__name__)
 
-    def rate_by_main_and_subcategories(self, question: str, answer: str, categories_ordered_pair: str) -> str:
+    def score_by_main_and_subcategories(self, question: str, answer: str, categories_ordered_pair: str) -> str:
 
         multi_prompt_chain = self.__make_multi_prompt_chain()
 
-        return multi_prompt_chain.run(
+        prompt_result = multi_prompt_chain.run(
             self.multi_prompt.format(categories_ordered_pair=categories_ordered_pair, question=question, answer=answer)
         )
+
+        prompt_result_logger("answer score prompt result", prompt_result=prompt_result)
+
+        return prompt_result
 
     def __make_multi_prompt_chain(self):
         llm_router = LLMModelFactory.create_chat_open_ai(temperature=0.7)

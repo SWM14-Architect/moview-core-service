@@ -10,18 +10,16 @@ from moview.service.interviewee_answer.interviewee_answer_service import Intervi
 
 class TestAnswerServiceWithMocking(unittest.TestCase):
 
-    @patch('moview.loggers.mongo_logger.MongoLogger', autospec=True)
-    def setUp(self, mock_mongo_logger):
-        self.mock_mongo_logger = mock_mongo_logger
+    def setUp(self):
         self.answer_service = IntervieweeAnswerService()
         self.repository = IntervieweeDataRepository(mongo_config=MongoConfig())
+
         self.initial_input_data = IntervieweeInitialInputData(interviewee_name="test_user", jop_group="IT",
                                                               recruit_announcement="공고",
                                                               cover_letter_questions=["질문1", "질문2"],
                                                               cover_letter_answers=["답변1", "답변2"])
         self.interviewee_answer_evaluations = IntervieweeAnswerEvaluations()
         self.interviewee_feedbacks = IntervieweeFeedbacks()
-
         self.session_id = "testtest1234"
 
     def tearDown(self):

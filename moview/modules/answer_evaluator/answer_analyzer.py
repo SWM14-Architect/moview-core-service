@@ -6,6 +6,7 @@ from langchain.prompts.chat import (
 )
 from moview.modules.prompt_loader.prompt_loader import PromptLoader
 from moview.environment.llm_factory import LLMModelFactory
+from moview.loggers.mongo_logger import *
 
 
 class AnswerAnalyzer:
@@ -44,6 +45,11 @@ class AnswerAnalyzer:
 
         chain = LLMChain(llm=llm, prompt=prompt)
 
-        return chain.run({
+        prompt_result = chain.run({
             "question": question,
-            "answer": answer})
+            "answer": answer
+        })
+
+        prompt_result_logger("answer analyze prompt result", prompt_result=prompt_result)
+
+        return prompt_result

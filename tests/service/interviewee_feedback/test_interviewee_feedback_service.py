@@ -5,10 +5,13 @@ from moview.repository.entity.interviewee_data_main_document import IntervieweeD
 from moview.repository.interviewee_data_repository import IntervieweeDataRepository, MongoConfig
 from moview.service.interviewee_feedback.interviewee_feedback_service import IntervieweeFeedbackService
 
+
 class TestIntervieweeFeedbackService(unittest.TestCase):
+
     def setUp(self) -> None:
         self.feedback_service = IntervieweeFeedbackService()
         self.repository = IntervieweeDataRepository(mongo_config=MongoConfig())
+
         self.initial_input_data = IntervieweeInitialInputData(interviewee_name="test_user", jop_group="IT",
                                                               recruit_announcement="공고",
                                                               cover_letter_questions=["질문1", "질문2"],

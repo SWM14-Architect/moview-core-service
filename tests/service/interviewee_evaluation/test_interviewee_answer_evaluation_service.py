@@ -1,5 +1,4 @@
 import unittest
-from unittest.mock import patch
 
 from moview.repository.entity.interviewee_data_subdocument import *
 from moview.repository.entity.interviewee_data_main_document import IntervieweeDataEntity
@@ -9,21 +8,17 @@ from moview.repository.interviewee_data_repository import IntervieweeDataReposit
 
 class TestIntervieweeAnswerEvaluationService(unittest.TestCase):
 
-    @patch('moview.loggers.mongo_logger.MongoLogger', autospec=True)
-    def setUp(self, mock_mongo_logger):
-        self.mock_mongo_logger = mock_mongo_logger
+    def setUp(self):
         self.evaluation_service = InterviewAnswerEvaluationService()
+        self.repository = IntervieweeDataRepository(mongo_config=MongoConfig())
+
         self.initial_input_data = IntervieweeInitialInputData(interviewee_name="test_user", jop_group="IT",
                                                               recruit_announcement="공고",
                                                               cover_letter_questions=["질문1", "질문2"],
                                                               cover_letter_answers=["답변1", "답변2"])
         self.interviewee_answer_evaluations = IntervieweeAnswerEvaluations()
-
         self.interviewee_feedbacks = IntervieweeFeedbacks()
-
         self.session_id = "testtest1234"
-
-        self.repository = IntervieweeDataRepository(mongo_config=MongoConfig())
 
     def tearDown(self):
         self.repository.delete_all_with_id_for_teardown_in_testing(session_id=self.session_id)

@@ -4,8 +4,10 @@ from langchain.prompts.chat import (
     ChatPromptTemplate,
     HumanMessagePromptTemplate
 )
+
 from moview.modules.prompt_loader.prompt_loader import PromptLoader
 from moview.environment.llm_factory import LLMModelFactory
+from moview.loggers.mongo_logger import *
 
 
 class AnswerSubCategoryClassifier:
@@ -38,4 +40,11 @@ class AnswerSubCategoryClassifier:
 
         chain = LLMChain(llm=llm, prompt=prompt)
 
-        return chain.run({"question": question, "answer": answer})
+        prompt_result = chain.run({
+            "question": question,
+            "answer": answer
+        })
+
+        prompt_result_logger("answer sub category classifier prompt result", prompt_result=prompt_result)
+
+        return prompt_result

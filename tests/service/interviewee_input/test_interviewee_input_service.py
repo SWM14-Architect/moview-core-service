@@ -1,19 +1,17 @@
 import unittest
 from unittest.mock import patch
 
-from moview.service.interviewee_input.interviewee_input_service import IntervieweeInputService, \
-    InitialQuestionParseError
+from moview.service.interviewee_input.interviewee_input_service import IntervieweeInputService, InitialQuestionParseError
 from moview.repository.interviewee_data_repository import IntervieweeDataRepository, MongoConfig
 
 
 class TestInputService(unittest.TestCase):
-    @patch('moview.loggers.mongo_logger.MongoLogger', autospec=True)
-    def setUp(self, mock_mongo_logger):
-        self.mock_mongo_logger = mock_mongo_logger
 
+    def setUp(self):
         self.input_service = IntervieweeInputService()
-        self.recruit_announcement = "창의력이 뛰어난 프로그래밍 전문가 모집합니다"
         self.repository = IntervieweeDataRepository(mongo_config=MongoConfig())
+
+        self.recruit_announcement = "창의력이 뛰어난 프로그래밍 전문가 모집합니다"
 
     def tearDown(self):
         self.repository.delete_all_with_id_for_teardown_in_testing(session_id="testtest1234")
