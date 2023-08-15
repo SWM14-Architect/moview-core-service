@@ -19,7 +19,7 @@ class LLMModelFactory:
     """
 
     @staticmethod
-    def create_chat_open_ai(temperature: float) -> ChatOpenAI:
+    def create_chat_open_ai(temperature: float, request_timeout: int = 60) -> ChatOpenAI:
         return ChatOpenAI(openai_api_key=EnvironmentLoader.getenv(OPENAI_API_KEY_PARAM),
                           temperature=temperature, model_name='gpt-3.5-turbo', verbose=True, streaming=True,
-                          callbacks=[StreamingStdOutCallbackHandler()])
+                          callbacks=[StreamingStdOutCallbackHandler()], request_timeout=request_timeout)
