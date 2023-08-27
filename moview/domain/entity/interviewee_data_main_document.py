@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from moview.repository.entity.interviewee_data_subdocument import IntervieweeInitialInputData, InputDataAnalysisResult, \
+from moview.domain.entity.interviewee_data_subdocument import IntervieweeInitialInputData, InputDataAnalysisResult, \
     InterviewQuestions, IntervieweeAnswerEvaluations, IntervieweeFeedbacks
 
 """

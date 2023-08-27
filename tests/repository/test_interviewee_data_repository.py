@@ -1,7 +1,7 @@
 import unittest
 from moview.repository.interviewee_data_repository import IntervieweeDataRepository, MongoConfig
-from moview.repository.entity.interviewee_data_main_document import IntervieweeDataEntity
-from moview.repository.entity.interviewee_data_subdocument import IntervieweeInitialInputData, \
+from moview.domain.entity.interviewee_data_main_document import IntervieweeDataEntity
+from moview.domain.entity.interviewee_data_subdocument import IntervieweeInitialInputData, \
     InputDataAnalysisResult, InterviewQuestions, IntervieweeAnswerEvaluations, IntervieweeFeedbacks
 
 

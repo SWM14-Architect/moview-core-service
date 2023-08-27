@@ -1,9 +1,9 @@
 import unittest
 
-from moview.repository.entity.interviewee_data_subdocument import *
-from moview.repository.entity.interviewee_data_main_document import IntervieweeDataEntity
+from moview.domain.entity.interviewee_data_main_document import IntervieweeDataEntity
 from moview.repository.interviewee_data_repository import IntervieweeDataRepository, MongoConfig
 from moview.service.interviewee_feedback.interviewee_feedback_service import IntervieweeFeedbackService
+from moview.domain.entity.interviewee_data_subdocument import *
 
 
 class TestIntervieweeFeedbackService(unittest.TestCase):
@@ -37,7 +37,8 @@ class TestIntervieweeFeedbackService(unittest.TestCase):
 
         # when
         feedback_list = ["피드백1", "피드백2", "피드백3"]
-        updated_id = self.feedback_service.save_feedback_of_interviewee(session_id=saved_id, feedback_list=feedback_list)
+        updated_id = self.feedback_service.save_feedback_of_interviewee(session_id=saved_id,
+                                                                        feedback_list=feedback_list)
 
         # then
         found_entity = self.repository.find_by_session_id(session_id=updated_id)

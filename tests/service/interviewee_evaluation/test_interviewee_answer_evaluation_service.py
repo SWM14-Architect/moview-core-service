@@ -1,9 +1,9 @@
 import unittest
 
-from moview.repository.entity.interviewee_data_subdocument import *
-from moview.repository.entity.interviewee_data_main_document import IntervieweeDataEntity
+from moview.domain.entity.interviewee_data_main_document import IntervieweeDataEntity
 from moview.service.interviewee_evaluation.interviewee_answer_evaluation_service import InterviewAnswerEvaluationService
 from moview.repository.interviewee_data_repository import IntervieweeDataRepository, MongoConfig
+from moview.domain.entity.interviewee_data_subdocument import *
 
 
 class TestIntervieweeAnswerEvaluationService(unittest.TestCase):
@@ -40,7 +40,8 @@ class TestIntervieweeAnswerEvaluationService(unittest.TestCase):
         saved_id = self.repository.save(interviewee_data_entity=entity)
 
         # when
-        interviewee_answer_evaluations_result = self.evaluation_service.evaluate_answers_of_interviewee(session_id=saved_id)
+        interviewee_answer_evaluations_result = self.evaluation_service.evaluate_answers_of_interviewee(
+            session_id=saved_id)
 
         # then
         found_entity = self.repository.find_by_session_id(session_id=saved_id)
@@ -75,7 +76,8 @@ class TestIntervieweeAnswerEvaluationService(unittest.TestCase):
         saved_id = self.repository.save(interviewee_data_entity=entity)
 
         # when
-        interviewee_answer_evaluations_result = self.evaluation_service.evaluate_answers_of_interviewee(session_id=saved_id)
+        interviewee_answer_evaluations_result = self.evaluation_service.evaluate_answers_of_interviewee(
+            session_id=saved_id)
 
         # then
         found_entity = self.repository.find_by_session_id(session_id=saved_id)

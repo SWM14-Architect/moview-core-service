@@ -3,7 +3,7 @@ from moview.modules.question_generator import AnswerFilter, AnswerCategoryClassi
     FollowUpQuestionGiver
 from moview.service.interviewee_answer.interviewer_action_enum import InterviewerActionEnum
 from moview.repository.interviewee_data_repository import IntervieweeDataRepository, MongoConfig
-from moview.repository.entity.interviewee_data_main_document import IntervieweeDataEntity
+from moview.domain.entity.interviewee_data_main_document import IntervieweeDataEntity
 from moview.loggers.mongo_logger import *
 
 
