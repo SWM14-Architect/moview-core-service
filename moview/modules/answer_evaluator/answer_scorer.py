@@ -5,7 +5,7 @@ from langchain.chains import ConversationChain
 from langchain.chains.router.llm_router import LLMRouterChain, RouterOutputParser
 from langchain.chains.router.multi_prompt_prompt import MULTI_PROMPT_ROUTER_TEMPLATE
 
-from moview.modules.prompt_loader.prompt_loader import PromptLoader
+from moview.utils.prompt_loader import PromptLoader
 from moview.environment.llm_factory import LLMModelFactory
 from moview.loggers.mongo_logger import *
 
