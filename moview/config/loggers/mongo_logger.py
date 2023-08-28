@@ -2,7 +2,7 @@ import inspect
 import logging
 import sys
 import traceback
-from moview.handlers.mongo_handler import MongoHandler
+from moview.config.db.mongo_handler import MongoHandler
 
 
 class CustomLogRecord(logging.LogRecord):

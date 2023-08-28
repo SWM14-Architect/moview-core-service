@@ -6,7 +6,7 @@ from langchain.prompts.chat import (
 )
 from moview.utils.prompt_loader import PromptLoader
 from moview.environment.llm_factory import LLMModelFactory
-from moview.loggers.mongo_logger import *
+from moview.config.loggers.mongo_logger import prompt_result_logger
 
 
 class AnswerCategoryClassifier:

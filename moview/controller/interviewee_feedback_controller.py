@@ -2,7 +2,7 @@ from flask import request, make_response, jsonify
 from flask_restx import Resource, Namespace
 
 from moview.service.interviewee_feedback.interviewee_feedback_service import IntervieweeFeedbackService
-from moview.loggers.mongo_logger import *
+from moview.config.loggers.mongo_logger import execution_trace_logger
 
 api = Namespace('feedback', description='feedback api')
 

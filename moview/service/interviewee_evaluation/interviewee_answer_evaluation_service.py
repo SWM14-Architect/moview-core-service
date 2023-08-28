@@ -1,7 +1,7 @@
 from moview.modules.answer_evaluator.answer_scorer import AnswerScorer
 from moview.modules.answer_evaluator.answer_analyzer import AnswerAnalyzer
 from moview.repository.interviewee_data_repository import IntervieweeDataRepository, MongoConfig
-from moview.loggers.mongo_logger import *
+from moview.config.loggers.mongo_logger import error_logger
 
 
 class InterviewAnswerEvaluationService:
@@ -27,10 +27,13 @@ class InterviewAnswerEvaluationService:
             # 질문과 답변 내용, 대분류와 중분류를 전달하여 사용자 답변에 대한 평가
             score_from_llm = self.scorer.score_by_main_and_subcategories(question=question_list[i],
                                                                          answer=answer_list[i],
-                                                                         categories_ordered_pair=category_and_sub_category_list[i])
+                                                                         categories_ordered_pair=
+                                                                         category_and_sub_category_list[i])
             evaluation_from_llm = self.analyzer.analyze_answer_by_main_and_subcategories(question=question_list[i],
                                                                                          answer=answer_list[i],
-                                                                                         categories_ordered_pair=category_and_sub_category_list[i])
+                                                                                         categories_ordered_pair=
+                                                                                         category_and_sub_category_list[
+                                                                                             i])
 
             # 평가 저장
             found_interview_data.save_score_in_interviewee_answer_evaluations(score=score_from_llm)

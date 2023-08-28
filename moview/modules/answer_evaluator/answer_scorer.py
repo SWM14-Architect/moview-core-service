@@ -7,7 +7,7 @@ from langchain.chains.router.multi_prompt_prompt import MULTI_PROMPT_ROUTER_TEMP
 
 from moview.utils.prompt_loader import PromptLoader
 from moview.environment.llm_factory import LLMModelFactory
-from moview.loggers.mongo_logger import *
+from moview.config.loggers.mongo_logger import prompt_result_logger
 
 CATEGORIES = ["Behavioral Questions", "Situational Questions", "Technical Job-related Questions",
               "Cultural Fit Questions", "Personal Character Questions"]

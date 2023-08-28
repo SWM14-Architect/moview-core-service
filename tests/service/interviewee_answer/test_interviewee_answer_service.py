@@ -164,9 +164,7 @@ class TestAnswerServiceWithMocking(unittest.TestCase):
 
 class TestAnswerServiceWithoutMocking(unittest.TestCase):
 
-    @patch('moview.loggers.mongo_logger.MongoLogger', autospec=True)
-    def setUp(self, mock_mongo_logger):
-        self.mock_mongo_logger = mock_mongo_logger
+    def setUp(self):
         self.answer_service = IntervieweeAnswerService()
         self.initial_input_data = IntervieweeInitialInputData(interviewee_name="test_user", jop_group="IT",
                                                               recruit_announcement="공고",

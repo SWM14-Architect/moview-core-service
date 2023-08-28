@@ -4,7 +4,7 @@ from moview.modules.question_generator import AnswerFilter, AnswerCategoryClassi
 from moview.service.interviewee_answer.interviewer_action_enum import InterviewerActionEnum
 from moview.repository.interviewee_data_repository import IntervieweeDataRepository, MongoConfig
 from moview.domain.entity.interviewee_data_main_document import IntervieweeDataEntity
-from moview.loggers.mongo_logger import *
+from moview.config.loggers.mongo_logger import execution_trace_logger, error_logger
 
 
 # 정규 표현식으로 짜긴 했는데, 간혹 출력값이 이상하게 나올 수 있음. 이럴 떄는 문장 유사도 평가가 좋아보임. 그래서 이러한 함수 간 접합 부분에는 vector db를 쓰는게 나을 듯?
