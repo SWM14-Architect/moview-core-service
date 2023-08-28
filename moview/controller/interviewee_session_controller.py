@@ -1,7 +1,7 @@
 from flask import session, make_response, jsonify
 from flask_restx import Resource, Namespace
 from http import HTTPStatus
-from moview.loggers.mongo_logger import *
+from moview.config.loggers.mongo_logger import execution_trace_logger
 
 api = Namespace('session', description='session start api')
 

@@ -6,7 +6,7 @@ from unittest import TestCase, mock
 
 import mongomock
 
-from moview.handlers.mongo_handler import MongoHandler
+from moview.config.db.mongo_handler import MongoHandler
 
 
 class TestMongoHandler(TestCase):

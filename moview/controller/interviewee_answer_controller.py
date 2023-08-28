@@ -6,7 +6,7 @@ from http import HTTPStatus
 from moview.service.interviewee_answer.interviewee_answer_service import IntervieweeAnswerService
 from moview.service.interviewee_answer.interviewer_action_enum import InterviewerActionEnum
 from moview.service.interviewee_evaluation.interviewee_answer_evaluation_service import InterviewAnswerEvaluationService
-from moview.loggers.mongo_logger import *
+from moview.config.loggers.mongo_logger import execution_trace_logger
 
 api = Namespace('answer', description='answer api')
 

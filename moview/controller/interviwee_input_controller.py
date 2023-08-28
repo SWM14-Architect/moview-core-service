@@ -3,7 +3,7 @@ from flask_restx import Resource, Namespace
 from http import HTTPStatus
 from moview.service.interviewee_input.interviewee_input_service import IntervieweeInputService
 from moview.service.interviewee_answer.interviewer_action_enum import InterviewerActionEnum
-from moview.loggers.mongo_logger import *
+from moview.config.loggers.mongo_logger import execution_trace_logger
 
 api = Namespace('input', description='input api')
 

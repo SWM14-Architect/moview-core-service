@@ -3,9 +3,9 @@ from typing import Any
 from moview.modules.input.input_analyzer import InputAnalyzer
 from moview.modules.input.initial_question_giver import InitialQuestionGiver, InitialQuestionParseError
 from moview.repository.interviewee_data_repository import IntervieweeDataRepository, MongoConfig
-from moview.repository.entity.interviewee_data_main_document import IntervieweeDataEntity
-from moview.repository.entity.interviewee_data_subdocument import *
-from moview.loggers.mongo_logger import *
+from moview.domain.entity.interviewee_data_main_document import IntervieweeDataEntity
+from moview.domain.entity.interviewee_data_subdocument import *
+from moview.config.loggers.mongo_logger import execution_trace_logger, error_logger
 
 
 class IntervieweeInputService:
@@ -56,7 +56,8 @@ class IntervieweeInputService:
             cover_letter_questions=cover_letter_questions,
             cover_letter_answers=cover_letter_answers)
 
-        execution_trace_logger("analyze input", analyzed_initial_inputs_of_interviewee=analyzed_initial_inputs_of_interviewee)
+        execution_trace_logger("analyze input",
+                               analyzed_initial_inputs_of_interviewee=analyzed_initial_inputs_of_interviewee)
 
         initial_question_list = []  # List[List[Any]
 

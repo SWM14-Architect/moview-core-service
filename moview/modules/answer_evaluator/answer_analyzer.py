@@ -4,9 +4,10 @@ from langchain.prompts.chat import (
     ChatPromptTemplate,
     HumanMessagePromptTemplate
 )
-from moview.modules.prompt_loader.prompt_loader import PromptLoader
+
+from moview.config.loggers.mongo_logger import prompt_result_logger
+from moview.utils.prompt_loader import PromptLoader
 from moview.environment.llm_factory import LLMModelFactory
-from moview.loggers.mongo_logger import *
 
 
 class AnswerAnalyzer:

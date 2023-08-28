@@ -1,6 +1,6 @@
 import threading
 import unittest
-from moview.modules.prompt_loader.prompt_loader import PromptLoader
+from moview.utils.prompt_loader import PromptLoader
 from moview.modules.input.input_analyzer import InputAnalyzer
 
 
