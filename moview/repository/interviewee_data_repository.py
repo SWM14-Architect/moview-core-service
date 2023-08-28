@@ -5,15 +5,7 @@ from pymongo import MongoClient
 from moview.domain.entity.interviewee_data_main_document import IntervieweeDataEntity
 from moview.utils.singleton_meta_class import SingletonMeta
 from moview.domain.entity.interviewee_data_subdocument import *
-
-# todo 아직 몽고 db 연결전이므로 임시로 만들었음.
-class MongoConfig:
-    def __init__(self, host: str = 'localhost', port: int = 27017, db_name: str = 'interview_database',
-                 collection_name: str = 'interview_data'):
-        self.host = host
-        self.port = port
-        self.db_name = db_name
-        self.collection_name = collection_name
+from moview.config.db.mongo_config import MongoConfig
 
 
 class IntervieweeDataRepository(metaclass=SingletonMeta):
