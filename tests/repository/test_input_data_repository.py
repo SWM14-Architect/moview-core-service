@@ -26,7 +26,6 @@ class TestInputDataRepository(unittest.TestCase):
         self.assertEqual(repository1, repository2)  # repository1과 repository2가 같은 객체인지 확인
 
     def test_save(self):
-
         # given
         test_initial_input_data_model = InitialInputData(
             interviewee_name="test", company_name="test", job_group="test", recruit_announcement="test"
@@ -55,7 +54,7 @@ class TestInputDataRepository(unittest.TestCase):
         self.assertEqual(len(retrieved_document["interview_id_list"]), 3)
 
     def test_find_by_object_id(self):
-        # when
+        # given
         test_initial_input_data_model = InitialInputData(
             interviewee_name="find_test", company_name="find_test", job_group="find_test", recruit_announcement="find_test"
         )
