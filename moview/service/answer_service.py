@@ -25,10 +25,12 @@ class AnswerService:
         # 2. random()을 활용하여 0과 1 사이의 랜덤한 실수를 얻는다.
         random_float = random.random()
 
-        # 3. answer 서비스가 answerCategoryClassifier에게 classify(질문 내용, 답변 내용)을 호출한다. 결과로 대분류를 얻는다. (이를 b라고 하자.)
+        # 3. answer 서비스가 answerCategoryClassifier에게 classify(질문 내용, 답변 내용)을 호출한다. 결과로 대분류를 얻는다.
         category = self.major_classifier.classify_category_of_answer(question=question_content, answer=answer_content)
 
-        # 4. answer 서비스가 answerSubCategoryClassifier에게 classify(질문 내용, 답변 내용, 대분류)를 호출한다. 결과로 대분류 + 중분류 문자열을 얻는다. (이를 c라고 하자.)
+        # 4. answer 서비스가 answerSubCategoryClassifier에게 classify(질문 내용, 답변 내용, 대분류)를 호출한다. 결과로 중분류를 얻는다.
+        sub_category = self.sub_classifier.classify_sub_category_of_answer(question=question_content,
+                                                                           answer=answer_content, category=category)
 
         # 5. c를 이용하여, 평가를 진행한다. answer 서비스가 평가 모듈에게 evaluate(질문 내용, 답변 내용, c)를 호출한다. 결과로 평가를 얻는다. (이를 d라고 하자.)
 
