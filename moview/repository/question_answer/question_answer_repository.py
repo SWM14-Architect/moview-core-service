@@ -16,26 +16,22 @@ class QuestionAnswerRepository(metaclass=SingletonMeta):
 
     def save_question(self, question_content: Any, interview_id: str, question_id: Optional[str]) -> InsertOneResult:
 
-        current_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-
         if question_id is None:
             # 초기 질문인 경우, question_id = None
             initial_question = Question(content=question_content, feedback_score=0, interview_id=interview_id,
-                                        question_id=None, created_at=current_time)
+                                        question_id=None)
             return self.collection.insert_one(initial_question.dict())
         else:
             # 꼬리 질문인 경우, 이전 question을 가리킴.
             followup_question = Question(content=question_content, feedback_score=0, interview_id=interview_id,
-                                         question_id=question_id, created_at=current_time)
+                                         question_id=question_id)
 
             return self.collection.insert_one(followup_question.dict())
 
     def save_answer(self, answer_content: Any, category: str, sub_category: str, question_id: str) -> InsertOneResult:
 
-        current_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-
         # answer와 question의 관계를 맺기 위해 question_id를 저장
         answer = Answer(content=answer_content, category=category, sub_category=sub_category, evaluation="",
-                        question_id=question_id, created_at=current_time)
+                        question_id=question_id)
 
         return self.collection.insert_one(answer.dict())
