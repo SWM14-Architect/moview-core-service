@@ -1,5 +1,5 @@
-from datetime import datetime
-from typing import Any, Optional
+from bson import ObjectId
+from typing import Any, Optional, Dict
 from pymongo import MongoClient
 from pymongo.results import InsertOneResult
 from moview.config.db.mongo_config import MongoConfig
@@ -14,7 +14,8 @@ class QuestionAnswerRepository(metaclass=SingletonMeta):
         self.db = self.client[mongo_config.db_name]
         self.collection = self.db["question_answer"]
 
-    def save_question(self, question_content: Any, interview_id: str, question_id: Optional[str]) -> InsertOneResult:
+    def save_question(self, question_content: Any, interview_id: Dict[str, Optional[str]],
+                      question_id: Optional[Dict[str, Optional[str]]]) -> InsertOneResult:
 
         if question_id is None:
             # 초기 질문인 경우, question_id = None
@@ -28,6 +29,9 @@ class QuestionAnswerRepository(metaclass=SingletonMeta):
 
             return self.collection.insert_one(followup_question.dict())
 
+    def find_question_by_object_id(self, object_id: str) -> Dict[str, Any]:
+        return self.collection.find_one({"_id": ObjectId(object_id)})
+
     def save_answer(self, answer_content: Any, category: str, sub_category: str, question_id: str) -> InsertOneResult:
 
         # answer와 question의 관계를 맺기 위해 question_id를 저장
@@ -35,3 +39,6 @@ class QuestionAnswerRepository(metaclass=SingletonMeta):
                         question_id=question_id)
 
         return self.collection.insert_one(answer.dict())
+
+    def find_answer_by_object_id(self, object_id: str) -> Dict[str, Any]:
+        return self.collection.find_one({"_id": ObjectId(object_id)})
