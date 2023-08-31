@@ -16,11 +16,11 @@ class AnswerFilter:
         prompt_loader = PromptLoader()
         self.prompt = prompt_loader.load_prompt_json(AnswerFilter.__name__)
 
-    def exclude_invalid_answer(self, job_group: str, question: str, answer: str) -> str:
+    def exclude_invalid_answer(self, question: str, answer: str) -> str:
         prompt = ChatPromptTemplate(
             messages=[
                 SystemMessagePromptTemplate.from_template(
-                    self.prompt.format(job_group=job_group)
+                    self.prompt.format()
                 ),
                 HumanMessagePromptTemplate.from_template(
                     """
