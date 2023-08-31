@@ -39,9 +39,9 @@ class FollowUpQuestionGiver:
                 ),
                 HumanMessagePromptTemplate.from_template(
                     """
-                    interview question: {question}
+                    면접 질문: {question}
 
-                    candidate's answer : {answer}    
+                    지원자의 답변: {answer}     
                     """)
             ],
             input_variables=["question", "answer"],

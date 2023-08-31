@@ -24,10 +24,9 @@ class AnswerFilter:
                 ),
                 HumanMessagePromptTemplate.from_template(
                     """
-                    Previous interview question: {question}
+                    이전 면접 질문: {question}
 
-                    Candidate's response : {answer}
-
+                    지원자의 답변: {answer}    
                     """
                 )
             ],
