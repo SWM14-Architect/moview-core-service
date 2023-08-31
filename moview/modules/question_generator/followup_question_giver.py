@@ -16,26 +16,27 @@ class FollowUpQuestionGiver:
         prompt_loader = PromptLoader()
         self.prompt = prompt_loader.load_prompt_json(FollowUpQuestionGiver.__name__)
 
-    def give_followup_question(self, job_group: str, question: str, answer: str, previous_questions: str,
-                               categories_ordered_pair: str) -> str:
+    def give_followup_question(self, question: str, answer: str, previous_question: str,
+                               category: str, sub_category: str) -> str:
         """
         꼬리질문을 출제하는 메서드
 
         Args:
-            job_group: 직군
             question: 현재 질문
             answer: 현재 질문에 대한 답변
-            previous_questions: 이전 질문들
-            categories_ordered_pair: 대분류, 중분류 순서쌍
+            previous_question: 이전 질문들
+            category: 대분류
+            sub_category: 중분류
 
         Returns:
+            출제할 꼬리 질문
 
         """
         prompt = ChatPromptTemplate(
             messages=[
                 SystemMessagePromptTemplate.from_template(
-                    self.prompt.format(job_group=job_group, categories_ordered_pair=categories_ordered_pair,
-                                       previous_question=previous_questions)
+                    self.prompt.format(category=category, sub_category=sub_category,
+                                       previous_question=previous_question)
                 ),
                 HumanMessagePromptTemplate.from_template(
                     """
