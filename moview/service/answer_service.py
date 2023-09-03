@@ -98,13 +98,16 @@ class AnswerService:
 
     @staticmethod
     def __need_to_give_followup_question(number_of_questions: int) -> bool:
-        base_probability_of_question = 0.6  # 기본 확률
-        # 출제된 질문이 많아질수록 확률이 감소
-        probability_of_question = base_probability_of_question / (1 + 0.1 * number_of_questions)
+        max_num_of_questions = 15  # 한 인터뷰당 최대 질문 수
 
-        random_float = random.random()
+        if number_of_questions >= max_num_of_questions:
+            need = False
+        else:
+            base_probability_of_question = 0.6  # 기본 확률
+            # 출제된 질문이 많아질수록 확률이 감소 (0.6에서 0.25까지 떨어짐)
+            probability_of_question = base_probability_of_question / (1 + 0.1 * number_of_questions)
 
-        need = random_float < probability_of_question
+            need = random.random() < probability_of_question
 
         execution_trace_logger(msg="NEED_TO_GIVE_FOLLOWUP_QUESTION", result=need)
 
