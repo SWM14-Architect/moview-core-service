@@ -1,5 +1,5 @@
 from bson import ObjectId
-from typing import Any, Optional, Dict
+from typing import Any, Dict
 from pymongo import MongoClient
 from pymongo.results import InsertOneResult
 from moview.config.db.mongo_config import MongoConfig

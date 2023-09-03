@@ -22,6 +22,8 @@ class AnswerService:
         self.sub_classifier = AnswerSubCategoryClassifier()
         self.giver = FollowUpQuestionGiver()
 
+        self.PROBABILITY_OF_FOLLOWUP_QUESTION = 0.5
+
     def answer(self, question_id: str, question_content: str, answer_content: str):
         # 1. answer 서비스에서 answer 필터 로직을 실행한다. answer 필터 로직을 실행한 결과를 지역 변수로 저장한다.
         filter_result = self.filter.exclude_invalid_answer(question=question_content, answer=answer_content)
@@ -49,13 +51,18 @@ class AnswerService:
         self.repository.save_answer(answer)
 
         # 8. random_float를 활용하여, 꼬리 질문을 할지 말지를 결정한다.
-        #   8-1. e가 꼬리 질문 확률을 나타내는 상수 f 보다 작다면,
-        #     8-1-1. return None. 즉, 꼬리 질문 출제를 하지 않는다는 것이다. 프론트엔드는 다음 초기 질문으로 넘어가야 한다.
+        #   8-1. e가 꼬리 질문 확률을 나타내는 상수 f 보다 작거나 같다면,
+        if random_float <= self.PROBABILITY_OF_FOLLOWUP_QUESTION:
+            # 8-1-1. return None. 즉, 꼬리 질문 출제를 하지 않는다는 것이다. 프론트엔드는 다음 초기 질문으로 넘어가야 한다.
+            return None
         #   8-2. e가 꼬리 질문 확률을 나타내는 상수 f 보다 크다면,
-        #     8-2-1. c를 활용하여, answer 서비스가 followupQustionGiver의 giveFollowupQuestion(질문 내용, 답변 내용, 분류 = c)를 호출한다. 결과로 꼬리질문 내용 h을 얻는다.
-        #     8-2-2. Question 엔티티를 생성한다. 생성자는 (content=h, feedback_score = None, question_id=질문 내용 Id)이다.
-        #     8-2-3. return 꼬리 질문 내용 h
-        pass
+        else:
+            #     8-2-1. todo 현재 질문이 몇번째 출제된 꼬리질문인지 판단하는 로직도 추가 필요! redis, 프론트엔드 등을 활용해서 구현해야 할 듯? 아니면 Interview 세션 엔티티에 출제 횟수라는 필드를 추가해야 할 것 같다.
+            #     8-2-2. c를 활용하여, answer 서비스가 followupQustionGiver의 giveFollowupQuestion(질문 내용, 답변 내용, 분류 = c)를 호출한다. 결과로 꼬리질문 내용 h을 얻는다.
+
+            #     8-2-3. Question 엔티티를 생성한다. 생성자는 (content=h, feedback_score = None, question_id=질문 내용 Id)이다.
+            #     8-2-4. return 꼬리 질문 내용 h
+            pass
 
     def __evaluate(self, question_content, answer_content, category, sub_category) -> str:
         return ""
