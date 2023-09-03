@@ -1,5 +1,9 @@
 import random
+
+from bson import ObjectId
+
 from moview.config.db.mongo_config import MongoConfig
+from moview.domain.entity.question_answer.answer import Answer
 from moview.modules.question_generator import AnswerFilter, AnswerCategoryClassifier, AnswerSubCategoryClassifier, \
     FollowUpQuestionGiver
 from moview.config.loggers.mongo_logger import execution_trace_logger, error_logger
@@ -32,11 +36,17 @@ class AnswerService:
         sub_category = self.sub_classifier.classify_sub_category_of_answer(question=question_content,
                                                                            answer=answer_content, category=category)
 
-        # 5. c를 이용하여, 평가를 진행한다. answer 서비스가 평가 모듈에게 evaluate(질문 내용, 답변 내용, c)를 호출한다. 결과로 평가를 얻는다. (이를 d라고 하자.)
+        # 5. answer 서비스가 평가 모듈에게 evaluate(질문 내용, 답변 내용, c)를 호출한다. 결과로 평가를 얻는다.
+        # todo 평가 모듈은 중간 평가 의견 나온 다음에 프롬프트를 바꾼다.
+        evaluation = self.__evaluate(question_content, answer_content, category, sub_category)
 
-        # 6. Answer 엔티티를 생성한다. 생성자는 (답변 내용, 필터 결과=a, 분류 = c, analysis=d , ref_key = 질문 Id)다.
+        # 6. Answer 엔티티를 생성한다.
+        answer = Answer(content=answer_content, category=category, sub_category=sub_category,
+                        filter_result=filter_result, evaluation=evaluation,
+                        question_id={"question_id": str(ObjectId(question_id))})
 
         # 7. answer 리포지토리의 saveAnswer()를 활용해 Answer 엔티티를 저장한다.
+        self.repository.save_answer(answer)
 
         # 8. random_float를 활용하여, 꼬리 질문을 할지 말지를 결정한다.
         #   8-1. e가 꼬리 질문 확률을 나타내는 상수 f 보다 작다면,
@@ -46,3 +56,6 @@ class AnswerService:
         #     8-2-2. Question 엔티티를 생성한다. 생성자는 (content=h, feedback_score = None, question_id=질문 내용 Id)이다.
         #     8-2-3. return 꼬리 질문 내용 h
         pass
+
+    def __evaluate(self, question_content, answer_content, category, sub_category) -> str:
+        return ""

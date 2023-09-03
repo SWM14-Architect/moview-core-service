@@ -32,14 +32,9 @@ class QuestionAnswerRepository(metaclass=SingletonMeta):
     def find_question_by_object_id(self, object_id: str) -> Dict[str, Any]:
         return self.collection.find_one({"_id": ObjectId(object_id)})
 
-    def save_answer(self, answer_content: Any, category: str, sub_category: str,
-                    question_id: Dict[str, Optional[str]]) -> InsertOneResult:
-        if question_id is None:
+    def save_answer(self, answer: Answer) -> InsertOneResult:
+        if answer.question_id is None:
             raise ValueError("question_id가 None입니다. question_id는 반드시 존재해야 합니다.")
-
-        # answer와 question의 관계를 맺기 위해 question_id를 저장
-        answer = Answer(content=answer_content, category=category, sub_category=sub_category, evaluation="",
-                        question_id=question_id)
 
         return self.collection.insert_one(answer.dict())
 

@@ -1,7 +1,7 @@
 import unittest
 
 from bson import ObjectId
-
+from moview.domain.entity.question_answer.answer import Answer
 from moview.config.db.mongo_config import MongoConfig
 from moview.repository.question_answer.question_answer_repository import QuestionAnswerRepository
 
@@ -64,8 +64,8 @@ class TestQuestionAnswerRepository(unittest.TestCase):
 
     def test_save_answer_without_question(self):
         with self.assertRaises(ValueError):
-            self.repository.save_answer(answer_content="답변", category="category", sub_category="sub_category",
-                                                 question_id=None)
+            self.repository.save_answer(Answer(content="답변", category="category",
+                                               sub_category="sub_category", question_id=None))
 
     def test_save_answer(self):
         # given
@@ -73,8 +73,10 @@ class TestQuestionAnswerRepository(unittest.TestCase):
                                                       question_id=None)
 
         # when
-        answer = self.repository.save_answer(answer_content="답변", category="category", sub_category="sub_category",
-                                             question_id={"question_id": str(ObjectId(initial_question.inserted_id))})
+        answer = self.repository.save_answer(
+            Answer(content="답변", category="category", sub_category="sub_category", evaluation="good",
+                   question_id={
+                       "question_id": str(ObjectId(initial_question.inserted_id))}))
 
         # then
         found = self.repository.find_answer_by_object_id(str(answer.inserted_id))
