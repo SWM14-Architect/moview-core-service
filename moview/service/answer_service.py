@@ -33,7 +33,7 @@ class AnswerService:
         interview = self.interview_repository.find_interview_by_object_id(user_id=user_id, interview_id=interview_id)
 
         interview_entity = InterviewSession(**interview)
-        interview_entity.previous_question.append(question_content)
+        interview_entity.previous_question_content.append(question_content)
         interview_entity.question_id_list.append({"question_id": str(ObjectId(question_id))})
 
         execution_trace_logger(msg="UPDATE_INTERVIEW_SESSION")
@@ -81,7 +81,7 @@ class AnswerService:
             followup_question_content = self.giver.give_followup_question(question=question_content,
                                                                           answer=answer_content,
                                                                           previous_question=''.join(
-                                                                              interview_entity.previous_question),
+                                                                              interview_entity.previous_question_content),
                                                                           category=category, sub_category=sub_category)
 
             #     8-2-2. Question 엔티티를 생성한다. question_id를 가리킴으로써, 꼬리질문임을 나타낸다.
