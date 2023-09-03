@@ -8,14 +8,15 @@ from moview.modules.question_generator import AnswerFilter, AnswerCategoryClassi
     FollowUpQuestionGiver
 from moview.config.loggers.mongo_logger import execution_trace_logger, error_logger
 from moview.repository.question_answer.question_answer_repository import QuestionAnswerRepository
+from moview.repository.interview_repository import InterviewRepository
+from moview.domain.entity.interview_session_document import InterviewSession
 
 
 class AnswerService:
 
     def __init__(self):
-        self.mongo_config = (MongoConfig())
-        self.mongo_config.db_name = "question_answer"
-        self.repository = QuestionAnswerRepository(MongoConfig())
+        self.interview_repository = InterviewRepository(MongoConfig())
+        self.question_answer_repository = QuestionAnswerRepository(MongoConfig())
 
         self.filter = AnswerFilter()
         self.major_classifier = AnswerCategoryClassifier()
@@ -24,7 +25,18 @@ class AnswerService:
 
         self.PROBABILITY_OF_FOLLOWUP_QUESTION = 0.5
 
-    def answer(self, question_id: str, question_content: str, answer_content: str):
+
+    # todo 메서드 자체에 transaction 처리가 필요함.
+    def answer(self, user_id: str, interview_id: str, question_id: str, question_content: str, answer_content: str):
+        # 0. 현재 인터뷰 세션을 불러온 후, 이전 질문들을 저장하고 id를 저장한다.
+        interview = self.interview_repository.find_interview_by_object_id(user_id=user_id, interview_id=interview_id)
+
+        interview_entity = InterviewSession(**interview)
+        interview_entity.previous_question.append(question_content)
+        interview_entity.question_id_list.append(question_id)
+
+        self.interview_repository.update_interview(interview=interview_entity.to_dict(), object_id=interview_id)
+
         # 1. answer 서비스에서 answer 필터 로직을 실행한다. answer 필터 로직을 실행한 결과를 지역 변수로 저장한다.
         filter_result = self.filter.exclude_invalid_answer(question=question_content, answer=answer_content)
 
@@ -48,7 +60,7 @@ class AnswerService:
                         question_id={"question_id": str(ObjectId(question_id))})
 
         # 7. answer 리포지토리의 saveAnswer()를 활용해 Answer 엔티티를 저장한다.
-        self.repository.save_answer(answer)
+        self.question_answer_repository.save_answer(answer)
 
         # 8. random_float를 활용하여, 꼬리 질문을 할지 말지를 결정한다.
         #   8-1. e가 꼬리 질문 확률을 나타내는 상수 f 보다 작거나 같다면,
@@ -57,7 +69,7 @@ class AnswerService:
             return None
         #   8-2. e가 꼬리 질문 확률을 나타내는 상수 f 보다 크다면,
         else:
-            #     8-2-1. todo 현재 질문이 몇번째 출제된 꼬리질문인지 판단하는 로직도 추가 필요! redis, 프론트엔드 등을 활용해서 구현해야 할 듯? 아니면 Interview 세션 엔티티에 출제 횟수라는 필드를 추가해야 할 것 같다.
+            #     8-2-1. todo 현재 질문이 몇번째 출제된 꼬리 질문인지 판단하는 로직도 추가 필요! redis, 프론트엔드 등을 활용해서 구현해야 할 듯? 아니면 Interview 세션 엔티티에 출제 횟수라는 필드를 추가해야 할 것 같다.
             #     8-2-2. c를 활용하여, answer 서비스가 followupQustionGiver의 giveFollowupQuestion(질문 내용, 답변 내용, 분류 = c)를 호출한다. 결과로 꼬리질문 내용 h을 얻는다.
 
             #     8-2-3. Question 엔티티를 생성한다. 생성자는 (content=h, feedback_score = None, question_id=질문 내용 Id)이다.
