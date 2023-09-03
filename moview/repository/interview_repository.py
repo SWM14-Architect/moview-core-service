@@ -16,7 +16,7 @@ class InterviewRepository(metaclass=SingletonMeta):
 
     def save_interview(self, interview: InterviewSession) -> InsertOneResult:
         execution_trace_logger(msg="SAVE_INTERVIEW")
-        return self.collection.insert_one(interview.to_dict())
+        return self.collection.insert_one(interview.dict())
 
     def find_interview_by_object_id(self, user_id: str, interview_id) -> Dict[str, Any]:
         execution_trace_logger(msg="FIND_INTERVIEW_BY_OBJECT_ID")
