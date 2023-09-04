@@ -1,10 +1,10 @@
 import random
 from typing import Dict, Any
 from bson import ObjectId
-from moview.config.db.mongo_config import MongoConfig
 from moview.domain.entity.question_answer.answer import Answer
 from moview.modules.question_generator import AnswerFilter, AnswerCategoryClassifier, AnswerSubCategoryClassifier, \
     FollowUpQuestionGiver
+from moview.utils.singleton_meta_class import SingletonMeta
 from moview.config.loggers.mongo_logger import execution_trace_logger
 from moview.repository.question_answer.question_answer_repository import QuestionAnswerRepository
 from moview.repository.interview_repository import InterviewRepository
@@ -12,22 +12,23 @@ from moview.domain.entity.interview_session_document import InterviewSession
 from moview.domain.entity.question_answer.question import Question
 
 
-class AnswerService:
+class AnswerService(metaclass=SingletonMeta):
 
-    def __init__(self):
-        self.interview_repository = InterviewRepository(MongoConfig())
-        self.question_answer_repository = QuestionAnswerRepository(MongoConfig())
+    def __init__(self, interview_repository: InterviewRepository, question_answer_repository: QuestionAnswerRepository,
+                 answer_filter: AnswerFilter, major_classifier: AnswerCategoryClassifier,
+                 sub_classifier: AnswerSubCategoryClassifier, giver: FollowUpQuestionGiver):
+        self.interview_repository = interview_repository
+        self.question_answer_repository = question_answer_repository
 
-        self.filter = AnswerFilter()
-        self.major_classifier = AnswerCategoryClassifier()
-        self.sub_classifier = AnswerSubCategoryClassifier()
-        self.giver = FollowUpQuestionGiver()
+        self.filter = answer_filter
+        self.major_classifier = major_classifier
+        self.sub_classifier = sub_classifier
+        self.giver = giver
 
     # todo 이 메서드 자체에 transaction 처리가 필요함.
     def answer(self, user_id: str, interview_id: str, question_id: str, question_content: str, answer_content: str):
         # 1. 현재 인터뷰 세션을 불러온 후, 업데이트한다.
-        interview_dict = self.__load_interview_session(user_id=user_id, interview_id=interview_id,
-                                                       )
+        interview_dict = self.__load_interview_session(user_id=user_id, interview_id=interview_id)
 
         interview_entity = self.__update_interview_session(interview_id=interview_id, interview_dict=interview_dict,
                                                            question_id=question_id, question_content=question_content)

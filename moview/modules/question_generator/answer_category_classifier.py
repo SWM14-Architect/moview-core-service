@@ -7,11 +7,11 @@ from langchain.prompts.chat import (
 from moview.utils.prompt_loader import PromptLoader
 from moview.environment.llm_factory import LLMModelFactory
 from moview.config.loggers.mongo_logger import prompt_result_logger
+from moview.utils.singleton_meta_class import SingletonMeta
 
 
-class AnswerCategoryClassifier:
-    def __init__(self):
-        prompt_loader = PromptLoader()
+class AnswerCategoryClassifier(metaclass=SingletonMeta):
+    def __init__(self, prompt_loader: PromptLoader):
         self.prompt = prompt_loader.load_prompt_json(AnswerCategoryClassifier.__name__)
 
     def classify_category_of_answer(self, question: str, answer: str) -> str:
