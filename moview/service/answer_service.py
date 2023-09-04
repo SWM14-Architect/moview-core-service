@@ -34,7 +34,7 @@ class AnswerService(metaclass=SingletonMeta):
                                                            question_id=question_id, question_content=question_content)
 
         # 2. 꼬리 질문을 할지 말지를 결정한다.
-        need_for_followup_question = self.__need_to_give_followup_question(
+        need_for_followup_question = self.need_to_give_followup_question(
             number_of_questions=len(interview_entity.question_id_list))
 
         # 3. 면접 답변 필터링 결과 얻기
@@ -97,8 +97,7 @@ class AnswerService(metaclass=SingletonMeta):
 
         return self.filter.exclude_invalid_answer(question=question_content, answer=answer_content)
 
-    @staticmethod
-    def __need_to_give_followup_question(number_of_questions: int) -> bool:
+    def need_to_give_followup_question(self, number_of_questions: int) -> bool:
         max_num_of_questions = 15  # 한 인터뷰당 최대 질문 수
 
         if number_of_questions >= max_num_of_questions:
