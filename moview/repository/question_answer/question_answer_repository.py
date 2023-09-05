@@ -16,10 +16,10 @@ class QuestionAnswerRepository(metaclass=SingletonMeta):
         self.collection = self.db["question_answer"]
 
     def save_question(self, question: Question) -> InsertOneResult:
-        if question.question_id is None:
-            execution_trace_logger(msg="SAVE_QUESTION_INITIAL", question_id=question.question_id)
+        if question.prev_question_id is None:
+            execution_trace_logger(msg="SAVE_QUESTION_INITIAL", question_id=question.prev_question_id)
         else:
-            execution_trace_logger(msg="SAVE_QUESTION_FOLLOW_UP", question_id=question.question_id)
+            execution_trace_logger(msg="SAVE_QUESTION_FOLLOW_UP", question_id=question.prev_question_id)
 
         return self.collection.insert_one(question.dict())
 
