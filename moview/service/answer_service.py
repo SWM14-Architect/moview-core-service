@@ -77,20 +77,25 @@ class AnswerService(metaclass=SingletonMeta):
             return None, None
 
     def __load_interview_session(self, user_id: str, interview_id: str) -> Dict[str, Any]:
-        execution_trace_logger(msg="LOAD_INTERVIEW_SESSION",user_id=user_id, interview_id=interview_id)
+        execution_trace_logger(msg="LOAD_INTERVIEW_SESSION", user_id=user_id, interview_id=interview_id)
 
         return self.interview_repository.find_interview_by_object_id(user_id=user_id, interview_id=interview_id)
 
     def __update_interview_session(self, interview_id: str, interview_dict: Dict[str, Any], question_id: str,
                                    question_content: str) -> InterviewSession:
-        execution_trace_logger(msg="UPDATE_INTERVIEW_SESSION",interview_id=interview_id, question_id=question_id)
+        execution_trace_logger(msg="UPDATE_INTERVIEW_SESSION", interview_id=interview_id, question_id=question_id)
 
         # 이전 질문들에 현재 질문을 저장하고 그 id를 인터뷰 세션에 저장한다.
         interview_entity = InterviewSession(**interview_dict)
         interview_entity.previous_question_content.append(question_content)
-        interview_entity.question_id_list.append({"question_id": str(ObjectId(question_id))})
+        interview_entity.question_id_list.append({
+            "#ref": self.question_answer_repository.collection.name,
+            "#id": question_id,
+            "#db": self.question_answer_repository.db.name
+        })
 
         self.interview_repository.update_interview(interview=interview_entity.dict(), object_id=interview_id)
+
         return interview_entity
 
     def __filter_answer(self, question_content: str, answer_content: str) -> str:
@@ -137,7 +142,11 @@ class AnswerService(metaclass=SingletonMeta):
 
         answer = Answer(content=answer_content, category=category, sub_category=sub_category,
                         filter_result=filter_result, evaluation=evaluation,
-                        question_id={"question_id": str(ObjectId(question_id))})
+                        question_id={
+                            "#ref": self.question_answer_repository.collection.name,
+                            "#id": question_id,
+                            "#db": self.question_answer_repository.db.name
+                        })
 
         self.question_answer_repository.save_answer(answer)
 

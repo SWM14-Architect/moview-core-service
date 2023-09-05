@@ -40,7 +40,7 @@ class TestAnswerService(unittest.TestCase):
                                             self.major_classifier, self.sub_classifier, self.giver)
 
         self.question_content = "이 회사에서 어떻게 성과를 낼 건지 말씀해주세요."
-        self.answer_content = "탁월한 개발자로서 이 회사의 핵심 인재가 되겠습니다. 그리고 신입 개발자들의 온보딩을 도움으로써 회사의 효율성을 높이는 시니어 개발자가 될 것입니다.."
+        self.answer_content = "탁월한 개발자로서 이 회사의 핵심 인재가 되겠습니다. 그리고 신입 개발자들의 온보딩을 도움으로써 회사의 효율성을 높이는 시니어 개발자가 될 것입니다."
 
     def tearDown(self):
         # 테스트용 db를 삭제함.
