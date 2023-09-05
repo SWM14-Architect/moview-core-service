@@ -5,7 +5,7 @@ from tests.common_code_for_test import is_not_none_string
 from moview.modules.question_generator.answer_validator import AnswerValidator
 from moview.utils.prompt_loader import PromptLoader
 
-PATCH_PATH = 'moview.modules.question_generator.answer_validator.AnswerValidator.exclude_invalid_answer'
+PATCH_PATH = 'moview.modules.question_generator.answer_validator.AnswerValidator.validate_answer'
 
 
 class TestAnswerValidator(unittest.TestCase):
@@ -26,7 +26,7 @@ class TestAnswerValidator(unittest.TestCase):
         mock_method.return_value = "1"
 
         # when
-        result = self.answer_filter.exclude_invalid_answer(question, answer)
+        result = self.answer_filter.validate_answer(question, answer)
 
         # then
         self.assertIn("1", result)
@@ -39,7 +39,7 @@ class TestAnswerValidator(unittest.TestCase):
         mock_method.return_value = "2"
 
         # when
-        result = self.answer_filter.exclude_invalid_answer(question, answer)
+        result = self.answer_filter.validate_answer(question, answer)
 
         # then
         self.assertIn("2", result)
@@ -52,7 +52,7 @@ class TestAnswerValidator(unittest.TestCase):
         mock_method.return_value = "3"
 
         # when
-        result = self.answer_filter.exclude_invalid_answer(question, answer)
+        result = self.answer_filter.validate_answer(question, answer)
 
         # then
         self.assertIn("3", result)
@@ -65,7 +65,7 @@ class TestAnswerValidator(unittest.TestCase):
         mock_method.return_value = "4"
 
         # when
-        result = self.answer_filter.exclude_invalid_answer(question, answer)
+        result = self.answer_filter.validate_answer(question, answer)
 
         # then
         self.assertIn("4", result)
@@ -78,7 +78,7 @@ class TestAnswerValidator(unittest.TestCase):
         mock_method.return_value = "5"
 
         # when
-        result = self.answer_filter.exclude_invalid_answer(question, answer)
+        result = self.answer_filter.validate_answer(question, answer)
 
         # then
         self.assertIn("5", result)

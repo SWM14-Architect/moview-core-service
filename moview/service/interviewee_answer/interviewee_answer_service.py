@@ -143,7 +143,7 @@ class IntervieweeAnswerService:
 
     def __classify_answer_of_interviewee(self, job_group: str, question: str, answer: str) -> str:
         # 적절하지 않은 답변을 걸러냅니다.
-        check = self.filter.exclude_invalid_answer(job_group=job_group, question=question, answer=answer)
+        check = self.filter.validate_answer(job_group=job_group, question=question, answer=answer)
 
         number = find_first_number(check)
 

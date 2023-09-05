@@ -101,7 +101,7 @@ class AnswerService(metaclass=SingletonMeta):
     def __filter_answer(self, question_content: str, answer_content: str) -> str:
         execution_trace_logger(msg="FILTER_ANSWER")
 
-        return self.filter.exclude_invalid_answer(question=question_content, answer=answer_content)
+        return self.filter.validate_answer(question=question_content, answer=answer_content)
 
     def need_to_give_followup_question(self, number_of_questions: int) -> bool:
         max_num_of_questions = 15  # 한 인터뷰당 최대 질문 수

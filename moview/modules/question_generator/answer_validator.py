@@ -16,7 +16,7 @@ class AnswerValidator(metaclass=SingletonMeta):
     def __init__(self, prompt_loader: PromptLoader):
         self.prompt = prompt_loader.load_prompt_json(AnswerValidator.__name__)
 
-    def exclude_invalid_answer(self, question: str, answer: str) -> str:
+    def validate_answer(self, question: str, answer: str) -> str:
         prompt = ChatPromptTemplate(
             messages=[
                 SystemMessagePromptTemplate.from_template(
