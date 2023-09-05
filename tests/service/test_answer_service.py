@@ -90,6 +90,7 @@ class TestAnswerService(unittest.TestCase):
 
     @patch(PATCH_PATH)
     def test_need_followup_question(self, mock_method):
+        # given
         mock_method.return_value = True
         # when
         content, saved_id = self.answer_service.answer(user_id=self.user_id,
@@ -105,3 +106,29 @@ class TestAnswerService(unittest.TestCase):
         question_id = self.question_answer_repository.find_question_by_object_id(saved_id)
         self.assertEqual(str(question_id.get("_id")), str(ObjectId(saved_id)))
         self.assertTrue(len(interview['previous_question_content']) == 1)
+
+    @patch(PATCH_PATH)
+    def test_followup_of_followup(self, mock_method):
+        # given
+        mock_method.return_value = True
+
+        content1, saved_id1 = self.answer_service.answer(user_id=self.user_id,
+                                                         interview_id=self.interview_id,
+                                                         question_id=str(ObjectId(self.initial_question_id)),
+                                                         question_content=self.question_content,
+                                                         answer_content=self.answer_content)
+
+        # when
+        content2, saved_id2 = self.answer_service.answer(user_id=self.user_id,
+                                                         interview_id=self.interview_id,
+                                                         question_id=str(ObjectId(saved_id1)),
+                                                         question_content=content1,
+                                                         answer_content="신입 사원이 온보딩을 쉽게 할 수 있도록 코드 베이스와 문서를 잘 정리해놓을 것입니다.")
+
+        interview = self.interview_repository.find_interview_by_object_id(self.user_id, self.interview_id)
+
+        # then
+        self.assertTrue(content2 is not None)
+        question_id = self.question_answer_repository.find_question_by_object_id(saved_id2)
+        self.assertEqual(str(question_id.get("_id")), str(ObjectId(saved_id2)))
+        self.assertTrue(len(interview['previous_question_content']) == 2)
