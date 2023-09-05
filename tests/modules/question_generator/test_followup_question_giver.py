@@ -3,12 +3,14 @@ from unittest.mock import patch
 
 from tests.common_code_for_test import is_not_none_string
 from moview.modules.question_generator.followup_question_giver import FollowUpQuestionGiver
+from moview.utils.prompt_loader import PromptLoader
 
 
 class TestFollowUpQuestionGiver(unittest.TestCase):
 
     def setUp(self) -> None:
-        self.followup_question_giver = FollowUpQuestionGiver()
+        self.prompt_loader = PromptLoader()
+        self.followup_question_giver = FollowUpQuestionGiver(self.prompt_loader)
 
     def test_load_prompt(self):
         self.assertTrue(is_not_none_string(self.followup_question_giver.prompt))

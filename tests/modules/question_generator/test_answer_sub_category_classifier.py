@@ -3,12 +3,14 @@ from unittest.mock import patch
 
 from tests.common_code_for_test import is_not_none_string
 from moview.modules.question_generator.answer_sub_category_classifier import AnswerSubCategoryClassifier
+from moview.utils.prompt_loader import PromptLoader
 
 
 class TestAnswerSubCategoryClassifier(unittest.TestCase):
 
     def setUp(self) -> None:
-        self.answer_subcategory_classifier = AnswerSubCategoryClassifier()
+        self.prompt_loader = PromptLoader()
+        self.answer_subcategory_classifier = AnswerSubCategoryClassifier(self.prompt_loader)
 
     def test_load_prompt(self):
         self.assertTrue(is_not_none_string(self.answer_subcategory_classifier.prompt))
