@@ -11,6 +11,8 @@ from moview.domain.entity.interview_session_document import InterviewSession
 from moview.domain.entity.question_answer.question import Question
 from bson import ObjectId
 
+PATCH_PATH = "moview.service.answer_service.AnswerService.need_to_give_followup_question"
+
 
 class TestAnswerService(unittest.TestCase):
 
@@ -67,7 +69,7 @@ class TestAnswerService(unittest.TestCase):
             print(f"Iteration {i + 1}, Probability: {prob:.4f}")
             num_questions_asked += 1
 
-    @patch("moview.service.answer_service.AnswerService.need_to_give_followup_question")
+    @patch(PATCH_PATH)
     def test_no_need_followup_question(self, mock_method):
         # given
         mock_method.return_value = False
@@ -79,11 +81,14 @@ class TestAnswerService(unittest.TestCase):
                                                        question_content=self.question_content,
                                                        answer_content=self.answer_content)
 
+        interview = self.interview_repository.find_interview_by_object_id(self.user_id, self.interview_id)
+
         # then
         self.assertTrue(content is None)
         self.assertTrue(saved_id is None)
+        self.assertTrue(len(interview['previous_question_content']) == 1)
 
-    @patch("moview.service.answer_service.AnswerService.need_to_give_followup_question")
+    @patch(PATCH_PATH)
     def test_need_followup_question(self, mock_method):
         mock_method.return_value = True
         # when
@@ -93,8 +98,10 @@ class TestAnswerService(unittest.TestCase):
                                                        question_content=self.question_content,
                                                        answer_content=self.answer_content)
 
+        interview = self.interview_repository.find_interview_by_object_id(self.user_id, self.interview_id)
+
         # then
         self.assertTrue(content is not None)
-        print('content', content)
         question_id = self.question_answer_repository.find_question_by_object_id(saved_id)
         self.assertEqual(str(question_id.get("_id")), str(ObjectId(saved_id)))
+        self.assertTrue(len(interview['previous_question_content']) == 1)
