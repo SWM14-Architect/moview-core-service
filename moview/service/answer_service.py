@@ -27,7 +27,7 @@ class AnswerService(metaclass=SingletonMeta):
 
     # todo 이 메서드 자체에 transaction 처리가 필요함.
     def answer(self, user_id: str, interview_id: str, question_id: str, question_content: str, answer_content: str) -> \
-            Optional[Tuple[str, str]]:
+            Tuple[Optional[str], Optional[str]]:
         # 1. 현재 인터뷰 세션을 불러온 후, 업데이트한다.
         interview_dict = self.__load_interview_session(user_id=user_id, interview_id=interview_id)
 
@@ -157,8 +157,16 @@ class AnswerService(metaclass=SingletonMeta):
 
         # Question 엔티티를 생성한다. question_id를 가리킴으로써, 꼬리질문임을 나타낸다.
         followup_question = Question(content=followup_question_content, feedback_score=0,
-                                     interview_id={"interview_id": str(ObjectId(interview_id))},
-                                     question_id={"question_id": str(ObjectId(question_id))})
+                                     interview_id={
+                                         "#ref": self.interview_repository.collection.name,
+                                         "#id": interview_id,
+                                         "#db": self.interview_repository.db.name
+                                     },
+                                     question_id={
+                                         "#ref": self.question_answer_repository.collection.name,
+                                         "#id": question_id,
+                                         "#db": self.question_answer_repository.db.name
+                                     })
 
         # Question 리포지토리의 saveQuestion()을 활용해 Question 엔티티를 저장한다.
         return self.question_answer_repository.save_question(followup_question).inserted_id
