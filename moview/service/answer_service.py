@@ -2,7 +2,7 @@ import random
 from typing import Dict, Any, Optional, Tuple
 from bson import ObjectId
 from moview.domain.entity.question_answer.answer import Answer
-from moview.modules.question_generator import AnswerFilter, AnswerCategoryClassifier, AnswerSubCategoryClassifier, \
+from moview.modules.question_generator import AnswerValidator, AnswerCategoryClassifier, AnswerSubCategoryClassifier, \
     FollowUpQuestionGiver
 from moview.utils.singleton_meta_class import SingletonMeta
 from moview.config.loggers.mongo_logger import execution_trace_logger
@@ -15,7 +15,7 @@ from moview.domain.entity.question_answer.question import Question
 class AnswerService(metaclass=SingletonMeta):
 
     def __init__(self, interview_repository: InterviewRepository, question_answer_repository: QuestionAnswerRepository,
-                 answer_filter: AnswerFilter, major_classifier: AnswerCategoryClassifier,
+                 answer_filter: AnswerValidator, major_classifier: AnswerCategoryClassifier,
                  sub_classifier: AnswerSubCategoryClassifier, giver: FollowUpQuestionGiver):
         self.interview_repository = interview_repository
         self.question_answer_repository = question_answer_repository
@@ -171,7 +171,7 @@ class AnswerService(metaclass=SingletonMeta):
                                          "#id": interview_id,
                                          "#db": self.interview_repository.db.name
                                      },
-                                     question_id={
+                                     prev_question_id={
                                          "#ref": self.question_answer_repository.collection.name,
                                          "#id": question_id,
                                          "#db": self.question_answer_repository.db.name

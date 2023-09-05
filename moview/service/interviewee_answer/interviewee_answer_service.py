@@ -1,5 +1,5 @@
 import re
-from moview.modules.question_generator import AnswerFilter, AnswerCategoryClassifier, AnswerSubCategoryClassifier, \
+from moview.modules.question_generator import AnswerValidator, AnswerCategoryClassifier, AnswerSubCategoryClassifier, \
     FollowUpQuestionGiver
 from moview.service.interviewee_answer.interviewer_action_enum import InterviewerActionEnum
 from moview.repository.interviewee_data_repository import IntervieweeDataRepository, MongoConfig
@@ -41,7 +41,7 @@ class IntervieweeAnswerService:
     def __init__(self):
         self.repository = IntervieweeDataRepository(mongo_config=MongoConfig())
 
-        self.filter = AnswerFilter()
+        self.filter = AnswerValidator()
         self.major_classifier = AnswerCategoryClassifier()
         self.sub_classifier = AnswerSubCategoryClassifier()
 

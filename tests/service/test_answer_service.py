@@ -4,7 +4,7 @@ from moview.service.answer_service import AnswerService
 from moview.config.db.mongo_config import MongoConfig
 from moview.repository.question_answer.question_answer_repository import QuestionAnswerRepository
 from moview.repository.interview_repository import InterviewRepository
-from moview.modules.question_generator import AnswerFilter, AnswerCategoryClassifier, AnswerSubCategoryClassifier, \
+from moview.modules.question_generator import AnswerValidator, AnswerCategoryClassifier, AnswerSubCategoryClassifier, \
     FollowUpQuestionGiver
 from moview.utils.prompt_loader import PromptLoader
 from moview.domain.entity.interview_session_document import InterviewSession
@@ -20,7 +20,7 @@ class TestAnswerService(unittest.TestCase):
 
         self.prompt_loader = PromptLoader()
 
-        self.answer_filter = AnswerFilter(self.prompt_loader)
+        self.answer_filter = AnswerValidator(self.prompt_loader)
         self.major_classifier = AnswerCategoryClassifier(self.prompt_loader)
         self.sub_classifier = AnswerSubCategoryClassifier(self.prompt_loader)
         self.giver = FollowUpQuestionGiver(self.prompt_loader)

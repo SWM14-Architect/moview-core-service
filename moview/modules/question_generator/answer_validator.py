@@ -11,10 +11,10 @@ from moview.config.loggers.mongo_logger import prompt_result_logger
 from moview.utils.singleton_meta_class import SingletonMeta
 
 
-class AnswerFilter(metaclass=SingletonMeta):
+class AnswerValidator(metaclass=SingletonMeta):
 
     def __init__(self, prompt_loader: PromptLoader):
-        self.prompt = prompt_loader.load_prompt_json(AnswerFilter.__name__)
+        self.prompt = prompt_loader.load_prompt_json(AnswerValidator.__name__)
 
     def exclude_invalid_answer(self, question: str, answer: str) -> str:
         prompt = ChatPromptTemplate(

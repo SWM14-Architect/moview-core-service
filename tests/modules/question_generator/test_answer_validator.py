@@ -2,13 +2,13 @@ import unittest
 from unittest.mock import patch
 
 from tests.common_code_for_test import is_not_none_string
-from moview.modules.question_generator.answer_filter import AnswerFilter
+from moview.modules.question_generator.answer_validator import AnswerValidator
 
 
-class TestAnswerFilter(unittest.TestCase):
+class TestAnswerValidator(unittest.TestCase):
 
     def setUp(self) -> None:
-        self.answer_filter = AnswerFilter()
+        self.answer_filter = AnswerValidator()
 
     def test_load_prompt(self):
         self.assertTrue(is_not_none_string(self.answer_filter.prompt))
