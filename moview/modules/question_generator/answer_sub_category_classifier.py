@@ -8,29 +8,28 @@ from langchain.prompts.chat import (
 from moview.utils.prompt_loader import PromptLoader
 from moview.environment.llm_factory import LLMModelFactory
 from moview.config.loggers.mongo_logger import prompt_result_logger
+from moview.utils.singleton_meta_class import SingletonMeta
 
 
-class AnswerSubCategoryClassifier:
-    def __init__(self):
-        prompt_loader = PromptLoader()
+class AnswerSubCategoryClassifier(metaclass=SingletonMeta):
+    def __init__(self, prompt_loader: PromptLoader):
         self.prompt = prompt_loader.load_prompt_json(AnswerSubCategoryClassifier.__name__)
 
-    def classify_sub_category_of_answer(self, job_group: str, question: str, answer: str, categories: str) -> str:
+    def classify_sub_category_of_answer(self, question: str, answer: str, category: str) -> str:
         """
-        질문과 답변, 직군, 대분류를 입력 받아서 질문과 답변이 면접 유형 중 어느 중분류에 해당하는 지 분류하는 메서드.
-
+        질문과 답변, 대분류를 입력 받아서 질문과 답변이 면접 유형 중 어느 중분류에 해당하는 지 분류하는 메서드.
         """
 
         prompt = ChatPromptTemplate(
             messages=[
                 SystemMessagePromptTemplate.from_template(
-                    self.prompt.format(job_group=job_group, categories=categories)
+                    self.prompt.format(category=category)
                 ),
                 HumanMessagePromptTemplate.from_template(
                     """
-                    Previous interview question: {question}
+                    이전 면접 질문: {question}
 
-                    Candidate's response : {answer}    
+                    지원자의 답변: {answer}    
                     """)
             ],
             input_variables=["question", "answer"],
