@@ -1,5 +1,5 @@
 import random
-from typing import Dict, Any
+from typing import Dict, Any, Optional, Tuple
 from bson import ObjectId
 from moview.domain.entity.question_answer.answer import Answer
 from moview.modules.question_generator import AnswerFilter, AnswerCategoryClassifier, AnswerSubCategoryClassifier, \
@@ -26,7 +26,8 @@ class AnswerService(metaclass=SingletonMeta):
         self.giver = giver
 
     # todo 이 메서드 자체에 transaction 처리가 필요함.
-    def answer(self, user_id: str, interview_id: str, question_id: str, question_content: str, answer_content: str):
+    def answer(self, user_id: str, interview_id: str, question_id: str, question_content: str, answer_content: str) -> \
+            Optional[Tuple[str, str]]:
         # 1. 현재 인터뷰 세션을 불러온 후, 업데이트한다.
         interview_dict = self.__load_interview_session(user_id=user_id, interview_id=interview_id)
 
@@ -92,7 +93,7 @@ class AnswerService(metaclass=SingletonMeta):
         self.interview_repository.update_interview(interview=interview_entity.dict(), object_id=interview_id)
         return interview_entity
 
-    def __filter_answer(self, question_content: str, answer_content: str):
+    def __filter_answer(self, question_content: str, answer_content: str) -> str:
         execution_trace_logger(msg="FILTER_ANSWER")
 
         return self.filter.exclude_invalid_answer(question=question_content, answer=answer_content)
