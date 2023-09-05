@@ -77,13 +77,13 @@ class AnswerService(metaclass=SingletonMeta):
             return None, None
 
     def __load_interview_session(self, user_id: str, interview_id: str) -> Dict[str, Any]:
-        execution_trace_logger(msg="LOAD_INTERVIEW_SESSION")
+        execution_trace_logger(msg="LOAD_INTERVIEW_SESSION",user_id=user_id, interview_id=interview_id)
 
         return self.interview_repository.find_interview_by_object_id(user_id=user_id, interview_id=interview_id)
 
     def __update_interview_session(self, interview_id: str, interview_dict: Dict[str, Any], question_id: str,
                                    question_content: str) -> InterviewSession:
-        execution_trace_logger(msg="UPDATE_INTERVIEW_SESSION")
+        execution_trace_logger(msg="UPDATE_INTERVIEW_SESSION",interview_id=interview_id, question_id=question_id)
 
         # 이전 질문들에 현재 질문을 저장하고 그 id를 인터뷰 세션에 저장한다.
         interview_entity = InterviewSession(**interview_dict)

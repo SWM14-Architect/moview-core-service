@@ -17,14 +17,14 @@ class QuestionAnswerRepository(metaclass=SingletonMeta):
 
     def save_question(self, question: Question) -> InsertOneResult:
         if question.question_id is None:
-            execution_trace_logger(msg="SAVE_QUESTION_INITIAL")
+            execution_trace_logger(msg="SAVE_QUESTION_INITIAL", question_id=question.question_id)
         else:
-            execution_trace_logger(msg="SAVE_QUESTION_FOLLOW_UP")
+            execution_trace_logger(msg="SAVE_QUESTION_FOLLOW_UP", question_id=question.question_id)
 
         return self.collection.insert_one(question.dict())
 
     def find_question_by_object_id(self, object_id: str) -> Dict[str, Any]:
-        execution_trace_logger(msg="FIND_QUESTION_BY_OBJECT_ID")
+        execution_trace_logger(msg="FIND_QUESTION_BY_OBJECT_ID", object_id=object_id)
         return self.collection.find_one({"_id": ObjectId(object_id)})
 
     def save_answer(self, answer: Answer) -> InsertOneResult:
@@ -35,5 +35,5 @@ class QuestionAnswerRepository(metaclass=SingletonMeta):
         return self.collection.insert_one(answer.dict())
 
     def find_answer_by_object_id(self, object_id: str) -> Dict[str, Any]:
-        execution_trace_logger(msg="FIND_ANSWER_BY_OBJECT_ID")
+        execution_trace_logger(msg="FIND_ANSWER_BY_OBJECT_ID", object_id=object_id)
         return self.collection.find_one({"_id": ObjectId(object_id)})
