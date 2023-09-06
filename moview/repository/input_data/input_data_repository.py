@@ -40,18 +40,18 @@ class InputDataRepository(metaclass=SingletonMeta):
         document = self.collection.find_one({"_id": ObjectId(object_id)})
         coverletter_id_list = document["coverletter_id_list"]
 
-        document["interview_document"] = []
+        document["coverletter_document"] = []
         for coverletter_id in coverletter_id_list:
             coverletter_document = self.find_cover_letter_by_object_id(coverletter_id)
-            document["interview_document"].append(coverletter_document)
+            document["coverletter_document"].append(coverletter_document)
         return document
 
     def find_input_data_by_interviewee_name(self, interviewee_name: str) -> Optional[Dict[str, Any]]:
         document = self.collection.find_one({"interviewee_name": interviewee_name})
         coverletter_id_list = document["coverletter_id_list"]
 
-        document["interview_document"] = []
+        document["coverletter_document"] = []
         for coverletter_id in coverletter_id_list:
             coverletter_document = self.find_cover_letter_by_object_id(coverletter_id)
-            document["interview_document"].append(coverletter_document)
+            document["coverletter_document"].append(coverletter_document)
         return document
