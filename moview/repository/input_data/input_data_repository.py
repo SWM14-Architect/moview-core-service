@@ -4,6 +4,7 @@ from pymongo import MongoClient
 from pymongo.results import InsertOneResult
 
 from moview.config.db.mongo_config import MongoConfig
+from moview.config.loggers.mongo_logger import execution_trace_logger
 from moview.domain.entity.input_data.coverletter_document import CoverLetter
 from moview.domain.entity.input_data.initial_input_data_document import InitialInputData
 from moview.utils.singleton_meta_class import SingletonMeta
@@ -29,14 +30,18 @@ class InputDataRepository(metaclass=SingletonMeta):
             })
 
         initial_input_data_model = initial_input_data.dict()
+        execution_trace_logger(msg="SAVE_INITIAL_INPUT_DATA")
         return self.collection.insert_one(initial_input_data_model)
 
     def find_cover_letter_by_object_id(self, coverletter_id: Dict[str, Optional[str]]) -> Optional[Dict[str, Any]]:
+        execution_trace_logger(msg="FIND_COVER_LETTER_BY_OBJECT_ID", object_id=coverletter_id["#id"])
         # "#db"와 "#ref"를 이용해 document가 있는 collection에 접속함.
         other_collection = self.client[coverletter_id["#db"]][coverletter_id["#ref"]]
         return other_collection.find_one({"_id": ObjectId(coverletter_id["#id"])})
 
     def find_input_data_by_object_id(self, object_id: str) -> Dict[str, Any]:
+        execution_trace_logger(msg="FIND_INPUT_DATA_BY_OBJECT_ID", object_id=object_id)
+
         document = self.collection.find_one({"_id": ObjectId(object_id)})
         coverletter_id_list = document["coverletter_id_list"]
 
@@ -47,6 +52,7 @@ class InputDataRepository(metaclass=SingletonMeta):
         return document
 
     def find_input_data_by_interviewee_name(self, interviewee_name: str) -> Optional[Dict[str, Any]]:
+        execution_trace_logger(msg="FIND_INPUT_DATA_BY_INTERVIEWEE_NAME", interviewee_name=interviewee_name)
         document = self.collection.find_one({"interviewee_name": interviewee_name})
         coverletter_id_list = document["coverletter_id_list"]
 
