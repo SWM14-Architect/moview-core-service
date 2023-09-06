@@ -15,12 +15,12 @@ from moview.domain.entity.question_answer.question import Question
 class AnswerService(metaclass=SingletonMeta):
 
     def __init__(self, interview_repository: InterviewRepository, question_answer_repository: QuestionAnswerRepository,
-                 answer_filter: AnswerValidator, major_classifier: AnswerCategoryClassifier,
+                 answer_validator: AnswerValidator, major_classifier: AnswerCategoryClassifier,
                  sub_classifier: AnswerSubCategoryClassifier, giver: FollowUpQuestionGiver):
         self.interview_repository = interview_repository
         self.question_answer_repository = question_answer_repository
 
-        self.filter = answer_filter
+        self.filter = answer_validator
         self.major_classifier = major_classifier
         self.sub_classifier = sub_classifier
         self.giver = giver
