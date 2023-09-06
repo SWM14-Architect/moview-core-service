@@ -17,7 +17,7 @@ class TestInputService(unittest.TestCase):
         self.prompt_loader = PromptLoader()
         self.question_answer_repositroy = QuestionAnswerRepository(mongo_config=self.mongo_config)
         self.input_data_repository = InputDataRepository(mongo_config=self.mongo_config)
-        self.initial_input_analyzer = InputAnalyzer()
+        self.initial_input_analyzer = InputAnalyzer(prompt_loader=self.prompt_loader)
         self.initial_question_giver = InitialQuestionGiver(prompt_loader=self.prompt_loader)
         self.input_data_service = InputDataService(
             question_answer_repository=self.question_answer_repositroy,
