@@ -1,6 +1,5 @@
 import random
 from typing import Dict, Any, Optional, Tuple
-from bson import ObjectId
 from moview.domain.entity.question_answer.answer import Answer
 from moview.modules.question_generator import AnswerValidator, AnswerCategoryClassifier, AnswerSubCategoryClassifier, \
     FollowUpQuestionGiver
