@@ -13,6 +13,7 @@ class FeedbackService(metaclass=SingletonMeta):
     def feedback(self, user_id: str, interview_id: str, feedback_list: List[FeedbackDTO]) -> None:
         execution_trace_logger(msg="FEEDBACK", user_id=user_id, interview_id=interview_id)
 
-        for question_id, feedback_score in feedback_list:
-            self.question_answer_repository.update_question_with_feedback_score(object_id=question_id,
-                                                                                feedback_score=feedback_score)
+        for feedback in feedback_list:
+            found_question = self.question_answer_repository.find_question_by_object_id(object_id=feedback.question_id)
+            found_question["feedback_score"] = feedback.feedback_score
+            self.question_answer_repository.update_question(question=found_question, object_id=feedback.question_id)
