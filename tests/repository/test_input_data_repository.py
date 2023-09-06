@@ -3,7 +3,7 @@ import unittest
 from moview.config.db.mongo_config import MongoConfig
 from moview.domain.entity.input_data.coverletter_document import CoverLetter
 from moview.domain.entity.input_data.initial_input_data_document import InitialInputData
-from moview.repository.input_data_repository import InputDataRepository
+from moview.repository.input_data.input_data_repository import InputDataRepository
 
 
 class TestInputDataRepository(unittest.TestCase):

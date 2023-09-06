@@ -31,7 +31,7 @@ class InputDataRepository(metaclass=SingletonMeta):
         initial_input_data_model = initial_input_data.dict()
         return self.collection.insert_one(initial_input_data_model)
 
-    def find_cover_letter_by_object_id(self, coverletter_id: Dict[str, Optional[str]]) -> Dict[str, Any]:
+    def find_cover_letter_by_object_id(self, coverletter_id: Dict[str, Optional[str]]) -> Optional[Dict[str, Any]]:
         # "#db"와 "#ref"를 이용해 document가 있는 collection에 접속함.
         other_collection = self.client[coverletter_id["#db"]][coverletter_id["#ref"]]
         return other_collection.find_one({"_id": ObjectId(coverletter_id["#id"])})
@@ -46,7 +46,7 @@ class InputDataRepository(metaclass=SingletonMeta):
             document["interview_document"].append(coverletter_document)
         return document
 
-    def find_input_data_by_interviewee_name(self, interviewee_name: str) -> Dict[str, Any]:
+    def find_input_data_by_interviewee_name(self, interviewee_name: str) -> Optional[Dict[str, Any]]:
         document = self.collection.find_one({"interviewee_name": interviewee_name})
         coverletter_id_list = document["coverletter_id_list"]
 
