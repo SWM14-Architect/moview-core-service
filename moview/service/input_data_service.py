@@ -1,21 +1,31 @@
 from typing import List, Any, Tuple, Dict
 
-from moview.config.db.mongo_config import MongoConfig
 from moview.config.loggers.mongo_logger import error_logger, execution_trace_logger
 from moview.domain.entity.input_data.coverletter_document import CoverLetter
 from moview.domain.entity.input_data.initial_input_data_document import InitialInputData
+from moview.domain.entity.question_answer.question import Question
 from moview.modules.input.input_analyzer import InputAnalyzer
 from moview.modules.input.initial_question_giver import InitialQuestionGiver, InitialQuestionParseError
-from moview.repository.input_data_repository import InputDataRepository
+from moview.repository.input_data.input_data_repository import InputDataRepository
+from moview.repository.question_answer.question_answer_repository import QuestionAnswerRepository
+from moview.utils.singleton_meta_class import SingletonMeta
 
 
-class InputDataService:
-    def __init__(self, mongo_config: MongoConfig):
-        self.INIT_QUESTION_MULTIPLIER = 2  # 각 자소서 답변에 대해 초기 질문을 몇 개씩 생성할 것인지 결정하는 상수
-        self.input_data_repository = InputDataRepository(mongo_config=mongo_config)
+class InputDataService(metaclass=SingletonMeta):
 
-        self.initial_input_analyzer = InputAnalyzer()
-        self.initial_question_giver = InitialQuestionGiver()
+    def __init__(
+            self,
+            input_data_repository: InputDataRepository,
+            question_answer_repository: QuestionAnswerRepository,
+            initial_input_analyzer: InputAnalyzer,
+            initial_question_giver: InitialQuestionGiver
+    ):
+        self.INIT_QUESTION_NUMBER = 6  # 총 몇개의 초기질문을 생성할지 정합니다.
+        self.input_data_repository = input_data_repository
+        self.question_answer_repository = question_answer_repository
+
+        self.initial_input_analyzer = initial_input_analyzer
+        self.initial_question_giver = initial_question_giver
 
     def ask_initial_question_to_interviewee(
             self,
@@ -25,7 +35,7 @@ class InputDataService:
             recruit_announcement: str,
             cover_letter_questions: List[str],
             cover_letter_answers: List[str]
-    ) -> List[str]:
+    ) -> Dict[str, Any]:
         """
         Args:
             interviewee_name: 인터뷰 대상자 이름
@@ -36,8 +46,8 @@ class InputDataService:
             cover_letter_answers: 인터뷰 대상자 자소서 답변 리스트
 
         Returns: {
-            "input_data_document_id" : 면접자 데이터 문서 string id,
-            "initial_question_list" : 초기 질문 리스트
+            "input_data_document": input_data_document_id,
+            "question_document_list": [(question_document_id, question_content), ...)]
         }
         """
 
@@ -52,7 +62,7 @@ class InputDataService:
         interviewee_name, company_name, job_group, recruit_announcement, cover_letter_questions, cover_letter_answers = result
 
         execution_trace_logger(
-            "filter input",
+            "Filter Input",
             interviewee_name=interviewee_name,
             job_group=job_group,
             recruit_announcement=recruit_announcement,
@@ -69,37 +79,48 @@ class InputDataService:
         )
 
         execution_trace_logger(
-            "analyze input",
+            "Analyze Input",
             analyzed_initial_inputs_of_interviewee=analyzed_initial_inputs_of_interviewee
         )
 
-        # TODO: 초기 질문 생성 파트 변경해야함
-        initial_question_list = []  # List[List[Any]
+        # 초기질문 생성
+        initial_question_list = []  # List[str]
 
-        # 각 자소서 답변 분석 내용에 대해 2개씩 초기 질문 생성.
-        for analysis_about_one_cover_letter in analyzed_initial_inputs_of_interviewee:
+        try:
+            # 직군 정보만 가지고 초기질문 생성.
+            created_questions = self.initial_question_giver.give_initial_questions(
+                job_group=job_group,
+                question_count=self.INIT_QUESTION_NUMBER//2
+            )
+            initial_question_list.extend(created_questions)
 
-            try:
-                # 길이 (INIT_QUESTION_MULTIPLIER) 의 질문 리스트 생성 List[str]
-                created_questions = self.initial_question_giver.give_initial_questions(
-                    analysis_about_one_cover_letter=analysis_about_one_cover_letter,
-                    question_count=self.INIT_QUESTION_MULTIPLIER
-                )
+            execution_trace_logger("Initial Question By Job", created_questions=created_questions)
 
-                # 생성된 초기 질문 (INIT_QUESTION_MULTIPLIER)개를 initial_question_list에 추가.
-                # List[str] (created_questions) 에서 List[str] (initial_question_list)로 옮기기 위한 코드
-                for i in range(self.INIT_QUESTION_MULTIPLIER):
-                    initial_question_list.append(created_questions[i])
-
-            except InitialQuestionParseError as e:  # 파싱 실패한 경우
-                error_logger("InitialQuestionParseError")
-
-                # question_count만큼 빈 문자열 담기
-                for _ in range(self.INIT_QUESTION_MULTIPLIER):
-                    initial_question_list.append([])
-
-        execution_trace_logger("initial question", initial_question_list=initial_question_list)
+        except InitialQuestionParseError: # 파싱에 실패한 경우
+            error_logger("Initial Question Parse Error")
         
+        try:
+            # coverletter를 하나의 스트링으로 합침.
+            coverletter = ""
+            for question, answer in zip(cover_letter_questions, cover_letter_answers):
+                coverletter += f"Q. {question}\nA. {answer}\n\n"
+
+            # 자기소개서와 모집공고를 기반으로 초기질문 생성.
+            created_questions = self.initial_question_giver.give_initial_questions_by_input_data(
+                recruit_announcement=recruit_announcement,
+                coverletter=coverletter,
+                question_count=self.INIT_QUESTION_NUMBER//2,
+                exclusion_list=initial_question_list # 이미 생성된 질문은 제외
+            )
+            initial_question_list.extend(created_questions)
+
+            execution_trace_logger("Initial Question By Recruit & Coverletter", created_questions=created_questions)
+
+        except InitialQuestionParseError: # 파싱에 실패한 경우
+            error_logger("InitialQuestionParseError")
+
+        execution_trace_logger("End Initial Question Creation", initial_question_list=initial_question_list)
+
         # Initial Input Data Entity Model 생성
         initial_input_data_model, cover_letter_model_list = self.__create_interviewee_data_entity(
             interviewee_name=interviewee_name,
@@ -109,20 +130,26 @@ class InputDataService:
             cover_letter_answers=cover_letter_answers,
             analyzed_initial_inputs_of_interviewee=analyzed_initial_inputs_of_interviewee
         )
-        
-        # Initial Input Data Dcoument 저장
+
+        # Initial Input Data Document 저장
         initial_input_document = self.input_data_repository.save(
             initial_input_data=initial_input_data_model,
             cover_letter_list=cover_letter_model_list
         )
 
-        # TODO: Initial Question Entity Model 생성
+        # Initial Question Entity Model 생성 및 Document 저장
+        question_document_id_list = []
 
-        # TODO: Initial Question Document 저장
-        
-        # TODO: Initial Question을 Frontend에게 건내주기 위한 형태로 재가공하기
+        for question_content in initial_question_list:
+            question_model = self.__create_question_entity(question_content=question_content)
+            question_document = self.question_answer_repository.save_question(question_model)
+            question_document_id_list.append(question_document.inserted_id)
+        execution_trace_logger("Save Initial Question Document", initial_question_list=initial_question_list)
 
-        return initial_question_list
+        return {
+            "input_data_document": initial_input_document.inserted_id,
+            "question_document_list": list(zip(question_document_id_list, initial_question_list))
+        }
 
     def __filter_initial_inputs_of_interviewee(
             self,
@@ -191,8 +218,8 @@ class InputDataService:
 
         return analysis_list
 
+    @staticmethod
     def __create_interviewee_data_entity(
-            self,
             interviewee_name: str,
             company_name: str,
             job_group: str,
@@ -217,3 +244,11 @@ class InputDataService:
         ]
 
         return initial_input_data_model, cover_letter_model_list
+
+    @staticmethod
+    def __create_question_entity(question_content: str) -> Question:
+        question_model = Question(
+            content=question_content,
+            feedback_score=0,
+        )
+        return question_model

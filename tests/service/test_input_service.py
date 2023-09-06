@@ -1,18 +1,30 @@
 import unittest
 from unittest.mock import patch
 
-from moview.modules.input.initial_question_giver import InitialQuestionParseError
+from moview.modules.input import InputAnalyzer
+from moview.modules.input.initial_question_giver import InitialQuestionParseError, InitialQuestionGiver
 from moview.service.input_data_service import InputDataService
-from moview.repository.input_data_repository import InputDataRepository
+from moview.repository.input_data.input_data_repository import InputDataRepository
+from moview.repository.question_answer.question_answer_repository import QuestionAnswerRepository
 from moview.config.db.mongo_config import MongoConfig
+from moview.utils.prompt_loader import PromptLoader
 
 
 class TestInputService(unittest.TestCase):
     def setUp(self):
         self.mongo_config = (MongoConfig())
         self.mongo_config.db_name = "test_database"
-        self.input_data_service = InputDataService(mongo_config=self.mongo_config)
+        self.prompt_loader = PromptLoader()
+        self.question_answer_repositroy = QuestionAnswerRepository(mongo_config=self.mongo_config)
         self.input_data_repository = InputDataRepository(mongo_config=self.mongo_config)
+        self.initial_input_analyzer = InputAnalyzer()
+        self.initial_question_giver = InitialQuestionGiver(prompt_loader=self.prompt_loader)
+        self.input_data_service = InputDataService(
+            question_answer_repository=self.question_answer_repositroy,
+            input_data_repository=self.input_data_repository,
+            initial_input_analyzer=self.initial_input_analyzer,
+            initial_question_giver=self.initial_question_giver
+        )
 
         self.interviewee_data = {
             "interviewee_name": "test_user",
@@ -39,71 +51,38 @@ class TestInputService(unittest.TestCase):
             )
 
     @patch('moview.modules.input.initial_question_giver.InitialQuestionGiver.give_initial_questions')
-    def test_parse_fail_initial_question(self, mock_method):
+    @patch('moview.modules.input.initial_question_giver.InitialQuestionGiver.give_initial_questions_by_input_data')
+    def test_parse_fail_initial_question(self, mock_method2, mock_method1):
         # given
         # 예외 강제 발생
-        mock_method.side_effect = InitialQuestionParseError()
+        mock_method1.side_effect = InitialQuestionParseError()
+        mock_method2.side_effect = InitialQuestionParseError()
 
         # when
-        self.input_data_service.ask_initial_question_to_interviewee(
+        result = self.input_data_service.ask_initial_question_to_interviewee(
             **self.interviewee_data,
             cover_letter_questions=["당신의 창의력을 어떻게 발휘해 왔습니까?"],
             cover_letter_answers=["여러 언어를 이용한 프로그램 개발을 통해 독특한 해결책을 제시해 왔습니다."]
         )
         # then
-        # TODO: 초기질문 관련 로직이 완성되면 그때 테스트 코드 작성
-        # retrieved_document = self.input_data_repository.find_input_data_by_interviewee_name(self.interviewee_data.interviewee_name)
-        # self.assertEqual(retrieved_document.interview_questions.initial_question_list, [[], []])
+        self.assertEqual(result["question_document_list"], [])
 
-    def test_ask_initial_question_to_interviewee_with_one_cover_letter(self):
+    @patch('moview.modules.input.input_analyzer.InputAnalyzer.analyze_initial_input')
+    def test_ask_initial_question_to_interviewee(self, mock_method):
+        # given
+        mock_method.return_value = "평가"
+        
         # when
-        self.input_data_service.ask_initial_question_to_interviewee(
+        result = self.input_data_service.ask_initial_question_to_interviewee(
             **self.interviewee_data,
             cover_letter_questions=["당신의 창의력을 어떻게 발휘해 왔습니까?"],
             cover_letter_answers=["여러 언어를 이용한 프로그램 개발을 통해 독특한 해결책을 제시해 왔습니다."]
         )
 
         # then
-        # loaded_entity = self.repository.find_by_session_id("testtest1234")
-        # self.assertEqual(len(loaded_entity.input_data_analysis_result.input_data_analysis_list), 1)
-        # self.assertEqual(len(loaded_entity.interview_questions.initial_question_list), 2)
+        retrieved_document_list = []
+        for question_id, question_content in result["question_document_list"]:
+            retrieved_document = self.question_answer_repositroy.find_question_by_object_id(str(question_id))
+            retrieved_document_list.append(retrieved_document)
 
-    def test_ask_initial_question_to_interviewee_with_two_cover_letter(self):
-        # when
-        self.input_data_service.ask_initial_question_to_interviewee(
-            **self.interviewee_data,
-            cover_letter_questions=[
-               "당신의 창의력을 어떻게 발휘해 왔습니까?",
-               "가장 도전적인 프로젝트 경험은 무엇인가요?"
-            ],
-            cover_letter_answers=[
-               "여러 언어를 이용한 프로그램 개발을 통해 독특한 해결책을 제시해 왔습니다.",
-               "빅데이터 분석을 위한 알고리즘 개발 프로젝트에서 주도적인 역할을 수행하였습니다."
-            ]
-        )
-
-        # then
-        # loaded_entity = self.repository.find_by_session_id("testtest1234")
-        # self.assertEqual(len(loaded_entity.input_data_analysis_result.input_data_analysis_list), 2)
-        # self.assertEqual(len(loaded_entity.interview_questions.initial_question_list), 4)
-
-    def test_ask_initial_question_to_interviewee_with_three_cover_letter(self):
-        # when
-        self.input_data_service.ask_initial_question_to_interviewee(
-            **self.interviewee_data,
-            cover_letter_questions=[
-               "당신의 창의력을 어떻게 발휘해 왔습니까?",
-               "가장 도전적인 프로젝트 경험은 무엇인가요?",
-               "당신의 장점은 무엇인가요?"
-            ],
-            cover_letter_answers=[
-               "여러 언어를 이용한 프로그램 개발을 통해 독특한 해결책을 제시해 왔습니다.",
-               "빅데이터 분석을 위한 알고리즘 개발 프로젝트에서 주도적인 역할을 수행하였습니다.",
-               "빠른 학습력과 뛰어난 커뮤니케이션 능력을 갖추고 있습니다."
-            ]
-        )
-
-        # then
-        # loaded_entity = self.repository.find_by_session_id("testtest1234")
-        # self.assertEqual(len(loaded_entity.input_data_analysis_result.input_data_analysis_list), 3)
-        # self.assertEqual(len(loaded_entity.interview_questions.initial_question_list), 6)
+        self.assertEqual(len(retrieved_document_list), 6)
