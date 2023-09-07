@@ -27,6 +27,10 @@ class QuestionAnswerRepository(metaclass=SingletonMeta):
         execution_trace_logger(msg="FIND_QUESTION_BY_OBJECT_ID", object_id=object_id)
         return self.collection.find_one({"_id": ObjectId(object_id)})
 
+    def update_question(self, question: Dict[str, Any], object_id: str) -> None:
+        execution_trace_logger(msg="UPDATE_QUESTION", object_id=object_id)
+        self.collection.update_one({"_id": ObjectId(object_id)}, {"$set": question})
+
     def save_answer(self, answer: Answer) -> InsertOneResult:
         if answer.question_id is None:
             error_logger(msg="ERROR_IN_SAVE_ANSWER")
