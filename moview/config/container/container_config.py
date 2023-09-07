@@ -9,10 +9,10 @@ from moview.service.answer_service import AnswerService
 from moview.service.input_data_service import InputDataService
 from moview.service.interview_service import InterviewService
 from moview.utils.prompt_loader import PromptLoader
-from moview.utils.singleton_meta_class import SingletonMeta
+# from moview.utils.singleton_meta_class import SingletonMeta
 
 
-class ServiceConfig(metaclass=SingletonMeta):
+class ContainerConfig:
     def __init__(self):
         # Utils
         self.mongo_config = MongoConfig()
@@ -42,7 +42,7 @@ class ServiceConfig(metaclass=SingletonMeta):
         self.answer_service = AnswerService(
             interview_repository=self.interview_repository,
             question_answer_repository=self.question_answer_repository,
-            answer_filter=self.answer_validator,
+            answer_validator=self.answer_validator,
             major_classifier=self.major_classifier,
             sub_classifier=self.sub_classifier,
             giver=self.followup_question_giver
