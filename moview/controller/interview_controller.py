@@ -6,7 +6,7 @@ from moview.config.loggers.mongo_logger import execution_trace_logger
 api = Namespace('interview', description='interview api')
 
 
-@api.route('/interview/session')
+@api.route('/session')
 class InterviewConstructor(Resource):
 
     def post(self):
