@@ -16,13 +16,13 @@ GPT call: X
 
 ***
 
-#### /api/interview/input
+#### /interview/input
 
 ```
 method : POST
 request: json(면접자 이름, 회사, 직군, 모집공고, 자소서 문항, 자소서 답변)
-response: json(초기 질문 n개에 대한 데이터, 인터뷰 아이디)
-description: 초기 질문 받아오는 API 
+response: json(초기 질문 n개에 대한 데이터{"objectId":id, ""}, 인터뷰 아이디)
+description: 초기 질문 받아오는 API
 GPT call: O
 ```
 
@@ -52,27 +52,29 @@ response json
 
 ```json
 {
-  "initial_questions": [
-    {
-      "question_id": "초기 질문 id",
-      "content": "GPT 결과"
-    },
-    {
-      "question_id": "초기 질문 id",
-      "content": "GPT 결과"
-    },
-    {
-      "question_id": "초기 질문 id",
-      "content": "GPT 결과"
-    }
-  ],
-  "interview_id": "인터뷰 id"
+  "message": {
+    "initial_questions": [
+      {
+        "question_id": "초기 질문 id",
+        "content": "GPT 결과"
+      },
+      {
+        "question_id": "초기 질문 id",
+        "content": "GPT 결과"
+      },
+      {
+        "question_id": "초기 질문 id",
+        "content": "GPT 결과"
+      }
+    ],
+    "interview_id": "인터뷰 id"
+  }
 }
 ```
 
 ***
 
-#### /api/interview/answer
+#### /interview/answer
 
 ```
 method : POST
@@ -103,7 +105,7 @@ response json
 }
 ```
 
-#### api/interview/evaluation
+#### /interview/evaluation
 
 ```
 method : POST
@@ -135,7 +137,7 @@ response json
 
 ***
 
-#### /api/interview/feedback
+#### /interview/feedback
 
 ```
 method : POST
