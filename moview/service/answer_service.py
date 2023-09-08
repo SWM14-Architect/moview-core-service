@@ -1,8 +1,7 @@
 import random
 from typing import Dict, Any, Optional, Tuple
 from moview.domain.entity.question_answer.answer import Answer
-from moview.modules.question_generator import AnswerValidator, AnswerCategoryClassifier, AnswerSubCategoryClassifier, \
-    FollowUpQuestionGiver
+from moview.modules.question_generator import FollowUpQuestionGiver
 from moview.utils.singleton_meta_class import SingletonMeta
 from moview.config.loggers.mongo_logger import execution_trace_logger
 from moview.repository.question_answer.question_answer_repository import QuestionAnswerRepository
@@ -14,14 +13,10 @@ from moview.domain.entity.question_answer.question import Question
 class AnswerService(metaclass=SingletonMeta):
 
     def __init__(self, interview_repository: InterviewRepository, question_answer_repository: QuestionAnswerRepository,
-                 answer_filter: AnswerValidator, major_classifier: AnswerCategoryClassifier,
-                 sub_classifier: AnswerSubCategoryClassifier, giver: FollowUpQuestionGiver):
+                 giver: FollowUpQuestionGiver):
         self.interview_repository = interview_repository
         self.question_answer_repository = question_answer_repository
 
-        self.filter = answer_filter
-        self.major_classifier = major_classifier
-        self.sub_classifier = sub_classifier
         self.giver = giver
 
     # todo 이 메서드 자체에 transaction 처리가 필요함.
@@ -37,30 +32,15 @@ class AnswerService(metaclass=SingletonMeta):
         need_for_followup_question = self.need_to_give_followup_question(
             number_of_questions=len(interview_entity.question_id_list))
 
-        # 3. 면접 답변 필터링 결과 얻기
-        filter_result = self.__filter_answer(question_content=question_content, answer_content=answer_content)
+        # 3. answer 엔티티 생성 및 저장
+        self.__create_and_save_answer(answer_content=answer_content, question_id=question_id)
 
-        # 4. 면접 답변 대분류 얻기
-        category = self.__classify_category_of_answer(question_content=question_content, answer_content=answer_content)
-
-        # 5. 면접 답변 중분류 얻기
-        sub_category = self.__classify_subcategory_of_answer(question_content=question_content,
-                                                             answer_content=answer_content, category=category)
-
-        # 6. 면접 답변 평가하기
-        evaluation = self.__evaluate(question_content, answer_content, category, sub_category)
-
-        # 7. answer 엔티티 생성 및 저장
-        self.__create_and_save_answer(answer_content=answer_content, category=category, sub_category=sub_category,
-                                      filter_result=filter_result, evaluation=evaluation, question_id=question_id)
-
-        #   8-1. 꼬리 질문을 해야 한다면.
+        #   4-1. 꼬리 질문을 해야 한다면.
         if need_for_followup_question:
 
             followup_question_content = self.__give_followup_question(interview_entity=interview_entity,
                                                                       question_content=question_content,
-                                                                      answer_content=answer_content,
-                                                                      category=category, sub_category=sub_category)
+                                                                      answer_content=answer_content)
 
             saved_followup_question_id = self.__create_and_save_followup_question(interview_id=interview_id,
                                                                                   question_id=question_id,
@@ -68,7 +48,7 @@ class AnswerService(metaclass=SingletonMeta):
 
             # return 꼬리 질문 내용, Question 엔티티 id
             return followup_question_content, saved_followup_question_id
-        #   8-2. 꼬리 질문을 할 필요 없다면
+        #   4-2. 꼬리 질문을 할 필요 없다면
         else:
             execution_trace_logger(msg="NO_FOLLOWUP_QUESTION")
 
@@ -97,11 +77,6 @@ class AnswerService(metaclass=SingletonMeta):
 
         return interview_entity
 
-    def __filter_answer(self, question_content: str, answer_content: str) -> str:
-        execution_trace_logger(msg="FILTER_ANSWER")
-
-        return self.filter.validate_answer(question=question_content, answer=answer_content)
-
     def need_to_give_followup_question(self, number_of_questions: int) -> bool:
         max_num_of_questions = 15  # 한 인터뷰당 최대 질문 수
 
@@ -118,29 +93,10 @@ class AnswerService(metaclass=SingletonMeta):
 
         return need
 
-    def __classify_category_of_answer(self, question_content: str, answer_content: str) -> str:
-        execution_trace_logger(msg="CLASSIFY_CATEGORY_OF_ANSWER")
-
-        return self.major_classifier.classify_category_of_answer(question=question_content, answer=answer_content)
-
-    def __classify_subcategory_of_answer(self, question_content: str, answer_content: str, category: str) -> str:
-        execution_trace_logger(msg="CLASSIFY_SUB_CATEGORY_OF_ANSWER")
-
-        return self.sub_classifier.classify_sub_category_of_answer(question=question_content,
-                                                                   answer=answer_content, category=category)
-
-    # todo 평가 모듈은 중간 평가 의견 나온 다음에 프롬프트를 바꾼다.
-    def __evaluate(self, question_content: str, answer_content: str, category: str, sub_category: str) -> str:
-        execution_trace_logger(msg="EVALUATE_ANSWER")
-
-        return ""
-
-    def __create_and_save_answer(self, answer_content: str, category: str, sub_category: str, filter_result: str,
-                                 evaluation: str, question_id: str):
+    def __create_and_save_answer(self, answer_content: str, question_id: str):
         execution_trace_logger(msg="CREATE_AND_SAVE_ANSWER")
 
-        answer = Answer(content=answer_content, category=category, sub_category=sub_category,
-                        filter_result=filter_result, evaluation=evaluation,
+        answer = Answer(content=answer_content,
                         question_id={
                             "#ref": self.question_answer_repository.collection.name,
                             "#id": question_id,
