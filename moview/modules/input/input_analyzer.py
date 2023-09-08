@@ -7,11 +7,11 @@ from langchain.prompts.chat import (
 from moview.utils.prompt_loader import PromptLoader
 from moview.environment.llm_factory import LLMModelFactory
 from moview.config.loggers.mongo_logger import prompt_result_logger
+from moview.utils.singleton_meta_class import SingletonMeta
 
 
-class InputAnalyzer:
-    def __init__(self):
-        prompt_loader = PromptLoader()
+class InputAnalyzer(metaclass=SingletonMeta):
+    def __init__(self, prompt_loader: PromptLoader):
         self.prompt = prompt_loader.load_prompt_json(InputAnalyzer.__name__)
 
     def analyze_initial_input(self, job_group: str, recruitment_announcement: str, cover_letter_question: str,
