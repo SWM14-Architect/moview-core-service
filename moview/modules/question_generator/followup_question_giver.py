@@ -37,7 +37,9 @@ class FollowUpQuestionGiver(metaclass=SingletonMeta):
                     """
                     면접관의 질문: {question}
 
-                    면접 지원자의 답변: {answer}     
+                    면접 지원자의 답변: {answer} 
+                    
+                    양식을 지켜서 후속 질문을 생성하세요.    
                     """)
             ],
             input_variables=["question", "answer"],
