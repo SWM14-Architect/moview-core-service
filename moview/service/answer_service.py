@@ -25,8 +25,8 @@ class AnswerService(metaclass=SingletonMeta):
         # 1. 현재 인터뷰 세션을 불러온 후, 업데이트한다.
         interview_dict = self.__load_interview_session(user_id=user_id, interview_id=interview_id)
 
-        interview_entity = self.__update_interview_session(interview_id=interview_id, interview_dict=interview_dict,
-                                                           question_id=question_id, question_content=question_content)
+        self.__update_interview_session(interview_id=interview_id, interview_dict=interview_dict,
+                                        question_id=question_id, question_content=question_content)
 
         # 2. 꼬리 질문을 할지 말지를 결정한다.
         need_for_followup_question = self.need_to_give_followup_question()
