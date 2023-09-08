@@ -29,8 +29,7 @@ class AnswerService(metaclass=SingletonMeta):
                                                            question_id=question_id, question_content=question_content)
 
         # 2. 꼬리 질문을 할지 말지를 결정한다.
-        need_for_followup_question = self.need_to_give_followup_question(
-            number_of_questions=len(interview_entity.question_id_list))
+        need_for_followup_question = self.need_to_give_followup_question()
 
         # 3. answer 엔티티 생성 및 저장
         self.__create_and_save_answer(answer_content=answer_content, question_id=question_id)
@@ -77,17 +76,10 @@ class AnswerService(metaclass=SingletonMeta):
 
         return interview_entity
 
-    def need_to_give_followup_question(self, number_of_questions: int) -> bool:
-        max_num_of_questions = 15  # 한 인터뷰당 최대 질문 수
+    def need_to_give_followup_question(self) -> bool:
+        base_probability_of_question = 0.5
 
-        if number_of_questions >= max_num_of_questions:
-            need = False
-        else:
-            base_probability_of_question = 0.6  # 기본 확률
-            # 출제된 질문이 많아질수록 확률이 감소 (0.6에서 0.25까지 떨어짐)
-            probability_of_question = base_probability_of_question / (1 + 0.1 * number_of_questions)
-
-            need = random.random() < probability_of_question
+        need = random.random() < base_probability_of_question
 
         execution_trace_logger(msg="NEED_TO_GIVE_FOLLOWUP_QUESTION", result=need)
 
