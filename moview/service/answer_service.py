@@ -37,9 +37,9 @@ class AnswerService(metaclass=SingletonMeta):
         #   4-1. 꼬리 질문을 해야 한다면.
         if need_for_followup_question:
 
-            followup_question_content = self.__give_followup_question(interview_entity=interview_entity,
-                                                                      question_content=question_content,
-                                                                      answer_content=answer_content)
+            followup_question_content = self.__give_followup_question(
+                question_content=question_content,
+                answer_content=answer_content)
 
             saved_followup_question_id = self.__create_and_save_followup_question(interview_id=interview_id,
                                                                                   question_id=question_id,
@@ -97,16 +97,12 @@ class AnswerService(metaclass=SingletonMeta):
 
         self.question_answer_repository.save_answer(answer)
 
-    def __give_followup_question(self, interview_entity: InterviewSession, question_content: str, answer_content: str,
-                                 category: str, sub_category: str) -> str:
+    def __give_followup_question(self, question_content: str,
+                                 answer_content: str) -> str:
         execution_trace_logger(msg="GIVE_FOLLOWUP_QUESTION")
 
-        string_previous_question = ''.join(interview_entity.previous_question_content)
-
         return self.giver.give_followup_question(question=question_content,
-                                                 answer=answer_content,
-                                                 previous_question=string_previous_question,
-                                                 category=category, sub_category=sub_category)
+                                                 answer=answer_content)
 
     def __create_and_save_followup_question(self, interview_id: str, question_id: str, followup_question_content: str):
         execution_trace_logger(msg="CREATE_AND_SAVE_FOLLOWUP_QUESTION")
