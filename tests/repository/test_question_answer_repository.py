@@ -72,8 +72,7 @@ class TestQuestionAnswerRepository(unittest.TestCase):
 
     def test_save_answer_without_question(self):
         with self.assertRaises(ValueError):
-            self.question_answer_repository.save_answer(Answer(content="답변", category="category",
-                                                               sub_category="sub_category",
+            self.question_answer_repository.save_answer(Answer(content="답변",
                                                                prev_question_id={
                                                                    "#ref": self.question_answer_repository.collection.name,
                                                                    "#id": None,
@@ -90,7 +89,7 @@ class TestQuestionAnswerRepository(unittest.TestCase):
 
         # when
         answer = self.question_answer_repository.save_answer(
-            Answer(content="답변", category="category", sub_category="sub_category", evaluation="good",
+            Answer(content="답변", evaluation="good",
                    question_id={
                        "#ref": self.question_answer_repository.collection.name,
                        "#id": str(initial_question.inserted_id),
@@ -100,6 +99,4 @@ class TestQuestionAnswerRepository(unittest.TestCase):
         # then
         found = self.question_answer_repository.find_answer_by_object_id(str(answer.inserted_id))
         self.assertEqual(found["content"], "답변")
-        self.assertEqual(found["category"], "category")
-        self.assertEqual(found["sub_category"], "sub_category")
         self.assertEqual(found["question_id"]["#id"], str(initial_question.inserted_id))
