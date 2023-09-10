@@ -3,7 +3,6 @@ from moview.service.feedback_service import FeedbackService
 from moview.config.db.mongo_config import MongoConfig
 from moview.domain.entity.question_answer.question import Question
 from moview.repository.question_answer.question_answer_repository import QuestionAnswerRepository
-from moview.controller.dto.feedback_dto import FeedbackDTO
 
 
 class TestFeedbackService(unittest.TestCase):
@@ -41,12 +40,10 @@ class TestFeedbackService(unittest.TestCase):
                 "#db": self.question_answer_repository.db.name
             }))
 
-        feedback_dto_list = list(
-            map(lambda question: FeedbackDTO(question_id=str(question.inserted_id), feedback_score=5), question_list))
-
         # when
         self.feedback_service.feedback(user_id=self.user_id, interview_id=self.interview_id,
-                                       feedback_list=feedback_dto_list)
+                                       question_ids=[str(question_list[i].inserted_id) for i in range(5)],
+                                       feedback_scores=["5" for i in range(5)])
 
         # then
         for i in range(5):
