@@ -1,0 +1,58 @@
+name: Dev branch PR Workflow
+
+on:
+  pull_request:
+    branches:
+      - dev
+
+env:
+  PYTHON_VERSION: '3.10'
+  MOVIEW_CORE_ENV: 'prod'
+
+jobs:
+  test_and_comment:
+    runs-on: ubuntu-latest
+    steps:
+      # 1. 환경 설정
+      - name: Checkout source code
+        uses: actions/checkout@v3
+
+      - name: Set up Python ${{ env.PYTHON_VERSION }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Setup Python venv
+        run: python -m venv venv
+
+      - name: Install dependencies
+        run: ./venv/bin/python -m pip install -r requirements.txt
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+#      # 2. 테스트 진행
+#      - name: Run tests with coverage
+#        run: ./venv/bin/python -m coverage run -m unittest discover -s tests -p "test_*.py"
+#        shell: bash
+#
+#      - name: Check test coverage
+#        id: coverage-check
+#        run: |
+#          COVERAGE=$(./venv/bin/python -m coverage report -m | grep TOTAL | awk '{print $6}' | sed 's/%//')
+#          echo "Test coverage: $COVERAGE%"
+#          echo "::set-output name=coverage::$COVERAGE"
+#        shell: bash
+#
+#      # 3. 테스트 커버리지를 PR Comment에 기록
+#      - name: Post Test Coverage Report as PR Comment
+#        run: |
+#          COVERAGE=${{ steps.coverage-check.outputs.coverage }}
+#          COMMENT="#### Test Coverage Report\n\`\`\`\nTest coverage: ${COVERAGE}%\n\`\`\`"
+#          echo $COMMENT | gh pr review ${{ github.event.pull_request.number }} --comment
+#        env:
+#          GH_TOKEN: ${{ github.token }}

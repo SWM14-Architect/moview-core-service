@@ -2,18 +2,18 @@ name: Dev branch Push Workflow
 
 on:
   push:
-    branches-ignore:
-      - main
-  workflow_dispatch: # Run workflow(수동 실행) 기능 활성화
-    branches-ignore:
-      - main
+    branches:
+      - dev
+  workflow_dispatch:  # Run workflow(수동 실행) 기능 활성화
+    branches:
+      - dev
 
 env:
   PYTHON_VERSION: '3.10'
   MOVIEW_CORE_ENV: 'prod'
 
 jobs:
-  test:
+  test_and_deploy:
     runs-on: ubuntu-latest
     steps:
       # 1. 환경 설정
@@ -45,5 +45,68 @@ jobs:
 #
 #      - name: Check test coverage
 #        id: coverage-check
-#        run: ./venv/bin/python -m coverage report -m
+#        run: |
+#          COVERAGE=$(./venv/bin/python -m coverage report -m | grep TOTAL | awk '{print $6}' | sed 's/%//')
+#          echo "Test coverage: $COVERAGE%"
+#          echo "::set-output name=coverage::$COVERAGE"
 #        shell: bash
+#
+#      # 3. 배포 진행 (테스트 커버리지가 60% 이상일 경우)
+#      - name: Check Test Coverage Threshold
+#        id: check-coverage-threshold
+#        run: |
+#          COVERAGE=${{ steps.coverage-check.outputs.coverage }}
+#          if (( $(echo "$COVERAGE < 60" | bc -l) )); then
+#            echo "테스트 커버리지가 부족하여 배포를 취소합니다."
+#            exit 1
+#          fi
+#        shell: bash
+
+      - name: Remove venv
+        run: rm -rf venv
+
+      - name: Make zip file
+        run: zip -qq -r ./moview_core_dev.zip .
+        shell: bash
+
+      - name: Upload to S3
+        run: aws s3 cp --region ${{ secrets.AWS_REGION }} ./moview_core_dev.zip s3://${{ secrets.DEV_S3_BUCKET_NAME }}/moview_core_dev.zip --source .
+
+      - name: Deploy to EC2
+        id: deploy
+        run: |
+          DEPLOY_ID=$(aws deploy create-deployment \
+          --application-name ${{ secrets.CODE_DEPLOY_APP_NAME }} \
+          --deployment-config-name CodeDeployDefault.AllAtOnce \
+          --deployment-group-name ${{ secrets.DEV_CODE_DEPLOY_GROUP_NAME }} \
+          --s3-location bucket=${{ secrets.DEV_S3_BUCKET_NAME }},bundleType=zip,key=moview_core_dev.zip \
+          --query "[deploymentId]" --output text)
+
+          echo "Deployment ID: $DEPLOY_ID"
+
+          echo "Monitoring deployment status..."
+
+          while true; do
+            DEPLOY_STATUS=$(aws deploy get-deployment --deployment-id $DEPLOY_ID --query "[deploymentInfo.status]" --output text)
+
+            case $DEPLOY_STATUS in
+              Created|InProgress|Pending)
+                echo "Deployment status: $DEPLOY_STATUS"
+                ;;
+              Succeeded)
+                echo "Deployment completed successfully."
+                break
+                ;;
+              Failed|Stopped|Error)
+                echo "Deployment failed with status: $DEPLOY_STATUS"
+                exit 1
+                ;;
+              *)
+                echo "Unknown status: $DEPLOY_STATUS"
+                exit 1
+                ;;
+            esac
+
+            sleep 15
+          done
+        shell: bash
