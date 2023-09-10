@@ -3,7 +3,7 @@ from moview.utils.singleton_meta_class import SingletonMeta
 from typing import Optional
 
 
-class PromptFormatter(metaclass=SingletonMeta):
+class PromptParser(metaclass=SingletonMeta):
 
     @staticmethod
     def parse_question(question: str) -> Optional[str]:
