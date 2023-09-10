@@ -66,6 +66,7 @@ class TestAnswerService(unittest.TestCase):
         self.assertTrue(content is None)
         self.assertTrue(saved_id is None)
         self.assertTrue(len(interview['previous_question_content']) == 1)
+        print("\ncontent : ", content)
 
     @patch(PATCH_PATH)
     def test_need_followup_question(self, mock_method):
@@ -85,6 +86,7 @@ class TestAnswerService(unittest.TestCase):
         question_id = self.question_answer_repository.find_question_by_object_id(saved_id)
         self.assertEqual(str(question_id.get("_id")), str(saved_id))
         self.assertTrue(len(interview['previous_question_content']) == 1)
+        print("\ncontent : ", content)
 
     @patch(PATCH_PATH)
     def test_followup_of_followup(self, mock_method):
@@ -111,3 +113,5 @@ class TestAnswerService(unittest.TestCase):
         question_id = self.question_answer_repository.find_question_by_object_id(saved_id2)
         self.assertEqual(str(question_id.get("_id")), str(saved_id2))
         self.assertTrue(len(interview['previous_question_content']) == 2)
+        print("\ncontent : ", content1)
+        print("\ncontent : ", content2)
