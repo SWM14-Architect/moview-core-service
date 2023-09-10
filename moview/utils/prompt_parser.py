@@ -1,26 +1,24 @@
 import re
 from moview.utils.singleton_meta_class import SingletonMeta
-from typing import Optional
+from typing import Optional, List
 
 
 class PromptParser(metaclass=SingletonMeta):
 
     @staticmethod
-    def parse_question(question: str) -> Optional[str]:
+    def parse_question(question: str) -> Optional[List[str]]:
+        results = []
+
         colon_pattern = ":"
-
         if re.search(colon_pattern, question):  # 문자열에 : 이 있다면,
-            pattern = ":(.*?)(?=#)"  # : 뒤에 #이 나오기 전까지의 문자열을 추출
-            match = re.search(pattern, question)
-
-            if match:
-                return match.group(1).strip()
-            else:
-                return None
+            pattern = re.compile(":(.*?)(?=#)")  # : 뒤에 #이 나오기 전까지의 문자열을 추출
+            matches = pattern.findall(question)
+            for match in matches:
+                results.append(match.strip())
         else:
-            pattern = r"\d+\.(.*?)(?=#)"  # 숫자. 뒤에 #이 나오기 전까지의 문자열을 추출
-            match = re.search(pattern, question)
-            if match:
-                return match.group(1).strip()
-            else:
-                return None
+            pattern = re.compile(r"\d+\.(.*?)(?=#)")  # 숫자. 뒤에 #이 나오기 전까지의 문자열을 추출
+            matches = pattern.findall(question)
+            for match in matches:
+                results.append(match.strip())
+
+        return results if results else None
