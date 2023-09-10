@@ -1,5 +1,5 @@
 import random
-from typing import Dict, Any, Optional, Tuple
+from typing import Dict, Any, Optional, Tuple, List
 from moview.domain.entity.question_answer.answer import Answer
 from moview.modules.question_generator import FollowUpQuestionGiver
 from moview.utils.singleton_meta_class import SingletonMeta
@@ -8,6 +8,7 @@ from moview.repository.question_answer.question_answer_repository import Questio
 from moview.repository.interview_repository import InterviewRepository
 from moview.domain.entity.interview_session_document import InterviewSession
 from moview.domain.entity.question_answer.question import Question
+from moview.utils.prompt_parser import PromptParser
 
 
 class AnswerService(metaclass=SingletonMeta):
@@ -41,12 +42,24 @@ class AnswerService(metaclass=SingletonMeta):
                 question_content=question_content,
                 answer_content=answer_content)
 
-            saved_followup_question_id = self.__create_and_save_followup_question(interview_id=interview_id,
-                                                                                  question_id=question_id,
-                                                                                  followup_question_content=followup_question_content)
+            # 4-1-1. 꼬리 질문 파싱
+            parsed_questions = self.__parse_questions(followup_question_content)
 
-            # return 꼬리 질문 내용, Question 엔티티 id
-            return followup_question_content, saved_followup_question_id
+            if parsed_questions:  # 파싱 성공했다면,
+                # 4-1-2. 꼬리 질문 중 하나를 선택
+                chosen_question = self.__choose_question(parsed_questions)
+
+                # 4-1-3. 꼬리 질문을 저장하고, 그 id를 반환
+                saved_followup_question_id = self.__create_and_save_followup_question(interview_id=interview_id,
+                                                                                      question_id=question_id,
+                                                                                      followup_question_content=chosen_question)
+
+                # return 꼬리 질문 내용, Question 엔티티 id
+                return followup_question_content, saved_followup_question_id
+
+            else:  # 파싱 실패했다면, 꼬리 질문을 출제하지 않는다.
+                execution_trace_logger(msg="NO_FOLLOWUP_QUESTION")
+                return None, None
         #   4-2. 꼬리 질문을 할 필요 없다면
         else:
             execution_trace_logger(msg="NO_FOLLOWUP_QUESTION")
@@ -103,6 +116,13 @@ class AnswerService(metaclass=SingletonMeta):
 
         return self.giver.give_followup_question(question=question_content,
                                                  answer=answer_content)
+
+    def __parse_questions(self, questions_string: str) -> Optional[List[str]]:
+        return PromptParser.parse_question(questions_string)
+
+    def __choose_question(self, parsed_questions: List[str]) -> str:
+        # todo 나중에 업그레이드 시켜야 하는 메소드. 현재는 랜덤하게 하나를 선택하는 것으로 대체.
+        return random.choice(parsed_questions)  # 주어진 리스트에서 랜덤하게 요소 하나 선택
 
     def __create_and_save_followup_question(self, interview_id: str, question_id: str, followup_question_content: str):
         execution_trace_logger(msg="CREATE_AND_SAVE_FOLLOWUP_QUESTION")
