@@ -5,17 +5,18 @@ from langchain.prompts.chat import (
     HumanMessagePromptTemplate
 )
 
-from moview.config.loggers.mongo_logger import prompt_result_logger
 from moview.utils.prompt_loader import PromptLoader
 from moview.environment.llm_factory import LLMModelFactory
+from moview.config.loggers.mongo_logger import prompt_result_logger
+from moview.utils.singleton_meta_class import SingletonMeta
 
 
-class AnswerAnalyzer:
-    def __init__(self):
-        prompt_loader = PromptLoader()
-        self.prompt = prompt_loader.load_prompt_json(AnswerAnalyzer.__name__)
+class AnswerEvaluator(metaclass=SingletonMeta):
+    def __init__(self, prompt_loader: PromptLoader):
+        self.prompt = prompt_loader.load_prompt_json(AnswerEvaluator.__name__)
+        self.llm = LLMModelFactory.create_chat_open_ai(temperature=0.7)
 
-    def analyze_answer_by_main_and_subcategories(self, question: str, answer: str, categories_ordered_pair: str) -> str:
+    async def evaluate_answer(self, question: str, answer: str) -> str:
         """
 
         면접자의 답변에 대해서 긍정적 평가와 부정적 평가를 반환하는 메소드
@@ -31,22 +32,22 @@ class AnswerAnalyzer:
         prompt = ChatPromptTemplate(
             messages=[
                 SystemMessagePromptTemplate.from_template(
-                    self.prompt.format(categories_ordered_pair=categories_ordered_pair)
+                    self.prompt.format()
                 ),
                 HumanMessagePromptTemplate.from_template(
                     """
-                    question : {question}
-                    answer : {answer}
+                    면접관의 질문 : {question}
+                    면접 지원자의 답변 : {answer}
+                    
+                    양식을 지켜서 평가하세요. 
                     """)
             ],
             input_variables=["question", "answer"],
         )
 
-        llm = LLMModelFactory.create_chat_open_ai(temperature=0.5)
+        chain = LLMChain(llm=self.llm, prompt=prompt)
 
-        chain = LLMChain(llm=llm, prompt=prompt)
-
-        prompt_result = chain.run({
+        prompt_result = await chain.arun({
             "question": question,
             "answer": answer
         })
