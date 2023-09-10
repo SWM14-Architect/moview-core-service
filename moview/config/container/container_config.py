@@ -7,6 +7,7 @@ from moview.repository.question_answer.question_answer_repository import Questio
 from moview.service.answer_service import AnswerService
 from moview.service.input_data_service import InputDataService
 from moview.service.interview_service import InterviewService
+from moview.service.feedback_service import FeedbackService
 from moview.utils.prompt_loader import PromptLoader
 
 
@@ -39,3 +40,4 @@ class ContainerConfig:
             question_answer_repository=self.question_answer_repository,
             giver=self.followup_question_giver
         )
+        self.feedback_service = FeedbackService(question_answer_repository=self.question_answer_repository)

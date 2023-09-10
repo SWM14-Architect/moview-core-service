@@ -1,4 +1,4 @@
-from flask import  make_response, jsonify, request
+from flask import make_response, jsonify, request
 from flask_restx import Resource, Namespace
 from http import HTTPStatus
 from moview.config.container.container_config import ContainerConfig
