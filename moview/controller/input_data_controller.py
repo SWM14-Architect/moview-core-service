@@ -1,8 +1,7 @@
-from flask import session, make_response, jsonify, request
+from flask import  make_response, jsonify, request
 from flask_restx import Resource, Namespace
 from http import HTTPStatus
 from moview.config.container.container_config import ContainerConfig
-from moview.config.loggers.mongo_logger import execution_trace_logger
 
 api = Namespace('input_data', description='input data api')
 
@@ -33,6 +32,7 @@ class InputDataConstructor(Resource):
             cover_letter_answers=cover_letter_answers
         )
 
+        # todo 로그인 추가 시 session_id를 user_id로 변경해야 함.
         interview_document_id = interview_service.create_interview_session(
             session_id=session_id,
             initial_questions=[question for _, question in result['question_document_list']],
@@ -40,7 +40,8 @@ class InputDataConstructor(Resource):
 
         return make_response(jsonify(
             {'message': {
-                'initial_questions': [{"question_id": str(object_id), "content": question} for object_id, question in result['question_document_list']],
+                'initial_questions': [{"question_id": str(object_id), "content": question} for object_id, question in
+                                      result['question_document_list']],
                 'interview_id': interview_document_id
             }}
         ), HTTPStatus.OK)
