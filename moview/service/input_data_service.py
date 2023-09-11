@@ -1,4 +1,5 @@
 from typing import List, Any, Tuple, Dict
+import asyncio
 
 from moview.config.loggers.mongo_logger import error_logger, execution_trace_logger
 from moview.domain.entity.input_data.coverletter_document import CoverLetter
@@ -50,65 +51,22 @@ class InputDataService(metaclass=SingletonMeta):
             "question_document_list": [(question_document_id, question_content), ...)]
         }
         """
-        execution_trace_logger(
-            "Filter Input",
-            interviewee_name=interviewee_name,
+        # 사용자 입력 정보 분석
+        task1 = asyncio.create_task(self.__analyze_initial_inputs_of_interviewee(
             job_group=job_group,
             recruit_announcement=recruit_announcement,
             cover_letter_questions=cover_letter_questions,
             cover_letter_answers=cover_letter_answers
-        )
-
-        # 사용자 입력 정보 분석 (직군, 공고, 자소서 문항 리스트, 자소서 답변 리스트)-> 분석 결과 문자열 리스트 (자소서 입력 개수만큼 분석 내용이 나옵니다.)
-        analyzed_initial_inputs_of_interviewee = self.__analyze_initial_inputs_of_interviewee(
+        ))
+        # 초기 질문 생성
+        task2 = asyncio.create_task(self.__create_initial_question_list(
             job_group=job_group,
             recruit_announcement=recruit_announcement,
             cover_letter_questions=cover_letter_questions,
             cover_letter_answers=cover_letter_answers
-        )
-
-        execution_trace_logger(
-            "Analyze Input",
-            analyzed_initial_inputs_of_interviewee=analyzed_initial_inputs_of_interviewee
-        )
-
-        # 초기질문 생성
-        initial_question_list = []  # List[str]
-
-        try:
-            # 직군 정보만 가지고 초기질문 생성.
-            created_questions = self.initial_question_giver.give_initial_questions(
-                job_group=job_group,
-                question_count=self.INIT_QUESTION_NUMBER//2
-            )
-            initial_question_list.extend(created_questions)
-
-            execution_trace_logger("Initial Question By Job", created_questions=created_questions)
-
-        except InitialQuestionParseError: # 파싱에 실패한 경우
-            error_logger("Initial Question Parse Error")
-        
-        try:
-            # coverletter를 하나의 스트링으로 합침.
-            coverletter = ""
-            for question, answer in zip(cover_letter_questions, cover_letter_answers):
-                coverletter += f"Q. {question}\nA. {answer}\n\n"
-
-            # 자기소개서와 모집공고를 기반으로 초기질문 생성.
-            created_questions = self.initial_question_giver.give_initial_questions_by_input_data(
-                recruit_announcement=recruit_announcement,
-                coverletter=coverletter,
-                question_count=self.INIT_QUESTION_NUMBER//2,
-                exclusion_list=initial_question_list # 이미 생성된 질문은 제외
-            )
-            initial_question_list.extend(created_questions)
-
-            execution_trace_logger("Initial Question By Recruit & Coverletter", created_questions=created_questions)
-
-        except InitialQuestionParseError: # 파싱에 실패한 경우
-            error_logger("InitialQuestionParseError")
-
-        execution_trace_logger("End Initial Question Creation", initial_question_list=initial_question_list)
+        ))
+        # 비동기로 병렬처리함
+        analyzed_initial_inputs_of_interviewee, initial_question_list = await asyncio.gather(task1, task2)
 
         # Initial Input Data Entity Model 생성
         initial_input_data_model, cover_letter_model_list = self.__create_interviewee_data_entity(
@@ -140,7 +98,7 @@ class InputDataService(metaclass=SingletonMeta):
             "question_document_list": list(zip(question_document_id_list, initial_question_list))
         }
 
-    def __analyze_initial_inputs_of_interviewee(
+    async def __analyze_initial_inputs_of_interviewee(
             self,
             job_group: str,
             recruit_announcement: str,
@@ -163,18 +121,76 @@ class InputDataService(metaclass=SingletonMeta):
 
         analysis_count = len(cover_letter_questions)
 
-        analysis_list = []
         # 자소서 개수만큼 분석 시작.
+        tasks = []
         for i in range(analysis_count):
-            analysis_about_one_cover_letter = self.initial_input_analyzer.analyze_initial_input(
+            tasks.append(asyncio.create_task(self.initial_input_analyzer.analyze_initial_input(
                 job_group=job_group,
                 recruitment_announcement=recruit_announcement,
                 cover_letter_question=cover_letter_questions[i],
-                cover_letter_answer=cover_letter_answers[i])
+                cover_letter_answer=cover_letter_answers[i]
+            )))
+        analysis_list = await asyncio.gather(*tasks)
 
-            analysis_list.append(analysis_about_one_cover_letter)
+        execution_trace_logger(
+            "Analyzed Input Data",
+            analyzed_initial_inputs_of_interviewee=analysis_list
+        )
 
         return analysis_list
+
+    async def __create_initial_question_list(
+            self,
+            job_group: str,
+            recruit_announcement: str,
+            cover_letter_questions: List[str],
+            cover_letter_answers: List[str]
+    ) -> List[str]:
+        """
+        Args:
+            job_group: 타겟 직군
+            recruit_announcement: 모집공고
+            cover_letter_questions: 자기소개서 문항 리스트
+            cover_letter_answers: 자기소개서 답변 리스트
+        """
+        # 초기질문 생성
+        initial_question_list = []  # List[str]
+
+        try:
+            # 직군 정보만 가지고 초기질문 생성.
+            created_questions = await self.initial_question_giver.give_initial_questions(
+                job_group=job_group,
+                question_count=self.INIT_QUESTION_NUMBER // 2
+            )
+            initial_question_list.extend(created_questions)
+
+            execution_trace_logger("Initial Question By Job", created_questions=created_questions)
+
+        except InitialQuestionParseError:  # 파싱에 실패한 경우
+            error_logger("Initial Question Parse Error")
+
+        try:
+            # coverletter를 하나의 스트링으로 합침.
+            coverletter = ""
+            for question, answer in zip(cover_letter_questions, cover_letter_answers):
+                coverletter += f"Q. {question}\nA. {answer}\n\n"
+
+            # 자기소개서와 모집공고를 기반으로 초기질문 생성.
+            created_questions = await self.initial_question_giver.give_initial_questions_by_input_data(
+                recruit_announcement=recruit_announcement,
+                coverletter=coverletter,
+                question_count=self.INIT_QUESTION_NUMBER // 2,
+                exclusion_list=initial_question_list  # 이미 생성된 질문은 제외
+            )
+            initial_question_list.extend(created_questions)
+
+            execution_trace_logger("Initial Question By Recruit & Coverletter", created_questions=created_questions)
+
+        except InitialQuestionParseError:  # 파싱에 실패한 경우
+            error_logger("InitialQuestionParseError")
+
+        execution_trace_logger("End Initial Question Creation", initial_question_list=initial_question_list)
+        return initial_question_list
 
     @staticmethod
     def __create_interviewee_data_entity(
