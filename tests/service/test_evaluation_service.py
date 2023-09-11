@@ -1,0 +1,59 @@
+import asynctest
+
+from moview.config.db.mongo_config import MongoConfig
+from moview.utils.prompt_loader import PromptLoader
+from moview.utils.prompt_parser import PromptParser
+
+from moview.modules.answer_evaluator.answer_evaluator import AnswerEvaluator
+from moview.service.evaluation_service import EvaluationService
+from moview.repository.interview_repository import InterviewRepository
+from moview.repository.question_answer.question_answer_repository import QuestionAnswerRepository
+from moview.domain.entity.interview_session_document import InterviewSession
+from moview.domain.entity.question_answer.question import Question
+from moview.domain.entity.question_answer.answer import Answer
+
+
+class TestEvaluationService(asynctest.TestCase):
+    def setUp(self):
+        self.mongo_config = (MongoConfig())
+        self.mongo_config.db_name = "test_database"
+        self.prompt_loader = PromptLoader()
+
+        self.interview_repository = InterviewRepository(mongo_config=self.mongo_config)
+        self.question_answer_repository = QuestionAnswerRepository(mongo_config=self.mongo_config)
+        self.answer_evaluator = AnswerEvaluator(prompt_loader=self.prompt_loader)
+        self.evaluation_service = EvaluationService(interview_repository=self.interview_repository,
+                                                    question_answer_repository=self.question_answer_repository,
+                                                    answer_evaluator=self.answer_evaluator)
+
+        self.question_answer_num = 10
+        self.question_id_list = []
+        for i in range(self.question_answer_num):
+            # 질문 n개 저장
+            self.question_content = "이 회사에서 어떻게 성과를 낼 건지 말씀해주세요."
+            self.question = Question(content=self.question_content,
+                                     feedback_score=0)
+            self.question_id = self.question_answer_repository.save_question(self.initial_question).inserted_id
+            self.question_id_list.append({"question_id": str(self.question_id)})
+
+            # 답변 n개 저장
+            self.answer_content = "탁월한 개발자로서 이 회사의 핵심 인재가 되겠습니다. 그리고 신입 개발자들의 온보딩을 도움으로써 회사의 효율성을 높이는 시니어 개발자가 될 것입니다."
+            self.answer = Answer(content=self.answer_content,
+                                 question_id=self.question_id)
+            self.question_answer_repository.save_answer(self.answer)
+
+        self.user_id = "1"
+        self.interview = InterviewSession(user_id=self.user_id,
+                                          question_id_list=self.question_id_list)
+        self.interview_id = self.interview_repository.save_interview(self.interview).inserted_id
+
+    def tearDown(self):
+        # 테스트용 db를 삭제함.
+        self.interview_repository.client.drop_database("test_database")
+        self.question_answer_repository.client.drop_database("test_database")
+
+    async def test_evaluate_single_pair(self):
+        pass
+
+    async def test_evaluate_answer_of_interviewee(self):
+        pass
