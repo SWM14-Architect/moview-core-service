@@ -14,7 +14,7 @@ class InputAnalyzer(metaclass=SingletonMeta):
     def __init__(self, prompt_loader: PromptLoader):
         self.prompt = prompt_loader.load_prompt_json(InputAnalyzer.__name__)
 
-    def analyze_initial_input(self, job_group: str, recruitment_announcement: str, cover_letter_question: str,
+    async def analyze_initial_input(self, job_group: str, recruitment_announcement: str, cover_letter_question: str,
                               cover_letter_answer: str) -> str:
         """
         자소서 문항과 자소서 답변을 분석하여 분석 결과를 반환하는 메서드 (답변,문항) 한 개의 쌍에 대해서 분석하는 메서드다.
@@ -47,7 +47,7 @@ class InputAnalyzer(metaclass=SingletonMeta):
 
         chain = LLMChain(llm=llm, prompt=prompt)
 
-        prompt_result = chain.run({
+        prompt_result = await chain.arun({
             "job_posting": recruitment_announcement,
             "cover_letter_question": cover_letter_question,
             "cover_letter_answer": cover_letter_answer})
