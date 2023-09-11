@@ -27,7 +27,7 @@ class InputDataService(metaclass=SingletonMeta):
         self.initial_input_analyzer = initial_input_analyzer
         self.initial_question_giver = initial_question_giver
 
-    def ask_initial_question_to_interviewee(
+    async def ask_initial_question_to_interviewee(
             self,
             interviewee_name: str,
             company_name: str,
@@ -50,17 +50,6 @@ class InputDataService(metaclass=SingletonMeta):
             "question_document_list": [(question_document_id, question_content), ...)]
         }
         """
-
-        # 적절하지 않은 사용자 정보 필터링.
-        result = self.__filter_initial_inputs_of_interviewee(
-            interviewee_name=interviewee_name,
-            company_name=company_name,
-            job_group=job_group, recruit_announcement=recruit_announcement,
-            cover_letter_questions=cover_letter_questions,
-            cover_letter_answers=cover_letter_answers
-        )
-        interviewee_name, company_name, job_group, recruit_announcement, cover_letter_questions, cover_letter_answers = result
-
         execution_trace_logger(
             "Filter Input",
             interviewee_name=interviewee_name,
@@ -150,37 +139,6 @@ class InputDataService(metaclass=SingletonMeta):
             "input_data_document": initial_input_document.inserted_id,
             "question_document_list": list(zip(question_document_id_list, initial_question_list))
         }
-
-    def __filter_initial_inputs_of_interviewee(
-            self,
-            interviewee_name: str,
-            company_name: str,
-            job_group: str,
-            recruit_announcement: str,
-            cover_letter_questions: List[str],
-            cover_letter_answers: List[str]
-    ) -> List[Any]:
-        """
-        Returns: 적절하지 않은 것은 공백 처리된 초기 입력 정보
-        """
-
-        # todo mvp 이후 추가할 메서드임. 현재는 모든 입력 정보를 그대로 반환함.
-
-        # 직군 필터.
-
-        # 공고 필터.
-
-        # 자소서 문항 필터. 개수만큼 반복
-
-        # 자소서 답변 필터. 개수만큼 반복
-        return [
-            interviewee_name,
-            company_name,
-            job_group,
-            recruit_announcement,
-            cover_letter_questions,
-            cover_letter_answers
-        ]
 
     def __analyze_initial_inputs_of_interviewee(
             self,
