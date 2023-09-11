@@ -16,17 +16,13 @@ class FollowUpQuestionGiver(metaclass=SingletonMeta):
     def __init__(self, prompt_loader: PromptLoader):
         self.prompt = prompt_loader.load_prompt_json(FollowUpQuestionGiver.__name__)
 
-    def give_followup_question(self, question: str, answer: str, previous_question: str,
-                               category: str, sub_category: str) -> str:
+    def give_followup_question(self, question: str, answer: str) -> str:
         """
         꼬리질문을 출제하는 메서드
 
         Args:
             question: 현재 질문
             answer: 현재 질문에 대한 답변
-            previous_question: 이전 질문들
-            category: 대분류
-            sub_category: 중분류
 
         Returns:
             출제할 꼬리 질문
@@ -35,20 +31,21 @@ class FollowUpQuestionGiver(metaclass=SingletonMeta):
         prompt = ChatPromptTemplate(
             messages=[
                 SystemMessagePromptTemplate.from_template(
-                    self.prompt.format(category=category, sub_category=sub_category,
-                                       previous_question=previous_question)
+                    self.prompt.format()
                 ),
                 HumanMessagePromptTemplate.from_template(
                     """
-                    면접 질문: {question}
+                    면접관의 질문: {question}
 
-                    지원자의 답변: {answer}     
+                    면접 지원자의 답변: {answer} 
+                    
+                    양식을 지켜서 후속 질문을 생성하세요.    
                     """)
             ],
             input_variables=["question", "answer"],
         )
 
-        llm = LLMModelFactory.create_chat_open_ai(temperature=0.7)
+        llm = LLMModelFactory.create_chat_open_ai(temperature=0.3)
 
         chain = LLMChain(llm=llm, prompt=prompt)
 
