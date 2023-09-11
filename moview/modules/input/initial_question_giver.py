@@ -11,6 +11,7 @@ from langchain.prompts.chat import (
 from moview.utils.prompt_loader import PromptLoader
 from moview.environment.llm_factory import LLMModelFactory
 from moview.config.loggers.mongo_logger import prompt_result_logger
+from moview.utils.prompt_parser import PromptParser
 from moview.utils.retry_decorator import retry, async_retry
 from moview.utils.singleton_meta_class import SingletonMeta
 
@@ -32,6 +33,14 @@ class InitialQuestionGiver(metaclass=SingletonMeta):
     async def give_initial_questions_by_input_data(
             self, recruit_announcement: str, coverletter: str, question_count: int, exclusion_list: List[str] = None
     ) -> List[str]:
+        """
+        Args:
+            recruit_announcement: 모집공고
+            coverletter: 자기소개서
+            question_count: 출제할 질문 개수
+            exclusion_list: 제외할 질문 리스트
+        Returns: 생성된 질문 리스트 (자기소개서와 모집공고가 포함되어 있기 때문에 개인맞춤형 질문)
+        """
         exclusion_question = self.__create_exclusion_question_string(exclusion_list)
 
         prompt = ChatPromptTemplate(
@@ -66,6 +75,13 @@ class InitialQuestionGiver(metaclass=SingletonMeta):
 
     @async_retry()
     async def give_initial_questions(self, job_group: str, question_count: int, exclusion_list: List[str] = None) -> List[str]:
+        """
+        Args:
+            job_group: 타겟 직군
+            question_count: 출제할 질문 개수
+            exclusion_list: 제외할 질문 리스트
+        Returns: 생성된 질문 리스트 (자기소개서와 모집공고가 없기 때문에 해당 직군에 대한 광범위 질문)
+        """
         exclusion_question = self.__create_exclusion_question_string(exclusion_list)
 
         prompt = ChatPromptTemplate(
@@ -89,13 +105,18 @@ class InitialQuestionGiver(metaclass=SingletonMeta):
 
         parse_question = self.__parse_result_from_llm(initial_questions_from_llm)
         # 파싱된 질문 개수가 출제할 질문 개수와 같으면, 파싱 성공으로 간주합니다. 파싱이 성공하면, 파싱된 질문 리스트를 반환합니다.
-        if len(parse_question) == question_count:
+        if parse_question is not None:
             return parse_question
         else:
             raise InitialQuestionParseError()  # 파싱이 실패하면, InitialQuestionParseError를 발생시킵니다.
 
     @staticmethod
     def __create_exclusion_question_string(exclusion_list: List[str]) -> str:
+        """
+        Args:
+            exclusion_list: 제외할 질문 리스트
+        Returns: 제외할 질문 리스트를 하나의 문자열로 합친 결과
+        """
         exclusion_question = ""
         if exclusion_list is not None:
             for idx, question in enumerate(exclusion_list):
