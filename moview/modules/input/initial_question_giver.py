@@ -11,6 +11,7 @@ from langchain.prompts.chat import (
 from moview.utils.prompt_loader import PromptLoader
 from moview.environment.llm_factory import LLMModelFactory
 from moview.config.loggers.mongo_logger import prompt_result_logger
+from moview.utils.retry_decorator import retry, async_retry
 from moview.utils.singleton_meta_class import SingletonMeta
 
 
@@ -27,7 +28,8 @@ class InitialQuestionGiver(metaclass=SingletonMeta):
         self.prompt = prompt_loader.load_prompt_json(InitialQuestionGiver.__name__)
         self.llm = LLMModelFactory.create_chat_open_ai(temperature=0.7)
 
-    def give_initial_questions_by_input_data(
+    @async_retry()
+    async def give_initial_questions_by_input_data(
             self, recruit_announcement: str, coverletter: str, question_count: int, exclusion_list: List[str] = None
     ) -> List[str]:
         exclusion_question = self.__create_exclusion_question_string(exclusion_list)
@@ -48,7 +50,7 @@ class InitialQuestionGiver(metaclass=SingletonMeta):
         )
 
         chain = LLMChain(llm=self.llm, prompt=prompt)
-        initial_questions_from_llm = chain.run({
+        initial_questions_from_llm = await chain.arun({
             "recruit_announcement": recruit_announcement,
             "coverletter": coverletter
         })
@@ -62,7 +64,8 @@ class InitialQuestionGiver(metaclass=SingletonMeta):
         else:
             raise InitialQuestionParseError()  # 파싱이 실패하면, InitialQuestionParseError를 발생시킵니다.
 
-    def give_initial_questions(self, job_group: str, question_count: int, exclusion_list: List[str] = None) -> List[str]:
+    @async_retry()
+    async def give_initial_questions(self, job_group: str, question_count: int, exclusion_list: List[str] = None) -> List[str]:
         exclusion_question = self.__create_exclusion_question_string(exclusion_list)
 
         prompt = ChatPromptTemplate(
@@ -80,7 +83,7 @@ class InitialQuestionGiver(metaclass=SingletonMeta):
         )
 
         chain = LLMChain(llm=self.llm, prompt=prompt)
-        initial_questions_from_llm = chain.predict()
+        initial_questions_from_llm = await chain.apredict()
 
         prompt_result_logger("initial question prompt result", prompt_result=initial_questions_from_llm)
 
