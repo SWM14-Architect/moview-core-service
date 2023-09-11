@@ -126,21 +126,8 @@ class InitialQuestionGiver(metaclass=SingletonMeta):
     @staticmethod
     def __parse_result_from_llm(initial_questions_from_llm: str) -> List[str]:
         """
-
         Args:
             initial_questions_from_llm: llm으로부터 온 초기 질문 문자열
-
         Returns:  초기 질문 문자열 리스트 (파싱됨)
-
         """
-        # 패턴을 정의합니다.
-        # 문항 번호와 점 그리고 공백 뒤에 오는 모든 문자(질문)를 찾습니다.
-        # 여기서 .*#는 점 뒤에 오는 모든 문자와 '#'를 의미합니다.
-        pattern = re.compile(r'(\d\.\s)(.*#)')  # 0번쨰에는 숫자, 1번째에는 질문이 나옵니다.
-        matches = pattern.findall(initial_questions_from_llm)
-
-        initial_questions = []
-        for match in matches:
-            initial_questions.append(match[1].rstrip(' #'))  # '#'를 제거한 질문을 리스트에 추가합니다.
-
-        return initial_questions
+        return PromptParser.parse_question(initial_questions_from_llm)
