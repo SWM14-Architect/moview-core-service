@@ -3,11 +3,13 @@ from moview.modules.input import InputAnalyzer, InitialQuestionGiver
 from moview.modules.question_generator import FollowUpQuestionGiver
 from moview.repository.input_data.input_data_repository import InputDataRepository
 from moview.repository.interview_repository import InterviewRepository
+from moview.repository.user.user_repository import UserRepository
 from moview.repository.question_answer.question_answer_repository import QuestionAnswerRepository
 from moview.service.answer_service import AnswerService
 from moview.service.input_data_service import InputDataService
 from moview.service.interview_service import InterviewService
 from moview.service.feedback_service import FeedbackService
+from moview.service.user_service import UserService
 from moview.utils.prompt_loader import PromptLoader
 
 
@@ -26,8 +28,11 @@ class ContainerConfig:
         self.interview_repository = InterviewRepository(mongo_config=self.mongo_config)
         self.input_data_repository = InputDataRepository(mongo_config=self.mongo_config)
         self.question_answer_repository = QuestionAnswerRepository(mongo_config=self.mongo_config)
+        self.user_repository = UserRepository(mongo_config=self.mongo_config)
 
         # Service
+        self.user_service = UserService(user_repository=self.user_repository)
+
         self.interview_service = InterviewService(interview_repository=self.interview_repository)
         self.input_data_service = InputDataService(
             input_data_repository=self.input_data_repository,
