@@ -3,11 +3,9 @@ from datetime import datetime
 
 
 class OauthUser(BaseModel):
-    oauth_profile: str = None
-
-    oauth_id: str = None
-    oauth_nickname: str = None
-    oauth_profile_image_url: str = None
-    oauth_thumbnail_image_url: str = None
+    profile_id: str = None
+    profile_nickname: str = None
+    profile_image_url: str = None
+    thumbnail_image_url: str = None
 
     created_at: str = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
