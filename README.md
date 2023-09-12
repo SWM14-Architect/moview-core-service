@@ -109,10 +109,10 @@ response json
 
 ```
 method : POST
-request: cookie(세션id)
-response: answer api에서 미리 처리해놓고 있던 평가 n개 
+request: cookie(세션id), json(user_id, interview_id)
+response: json(질문 내용, 답변 내용, 평가 내용)
 description: 사용자가 답변했던 내용에 대한 평가 내역을 불러오는 api
-GPT call: X (answer api에서 미리 비동기 작업했다고 가정하므로 없다.)
+GPT call: O
 ```
 
 response json
@@ -124,12 +124,14 @@ response json
 {
   "evaluations": [
     {
-      "evaluation": "평가 내용. Answer 엔티티 칼럼임.",
-      "question_id": "질문 id. Answer 엔티티 외래키."
+      "question": "질문 내용. Question 엔티티 content 칼럼.",
+      "answer": "답변 내용. Answer 엔티티 content 칼럼.",
+      "evaluation": "평가 내용. Answer 엔티티 칼럼임."
     },
     {
-      "evaluation": "평가 내용. Answer 엔티티 칼럼임.",
-      "question_id": "질문 id. Answer 엔티티 외래키."
+      "question": "질문 내용. Question 엔티티 content 칼럼.",
+      "answer": "답변 내용. Answer 엔티티 content 칼럼.",
+      "evaluation": "평가 내용. Answer 엔티티 칼럼임."
     }
   ]
 }
