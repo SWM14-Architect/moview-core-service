@@ -31,10 +31,7 @@ request json
 ```json
 {
   "interviewee_name": "아무개",
-  "company": {
-    "name": "아무개 회사",
-    "industry": "IT"
-  },
+  "company_name": "아무개 회사",
   "recruit_announcement": "모집 공고",
   "cover_letter_questions": [
     "자소서 문항 1",
