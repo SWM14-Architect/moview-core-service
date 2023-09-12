@@ -33,19 +33,27 @@ class TestEvaluationService(asynctest.TestCase):
             self.question_content = "이 회사에서 어떻게 성과를 낼 건지 말씀해주세요."
             self.question = Question(content=self.question_content,
                                      feedback_score=0)
-            self.question_id = self.question_answer_repository.save_question(self.initial_question).inserted_id
-            self.question_id_list.append({"question_id": str(self.question_id)})
+            self.question_id = str(self.question_answer_repository.save_question(self.question).inserted_id)
+            self.question_id_list.append({
+                "#ref": self.question_answer_repository.collection.name,
+                "#id": self.question_id,
+                "#db": self.question_answer_repository.db.name
+            })
 
             # 답변 n개 저장
             self.answer_content = "탁월한 개발자로서 이 회사의 핵심 인재가 되겠습니다. 그리고 신입 개발자들의 온보딩을 도움으로써 회사의 효율성을 높이는 시니어 개발자가 될 것입니다."
             self.answer = Answer(content=self.answer_content,
-                                 question_id=self.question_id)
+                                 question_id={
+                                     "#ref": self.question_answer_repository.collection.name,
+                                     "#id": self.question_id,
+                                     "#db": self.question_answer_repository.db.name
+                                 })
             self.question_answer_repository.save_answer(self.answer)
 
         self.user_id = "1"
         self.interview = InterviewSession(user_id=self.user_id,
                                           question_id_list=self.question_id_list)
-        self.interview_id = self.interview_repository.save_interview(self.interview).inserted_id
+        self.interview_id = str(self.interview_repository.save_interview(self.interview).inserted_id)
 
     def tearDown(self):
         # 테스트용 db를 삭제함.
@@ -53,7 +61,18 @@ class TestEvaluationService(asynctest.TestCase):
         self.question_answer_repository.client.drop_database("test_database")
 
     async def test_evaluate_single_pair(self):
-        pass
+        # given
+        self.question_id = self.question_id_list[0]
+
+        # when
+        await self.evaluation_service._evaluate_single_pair(question_id=self.question_id)
+
+        # then
+        self.answer_dict = self.question_answer_repository.find_answer_by_question_id(self.question_id)
+        self.evaluation = self.answer_dict["evaluation"]
+        self.assertTrue(len(self.evaluation) == 2)
+        self.assertTrue(self.evaluation[0] != "")
+        self.assertTrue(self.evaluation[1] != "")
 
     async def test_evaluate_answer_of_interviewee(self):
         pass

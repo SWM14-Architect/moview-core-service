@@ -27,9 +27,9 @@ class EvaluationService(metaclass=SingletonMeta):
         # 2. 비동기적으로 평가를 진행한다.
         await asyncio.gather(*[self._evaluate_single_pair(question_id) for question_id in question_id_list])
 
-    async def _evaluate_single_pair(self, question_id: str):
+    async def _evaluate_single_pair(self, question_id: Dict[str, str]):
         # 2-1. question과 answer를 불러오고, content를 가져온다.
-        question_dict = self.__get_question(question_id=question_id)
+        question_dict = self.__get_question(question_id=question_id["#id"])
         answer_dict = self.__get_answer(question_id=question_id)
 
         question_content = question_dict["content"]
@@ -55,7 +55,7 @@ class EvaluationService(metaclass=SingletonMeta):
         execution_trace_logger(msg="GET_QUESTION", question_id=question_id)
         return self.question_answer_repository.find_question_by_object_id(question_id)
 
-    def __get_answer(self, question_id: str) -> Dict[str, Any]:
+    def __get_answer(self, question_id: Dict[str, str]) -> Dict[str, Any]:
         execution_trace_logger(msg="GET_ANSWER", question_id=question_id)
         return self.question_answer_repository.find_answer_by_question_id(question_id)
 
