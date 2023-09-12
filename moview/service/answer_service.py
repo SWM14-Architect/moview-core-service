@@ -88,9 +88,9 @@ class AnswerService(metaclass=SingletonMeta):
         interview_entity = InterviewSession(**interview_dict)
         interview_entity.previous_question_content.append(question_content)
         interview_entity.question_id_list.append({
-            "#ref": self.interview_repository.collection.name,
+            "#ref": self.question_answer_repository.collection.name,
             "#id": question_id,
-            "#db": self.interview_repository.db.name
+            "#db": self.question_answer_repository.db.name
         })
 
         self.interview_repository.update_interview(interview=interview_entity.dict(), object_id=interview_id)
