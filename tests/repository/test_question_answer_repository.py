@@ -100,3 +100,5 @@ class TestQuestionAnswerRepository(unittest.TestCase):
         found = self.question_answer_repository.find_answer_by_object_id(str(answer.inserted_id))
         self.assertEqual(found["content"], "답변")
         self.assertEqual(found["question_id"]["#id"], str(initial_question.inserted_id))
+
+    # TODO: repo 메소드 테스트 추가
