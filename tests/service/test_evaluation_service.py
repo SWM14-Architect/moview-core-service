@@ -1,4 +1,5 @@
 import asynctest
+from pprint import pprint
 
 from moview.config.db.mongo_config import MongoConfig
 from moview.utils.prompt_loader import PromptLoader
@@ -62,17 +63,30 @@ class TestEvaluationService(asynctest.TestCase):
 
     async def test_evaluate_single_pair(self):
         # given
-        self.question_id = self.question_id_list[0]
+        question_id = self.question_id_list[0]
 
         # when
-        await self.evaluation_service._evaluate_single_pair(question_id=self.question_id)
+        await self.evaluation_service._evaluate_single_pair(question_id=question_id)
 
         # then
-        self.answer_dict = self.question_answer_repository.find_answer_by_question_id(self.question_id)
-        self.evaluation = self.answer_dict["evaluation"]
-        self.assertTrue(len(self.evaluation) == 2)
-        self.assertTrue(self.evaluation[0] != "")
-        self.assertTrue(self.evaluation[1] != "")
+        answer_dict = self.question_answer_repository.find_answer_by_question_id(question_id)
+        evaluation = answer_dict["evaluation"]
+
+        pprint(evaluation)
+        self.assertTrue(len(evaluation) == 2)
+        self.assertTrue(evaluation[0] != "")
+        self.assertTrue(evaluation[1] != "")
 
     async def test_evaluate_answer_of_interviewee(self):
-        pass
+        # when
+        await self.evaluation_service.evaluate_answer_of_interviewee(user_id=self.user_id,
+                                                                     interview_id=self.interview_id)
+        # then
+        answer_dict = [self.question_answer_repository.find_answer_by_question_id(question_id=question_id) for question_id in self.question_id_list]
+        evaluation_list = [answer["evaluation"] for answer in answer_dict]
+
+        pprint(evaluation_list)
+        self.assertTrue(len(evaluation_list) == 10)
+        self.assertTrue(len(evaluation_list[0]) == 2)
+        self.assertTrue(evaluation_list[0][0] != "")
+        self.assertTrue(evaluation_list[0][1] != "")

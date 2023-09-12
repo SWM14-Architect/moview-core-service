@@ -47,6 +47,7 @@ class QuestionAnswerRepository(metaclass=SingletonMeta):
         execution_trace_logger(msg="FIND_ANSWER_BY_OBJECT_ID", object_id=object_id)
         return self.collection.find_one({"_id": ObjectId(object_id)})
 
-    def update_answer_by_question_id(self, answer: Dict[str, Any], question_id: str) -> UpdateResult:
+    def update_answer_by_question_id(self, answer: Dict[str, Any], question_id: Dict[str, str]) -> UpdateResult:
         execution_trace_logger(msg="UPDATE_ANSWER_BY_QUESTION_ID", question_id=question_id)
-        self.collection.update_one({"question_id": ObjectId(question_id)}, {"$set": answer})
+        other_collection = self.client[question_id["#db"]][question_id["#ref"]]
+        other_collection.update_one({"question_id": question_id}, {"$set": answer})
