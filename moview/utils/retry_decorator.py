@@ -13,6 +13,15 @@ class RetryExecutionError(Exception):
 
 
 def retry(max_retries=3, retry_delay=2):
+    """
+    재시도 횟수를 초과할 때까지 함수를 재시도하는 데코레이터입니다.
+    Args:
+        max_retries: 최대 반복 횟수
+        retry_delay: 실패했을 때 대기 시간
+
+    Returns:
+        재시도 횟수를 초과할 때까지 함수를 재시도하는 데코레이터
+    """
     def decorator(func):
         @functools.wraps(func)
         def wrapper(*args, **kwargs):
@@ -35,6 +44,15 @@ def retry(max_retries=3, retry_delay=2):
 
 
 def async_retry(max_retries=3, retry_delay=2):
+    """
+    재시도 횟수를 초과할 때까지 함수를 재시도하는 데코레이터입니다.
+    Args:
+        max_retries: 최대 반복 횟수
+        retry_delay: 실패했을 때 대기 시간
+
+    Returns:
+        재시도 횟수를 초과할 때까지 함수를 재시도하는 데코레이터
+    """
     def decorator(func):
         @functools.wraps(func)
         async def wrapper(*args, **kwargs):
