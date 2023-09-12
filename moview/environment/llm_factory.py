@@ -1,10 +1,6 @@
-import os
-
 from langchain.callbacks.streaming_stdout import StreamingStdOutCallbackHandler
 
 from langchain.chat_models import ChatOpenAI
-
-from moview.utils.singleton_meta_class import SingletonMeta
 from moview.environment.environment_loader import EnvironmentLoader
 
 OPENAI_API_KEY_PARAM = "openai-api-key"

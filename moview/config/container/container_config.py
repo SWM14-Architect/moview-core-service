@@ -1,15 +1,14 @@
 from moview.config.db.mongo_config import MongoConfig
 from moview.modules.input import InputAnalyzer, InitialQuestionGiver
-from moview.modules.question_generator import AnswerValidator, AnswerCategoryClassifier, AnswerSubCategoryClassifier, \
-    FollowUpQuestionGiver
+from moview.modules.question_generator import FollowUpQuestionGiver
 from moview.repository.input_data.input_data_repository import InputDataRepository
 from moview.repository.interview_repository import InterviewRepository
 from moview.repository.question_answer.question_answer_repository import QuestionAnswerRepository
 from moview.service.answer_service import AnswerService
 from moview.service.input_data_service import InputDataService
 from moview.service.interview_service import InterviewService
+from moview.service.feedback_service import FeedbackService
 from moview.utils.prompt_loader import PromptLoader
-# from moview.utils.singleton_meta_class import SingletonMeta
 
 
 class ContainerConfig:
@@ -21,9 +20,6 @@ class ContainerConfig:
         # Modules
         self.initial_question_giver = InitialQuestionGiver(prompt_loader=self.prompt_loader)
         self.initial_input_analyzer = InputAnalyzer(prompt_loader=self.prompt_loader)
-        self.answer_validator = AnswerValidator(prompt_loader=self.prompt_loader)
-        self.major_classifier = AnswerCategoryClassifier(prompt_loader=self.prompt_loader)
-        self.sub_classifier = AnswerSubCategoryClassifier(prompt_loader=self.prompt_loader)
         self.followup_question_giver = FollowUpQuestionGiver(prompt_loader=self.prompt_loader)
 
         # Repository
@@ -42,8 +38,6 @@ class ContainerConfig:
         self.answer_service = AnswerService(
             interview_repository=self.interview_repository,
             question_answer_repository=self.question_answer_repository,
-            answer_validator=self.answer_validator,
-            major_classifier=self.major_classifier,
-            sub_classifier=self.sub_classifier,
             giver=self.followup_question_giver
         )
+        self.feedback_service = FeedbackService(question_answer_repository=self.question_answer_repository)
