@@ -1,27 +1,23 @@
 import random
-from typing import Dict, Any, Optional, Tuple
+from typing import Dict, Any, Optional, Tuple, List
 from moview.domain.entity.question_answer.answer import Answer
-from moview.modules.question_generator import AnswerValidator, AnswerCategoryClassifier, AnswerSubCategoryClassifier, \
-    FollowUpQuestionGiver
+from moview.modules.question_generator import FollowUpQuestionGiver
 from moview.utils.singleton_meta_class import SingletonMeta
 from moview.config.loggers.mongo_logger import execution_trace_logger
 from moview.repository.question_answer.question_answer_repository import QuestionAnswerRepository
 from moview.repository.interview_repository import InterviewRepository
 from moview.domain.entity.interview_session_document import InterviewSession
 from moview.domain.entity.question_answer.question import Question
+from moview.utils.prompt_parser import PromptParser
 
 
 class AnswerService(metaclass=SingletonMeta):
 
     def __init__(self, interview_repository: InterviewRepository, question_answer_repository: QuestionAnswerRepository,
-                 answer_validator: AnswerValidator, major_classifier: AnswerCategoryClassifier,
-                 sub_classifier: AnswerSubCategoryClassifier, giver: FollowUpQuestionGiver):
+                 giver: FollowUpQuestionGiver):
         self.interview_repository = interview_repository
         self.question_answer_repository = question_answer_repository
 
-        self.filter = answer_validator
-        self.major_classifier = major_classifier
-        self.sub_classifier = sub_classifier
         self.giver = giver
 
     # todo 이 메서드 자체에 transaction 처리가 필요함.
@@ -30,45 +26,41 @@ class AnswerService(metaclass=SingletonMeta):
         # 1. 현재 인터뷰 세션을 불러온 후, 업데이트한다.
         interview_dict = self.__load_interview_session(user_id=user_id, interview_id=interview_id)
 
-        interview_entity = self.__update_interview_session(interview_id=interview_id, interview_dict=interview_dict,
-                                                           question_id=question_id, question_content=question_content)
+        self.__update_interview_session(interview_id=interview_id, interview_dict=interview_dict,
+                                        question_id=question_id, question_content=question_content)
 
         # 2. 꼬리 질문을 할지 말지를 결정한다.
-        need_for_followup_question = self.need_to_give_followup_question(
-            number_of_questions=len(interview_entity.question_id_list))
+        need_for_followup_question = self.need_to_give_followup_question()
 
-        # 3. 면접 답변 필터링 결과 얻기
-        filter_result = self.__filter_answer(question_content=question_content, answer_content=answer_content)
+        # 3. answer 엔티티 생성 및 저장
+        self.__create_and_save_answer(answer_content=answer_content, question_id=question_id)
 
-        # 4. 면접 답변 대분류 얻기
-        category = self.__classify_category_of_answer(question_content=question_content, answer_content=answer_content)
-
-        # 5. 면접 답변 중분류 얻기
-        sub_category = self.__classify_subcategory_of_answer(question_content=question_content,
-                                                             answer_content=answer_content, category=category)
-
-        # 6. 면접 답변 평가하기
-        evaluation = self.__evaluate(question_content, answer_content, category, sub_category)
-
-        # 7. answer 엔티티 생성 및 저장
-        self.__create_and_save_answer(answer_content=answer_content, category=category, sub_category=sub_category,
-                                      filter_result=filter_result, evaluation=evaluation, question_id=question_id)
-
-        #   8-1. 꼬리 질문을 해야 한다면.
+        #   4-1. 꼬리 질문을 해야 한다면.
         if need_for_followup_question:
 
-            followup_question_content = self.__give_followup_question(interview_entity=interview_entity,
-                                                                      question_content=question_content,
-                                                                      answer_content=answer_content,
-                                                                      category=category, sub_category=sub_category)
+            followup_question_content = self.__give_followup_question(
+                question_content=question_content,
+                answer_content=answer_content)
 
-            saved_followup_question_id = self.__create_and_save_followup_question(interview_id=interview_id,
-                                                                                  question_id=question_id,
-                                                                                  followup_question_content=followup_question_content)
+            # 4-1-1. 꼬리 질문 파싱
+            parsed_questions = self.__parse_questions(followup_question_content)
 
-            # return 꼬리 질문 내용, Question 엔티티 id
-            return followup_question_content, saved_followup_question_id
-        #   8-2. 꼬리 질문을 할 필요 없다면
+            if parsed_questions:  # 파싱 성공했다면,
+                # 4-1-2. 꼬리 질문 중 하나를 선택
+                chosen_question = self.__choose_question(parsed_questions)
+
+                # 4-1-3. 꼬리 질문을 저장하고, 그 id를 반환
+                saved_followup_question_id = self.__create_and_save_followup_question(interview_id=interview_id,
+                                                                                      question_id=question_id,
+                                                                                      followup_question_content=chosen_question)
+
+                # return 파싱된 꼬리 질문 내용, Question 엔티티 id
+                return chosen_question, saved_followup_question_id
+
+            else:  # 파싱 실패했다면, 꼬리 질문을 출제하지 않는다.
+                execution_trace_logger(msg="NO_FOLLOWUP_QUESTION")
+                return None, None
+        #   4-2. 꼬리 질문을 할 필요 없다면
         else:
             execution_trace_logger(msg="NO_FOLLOWUP_QUESTION")
 
@@ -97,50 +89,19 @@ class AnswerService(metaclass=SingletonMeta):
 
         return interview_entity
 
-    def __filter_answer(self, question_content: str, answer_content: str) -> str:
-        execution_trace_logger(msg="FILTER_ANSWER")
+    def need_to_give_followup_question(self) -> bool:
+        base_probability_of_question = 0.5
 
-        return self.filter.validate_answer(question=question_content, answer=answer_content)
-
-    def need_to_give_followup_question(self, number_of_questions: int) -> bool:
-        max_num_of_questions = 15  # 한 인터뷰당 최대 질문 수
-
-        if number_of_questions >= max_num_of_questions:
-            need = False
-        else:
-            base_probability_of_question = 0.6  # 기본 확률
-            # 출제된 질문이 많아질수록 확률이 감소 (0.6에서 0.25까지 떨어짐)
-            probability_of_question = base_probability_of_question / (1 + 0.1 * number_of_questions)
-
-            need = random.random() < probability_of_question
+        need = random.random() < base_probability_of_question
 
         execution_trace_logger(msg="NEED_TO_GIVE_FOLLOWUP_QUESTION", result=need)
 
         return need
 
-    def __classify_category_of_answer(self, question_content: str, answer_content: str) -> str:
-        execution_trace_logger(msg="CLASSIFY_CATEGORY_OF_ANSWER")
-
-        return self.major_classifier.classify_category_of_answer(question=question_content, answer=answer_content)
-
-    def __classify_subcategory_of_answer(self, question_content: str, answer_content: str, category: str) -> str:
-        execution_trace_logger(msg="CLASSIFY_SUB_CATEGORY_OF_ANSWER")
-
-        return self.sub_classifier.classify_sub_category_of_answer(question=question_content,
-                                                                   answer=answer_content, category=category)
-
-    # todo 평가 모듈은 중간 평가 의견 나온 다음에 프롬프트를 바꾼다.
-    def __evaluate(self, question_content: str, answer_content: str, category: str, sub_category: str) -> str:
-        execution_trace_logger(msg="EVALUATE_ANSWER")
-
-        return ""
-
-    def __create_and_save_answer(self, answer_content: str, category: str, sub_category: str, filter_result: str,
-                                 evaluation: str, question_id: str):
+    def __create_and_save_answer(self, answer_content: str, question_id: str):
         execution_trace_logger(msg="CREATE_AND_SAVE_ANSWER")
 
-        answer = Answer(content=answer_content, category=category, sub_category=sub_category,
-                        filter_result=filter_result, evaluation=evaluation,
+        answer = Answer(content=answer_content,
                         question_id={
                             "#ref": self.question_answer_repository.collection.name,
                             "#id": question_id,
@@ -149,16 +110,19 @@ class AnswerService(metaclass=SingletonMeta):
 
         self.question_answer_repository.save_answer(answer)
 
-    def __give_followup_question(self, interview_entity: InterviewSession, question_content: str, answer_content: str,
-                                 category: str, sub_category: str) -> str:
+    def __give_followup_question(self, question_content: str,
+                                 answer_content: str) -> str:
         execution_trace_logger(msg="GIVE_FOLLOWUP_QUESTION")
 
-        string_previous_question = ''.join(interview_entity.previous_question_content)
-
         return self.giver.give_followup_question(question=question_content,
-                                                 answer=answer_content,
-                                                 previous_question=string_previous_question,
-                                                 category=category, sub_category=sub_category)
+                                                 answer=answer_content)
+
+    def __parse_questions(self, questions_string: str) -> Optional[List[str]]:
+        return PromptParser.parse_question(questions_string)
+
+    def __choose_question(self, parsed_questions: List[str]) -> str:
+        # todo 나중에 업그레이드 시켜야 하는 메소드. 현재는 랜덤하게 하나를 선택하는 것으로 대체.
+        return random.choice(parsed_questions)  # 주어진 리스트에서 랜덤하게 요소 하나 선택
 
     def __create_and_save_followup_question(self, interview_id: str, question_id: str, followup_question_content: str):
         execution_trace_logger(msg="CREATE_AND_SAVE_FOLLOWUP_QUESTION")

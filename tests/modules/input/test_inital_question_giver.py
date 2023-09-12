@@ -1,11 +1,11 @@
-import unittest
+import asynctest
 
 from moview.utils.prompt_loader import PromptLoader
 from tests.common_code_for_test import is_not_none_string
 from moview.modules.input.initial_question_giver import InitialQuestionGiver
 
 
-class TestInitialQuestionGiver(unittest.TestCase):
+class TestInitialQuestionGiver(asynctest.TestCase):
 
     def setUp(self) -> None:
         self.prompt_loader = PromptLoader()
@@ -15,7 +15,7 @@ class TestInitialQuestionGiver(unittest.TestCase):
         self.assertTrue(is_not_none_string(self.giver.prompt["create_question"]))
         print(self.giver.prompt["create_question"].format(exclusion_question="", job_group="백엔드 개발자", question_count=2))
 
-    def test_give_initial_questions_by_input_data(self):
+    async def test_give_initial_questions_by_input_data(self):
         recruit_announcement = ("삼성 청년 SW 아카데미\n8기 모집 Coming soon\n청년 SW인재 양성을 위한 SSAFY 8기 모집이 곧 시작됩니다.\n궁금한 SSAFY 8기 "
                                 "모집! 미리 알려드립니다!\n\n8기 모집 안내\n지원 자격\n만 29세 이하(92.7.1이후 출생자), 미취업자,\n국내외 4년제 대학 졸업자 및 "
                                 "졸업예정자(전공무관)\n\n교육 기간\n2022년 7월 ~ 2023년 6월(1년)\n\n교육 장소\n서울, 대전, 구미, 광주, "
@@ -31,7 +31,7 @@ class TestInitialQuestionGiver(unittest.TestCase):
 
         question_count = 3
 
-        initial_questions = self.giver.give_initial_questions_by_input_data(
+        initial_questions = await self.giver.give_initial_questions_by_input_data(
             recruit_announcement=recruit_announcement,
             coverletter=coverletter,
             question_count=question_count
@@ -39,16 +39,16 @@ class TestInitialQuestionGiver(unittest.TestCase):
         print(initial_questions)
         self.assertTrue(len(initial_questions) == question_count)
 
-    def test_give_initial_questions(self):
+    async def test_give_initial_questions(self):
         job_group = "백엔드 개발자"
         question_count = 3
 
-        initial_questions = self.giver.give_initial_questions(job_group=job_group,
-                                                              question_count=question_count)
+        initial_questions = await self.giver.give_initial_questions(job_group=job_group,
+                                                                    question_count=question_count)
         print(initial_questions)
         self.assertTrue(len(initial_questions) == question_count)
 
-    def test_give_initial_questions_with_exclusion_list(self):
+    async def test_give_initial_questions_with_exclusion_list(self):
         job_group = "백엔드 개발자"
         question_count = 3
         exclusion_list = [
@@ -56,8 +56,8 @@ class TestInitialQuestionGiver(unittest.TestCase):
             "이전에 개발한 백엔드 시스템에서 겪은 가장 큰 어려움은 무엇이었나요?"
         ]
 
-        initial_questions = self.giver.give_initial_questions(job_group=job_group,
-                                                              question_count=question_count,
-                                                              exclusion_list=exclusion_list)
+        initial_questions = await self.giver.give_initial_questions(job_group=job_group,
+                                                                    question_count=question_count,
+                                                                    exclusion_list=exclusion_list)
         print(initial_questions)
         self.assertTrue(len(initial_questions) == question_count)
