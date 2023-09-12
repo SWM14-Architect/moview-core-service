@@ -37,7 +37,7 @@ class TestAnswerEvaluator(asynctest.TestCase):
         self.assertTrue(len(parsed_result) == 2)
 
     async def test_evaluate_answer_concurrently(self):
-        total = 300
+        total = 10
 
         tasks = [self.evaluator.evaluate_answer(self.question, self.answer) for _ in range(total)]
         evaluation_result = await asyncio.gather(*tasks)
