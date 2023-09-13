@@ -1,14 +1,15 @@
 from moview.config.db.mongo_config import MongoConfig
+from moview.utils.prompt_loader import PromptLoader
 from moview.modules.input import InputAnalyzer, InitialQuestionGiver
 from moview.modules.question_generator import FollowUpQuestionGiver
-from moview.repository.input_data.input_data_repository import InputDataRepository
 from moview.repository.interview_repository import InterviewRepository
+from moview.repository.input_data.input_data_repository import InputDataRepository
 from moview.repository.question_answer.question_answer_repository import QuestionAnswerRepository
-from moview.service.answer_service import AnswerService
-from moview.service.input_data_service import InputDataService
 from moview.service.interview_service import InterviewService
+from moview.service.input_data_service import InputDataService
+from moview.service.answer_service import AnswerService
+from moview.service.evaluation_service import EvaluationService
 from moview.service.feedback_service import FeedbackService
-from moview.utils.prompt_loader import PromptLoader
 
 
 class ContainerConfig:
@@ -39,5 +40,10 @@ class ContainerConfig:
             interview_repository=self.interview_repository,
             question_answer_repository=self.question_answer_repository,
             giver=self.followup_question_giver
+        )
+        self.evaluate_service = EvaluationService(
+            interview_repository=self.interview_repository,
+            question_answer_repository=self.question_answer_repository,
+            answer_evaluator=self.answer_evaluator
         )
         self.feedback_service = FeedbackService(question_answer_repository=self.question_answer_repository)
