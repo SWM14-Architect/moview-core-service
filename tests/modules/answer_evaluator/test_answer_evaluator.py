@@ -1,21 +1,9 @@
 import asynctest
 import asyncio
-import re
-from typing import List
 
 from tests.common_code_for_test import is_not_none_string
 from moview.modules.answer_evaluator.answer_evaluator import AnswerEvaluator
 from moview.utils.prompt_loader import PromptLoader
-
-
-def parse_result(result: str) -> List[str]:
-    result_list = []
-    matches = re.findall(r':\s*(.*)', result)
-
-    for match in matches:
-        result_list.append(match.strip())
-
-    return result_list
 
 
 class TestAnswerEvaluator(asynctest.TestCase):
@@ -32,9 +20,8 @@ class TestAnswerEvaluator(asynctest.TestCase):
     async def test_evaluate_answer(self):
         evaluation_result = await self.evaluator.evaluate_answer(question=self.question,
                                                                  answer=self.answer)
-        parsed_result = parse_result(evaluation_result)
-        print(parsed_result)
-        self.assertTrue(len(parsed_result) == 2)
+        print(evaluation_result)
+        self.assertTrue(len(evaluation_result) == 2)
 
     async def test_evaluate_answer_concurrently(self):
         total = 10
@@ -46,10 +33,9 @@ class TestAnswerEvaluator(asynctest.TestCase):
         fail = 0
         for i, result in enumerate(evaluation_result):
             is_fail = False
-            parsed_result = parse_result(result)
             result_num = i + 1
 
-            if len(parsed_result) != 2:
+            if len(evaluation_result) != 2:
                 is_fail = True
                 fail += 1
 

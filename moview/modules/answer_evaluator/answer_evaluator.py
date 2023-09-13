@@ -1,3 +1,5 @@
+from typing import Optional, List
+
 from langchain import LLMChain
 from langchain.prompts.chat import (
     SystemMessagePromptTemplate,
@@ -5,7 +7,10 @@ from langchain.prompts.chat import (
     HumanMessagePromptTemplate
 )
 
+from moview.exception.evaluation_parse_error import EvaluationParseError
+from moview.utils.retry_decorator import async_retry
 from moview.utils.prompt_loader import PromptLoader
+from moview.utils.prompt_parser import PromptParser
 from moview.environment.llm_factory import LLMModelFactory
 from moview.config.loggers.mongo_logger import prompt_result_logger
 from moview.utils.singleton_meta_class import SingletonMeta
@@ -16,6 +21,7 @@ class AnswerEvaluator(metaclass=SingletonMeta):
         self.prompt = prompt_loader.load_prompt_json(AnswerEvaluator.__name__)
         self.llm = LLMModelFactory.create_chat_open_ai(temperature=0.7)
 
+    @async_retry()
     async def evaluate_answer(self, question: str, answer: str) -> str:
         """
 
@@ -54,4 +60,12 @@ class AnswerEvaluator(metaclass=SingletonMeta):
 
         prompt_result_logger("answer analyze prompt result", prompt_result=prompt_result)
 
-        return prompt_result
+        parsed_result = self.__parse_result(result_string=prompt_result)
+        # 파싱된 질문 개수가 출제할 질문 개수와 같으면, 파싱 성공으로 간주합니다. 파싱이 성공하면, 파싱된 질문 리스트를 반환합니다.
+        if len(parsed_result) == 2 and parsed_result[0] != "" and parsed_result[1] != "":
+            return parsed_result
+        else:
+            raise EvaluationParseError()  # 파싱이 실패하면, InitialQuestionParseError를 발생시킵니다.
+
+    def __parse_result(self, result_string: str) -> Optional[List[str]]:
+        return PromptParser.parse_evaluation(result_string)

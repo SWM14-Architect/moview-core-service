@@ -40,11 +40,8 @@ class EvaluationService(metaclass=SingletonMeta):
         # 2-2. question_content와 answer_content를 이용하여 평가를 진행한다.
         evaluation = await self.answer_evaluator.evaluate_answer(question=question_content, answer=answer_content)
 
-        # 2-3. evaluation 결과를 [긍정적 내용, 개선해야 할 점]으로 파싱한다.
-        parsed_evaluation = self.__parse_evaluation(evaluation_string=evaluation)
-
-        # 2-4. evaluation 결과를 저장한다.
-        self.__save_evaluation(answer_dict=answer_dict, question_id=question_id, evaluation=parsed_evaluation)
+        # 2-3. evaluation 결과를 저장한다.
+        self.__save_evaluation(answer_dict=answer_dict, question_id=question_id, evaluation=evaluation)
 
     def __get_question_id_list_from_interview_session(self, user_id: str, interview_id: str) -> Dict[str, Any]:
         execution_trace_logger(msg="GET_QUESTION_ID_LIST_FROM_INTERVIEW_SESSION",
@@ -66,6 +63,3 @@ class EvaluationService(metaclass=SingletonMeta):
 
         answer_dict["evaluation"] = evaluation
         self.question_answer_repository.update_answer_by_question_id(answer=answer_dict, question_id=question_id)
-
-    def __parse_evaluation(self, evaluation_string: str) -> Optional[List[str]]:
-        return PromptParser.parse_evaluation(evaluation_string)
