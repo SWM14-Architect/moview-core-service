@@ -43,7 +43,7 @@ class ContainerConfig:
             question_answer_repository=self.question_answer_repository,
             giver=self.followup_question_giver
         )
-        self.evaluate_service = EvaluationService(
+        self.evaluation_service = EvaluationService(
             interview_repository=self.interview_repository,
             question_answer_repository=self.question_answer_repository,
             answer_evaluator=self.answer_evaluator
