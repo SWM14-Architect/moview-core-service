@@ -3,7 +3,6 @@ from pprint import pprint
 
 from moview.config.db.mongo_config import MongoConfig
 from moview.utils.prompt_loader import PromptLoader
-from moview.utils.prompt_parser import PromptParser
 
 from moview.modules.answer_evaluator.answer_evaluator import AnswerEvaluator
 from moview.service.evaluation_service import EvaluationService
@@ -99,4 +98,3 @@ class TestEvaluationService(asynctest.TestCase):
         self.assertEqual(result[0][0], self.question_content)
         self.assertEqual(result[0][1], self.answer_content)
         self.assertEqual(result[0][2], evaluation_list[0])
-
