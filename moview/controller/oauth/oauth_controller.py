@@ -1,12 +1,10 @@
 from flask import make_response, jsonify, request
 from flask_restx import Resource, Namespace
-from http import HTTPStatus
-from flask_jwt_extended import (
-    JWTManager, create_access_token,
-    get_jwt_identity, jwt_required,
-    set_access_cookies, set_refresh_cookies,
-    unset_jwt_cookies, create_refresh_token
-)
+from flask_jwt_extended import (create_access_token,
+                                get_jwt_identity, jwt_required,
+                                set_access_cookies, set_refresh_cookies,
+                                unset_jwt_cookies, create_refresh_token
+                                )
 from moview.config.container.container_config import ContainerConfig
 from moview.controller.oauth.oauth_controller_helper import OauthControllerHelper
 from moview.config.oauth.oauth_config import OAuthProvider
