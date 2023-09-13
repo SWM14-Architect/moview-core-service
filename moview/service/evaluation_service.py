@@ -1,8 +1,7 @@
 import asyncio
-from typing import Dict, List, Optional, Any
+from typing import Dict, List, Any
 
 from moview.utils.singleton_meta_class import SingletonMeta
-from moview.utils.prompt_parser import PromptParser
 from moview.config.loggers.mongo_logger import *
 
 from moview.modules.answer_evaluator.answer_evaluator import AnswerEvaluator
@@ -25,9 +24,7 @@ class EvaluationService(metaclass=SingletonMeta):
         question_id_list = self.__get_question_id_list_from_interview_session(user_id, interview_id)
 
         # 2. 비동기적으로 평가를 진행한다.
-        await asyncio.gather(*[self._evaluate_single_pair(question_id) for question_id in question_id_list])
-
-        # TODO: return 추가
+        return await asyncio.gather(*[self._evaluate_single_pair(question_id) for question_id in question_id_list])
 
     async def _evaluate_single_pair(self, question_id: Dict[str, str]):
         # 2-1. question과 answer를 불러오고, content를 가져온다.
@@ -42,6 +39,9 @@ class EvaluationService(metaclass=SingletonMeta):
 
         # 2-3. evaluation 결과를 저장한다.
         self.__save_evaluation(answer_dict=answer_dict, question_id=question_id, evaluation=evaluation)
+
+        # 2-4. evaluation 결과를 반환한다.
+        return question_content, answer_content, evaluation
 
     def __get_question_id_list_from_interview_session(self, user_id: str, interview_id: str) -> Dict[str, Any]:
         execution_trace_logger(msg="GET_QUESTION_ID_LIST_FROM_INTERVIEW_SESSION",

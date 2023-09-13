@@ -66,7 +66,7 @@ class TestEvaluationService(asynctest.TestCase):
         question_id = self.question_id_list[0]
 
         # when
-        await self.evaluation_service._evaluate_single_pair(question_id=question_id)
+        evaluated_question, evaluated_answer, evaluation_result = await self.evaluation_service._evaluate_single_pair(question_id=question_id)
 
         # then
         answer_dict = self.question_answer_repository.find_answer_by_question_id(question_id)
@@ -77,16 +77,26 @@ class TestEvaluationService(asynctest.TestCase):
         self.assertTrue(evaluation[0] != "")
         self.assertTrue(evaluation[1] != "")
 
+        self.assertEqual(evaluated_question, self.question_content)
+        self.assertEqual(evaluated_answer, self.answer_content)
+        self.assertEqual(evaluation_result, evaluation)
+
     async def test_evaluate_answer_of_interviewee(self):
         # when
-        await self.evaluation_service.evaluate_answer_of_interviewee(user_id=self.user_id,
-                                                                     interview_id=self.interview_id)
+        result = await self.evaluation_service.evaluate_answer_of_interviewee(user_id=self.user_id,
+                                                                              interview_id=self.interview_id)
         # then
         answer_dict = [self.question_answer_repository.find_answer_by_question_id(question_id=question_id) for question_id in self.question_id_list]
         evaluation_list = [answer["evaluation"] for answer in answer_dict]
 
         pprint(evaluation_list)
-        self.assertTrue(len(evaluation_list) == 10)
+        self.assertTrue(len(evaluation_list) == self.question_answer_num)
         self.assertTrue(len(evaluation_list[0]) == 2)
         self.assertTrue(evaluation_list[0][0] != "")
         self.assertTrue(evaluation_list[0][1] != "")
+
+        self.assertTrue(len(result) == self.question_answer_num)
+        self.assertEqual(result[0][0], self.question_content)
+        self.assertEqual(result[0][1], self.answer_content)
+        self.assertEqual(result[0][2], evaluation_list[0])
+
