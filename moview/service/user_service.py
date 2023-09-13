@@ -14,6 +14,31 @@ class UserService(metaclass=SingletonMeta):
         execution_trace_logger(msg="UPSERT_USER", user_profile_id=oauth_user.profile_id)
         self.user_repository.upsert_user(oauth_user)
 
+    def get_user(self, profile_id_in_jwt_identity: str) -> dict:
+        """
+
+        Args:
+            profile_id_in_jwt_identity: jwt identity에 담긴 profile_id
+
+        Returns: 해당 profile_id를 가진 user
+
+        """
+        execution_trace_logger(msg="GET_USER", user_id=profile_id_in_jwt_identity)
+        found_user = self.user_repository.find_user_by_profile_id_for_jwt(profile_id_in_jwt_identity)
+
+        if found_user:
+            return self.__serialize_user(found_user)
+        else:
+            raise Exception("User not found")
+
+    def __serialize_user(self, user: dict) -> dict:
+        return {
+            'profile_id': user['profile_id'],
+            'profile_nickname': user['profile_nickname'],
+            'profile_image_url': user['profile_image_url'],
+            'thumbnail_image_url': user['thumbnail_image_url']
+        }
+
     def __convert_to_oauth_user(self, user: dict) -> OauthUser:
         user_info = user['kakao_account']['profile']
 

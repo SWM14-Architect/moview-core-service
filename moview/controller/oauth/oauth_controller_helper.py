@@ -50,7 +50,7 @@ class OauthControllerHelper:
             },
         ).json()
 
-    def userinfo(self, bearer_token):
+    def userinfo(self, bearer_token) -> dict:
         return requests.post(
             url=self.api_server % "/v2/user/me",
             headers={
