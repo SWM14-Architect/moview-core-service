@@ -58,7 +58,7 @@ class AnswerEvaluator(metaclass=SingletonMeta):
             "answer": answer
         })
 
-        prompt_result_logger("answer analyze prompt result", prompt_result=prompt_result)
+        prompt_result_logger("answer analyze prompt result", question=question, answer=answer, prompt_result=prompt_result)
 
         parsed_result = PromptParser.parse_evaluation(prompt_result)
         # 파싱된 평가의 개수가 2개(긍정적인 점, 개선해야 할 점)이며 비어 있지 않다면, 파싱 성공으로 간주합니다. 파싱이 성공하면, 파싱된 질문 리스트를 반환합니다.
