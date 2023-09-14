@@ -1,1 +1,1 @@
-from moview.modules.answer_evaluator.answer_scorer import AnswerScorer
+from moview.modules.answer_evaluator.answer_evaluator import AnswerEvaluator

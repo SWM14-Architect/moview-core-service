@@ -23,7 +23,7 @@ method : POST
 request: json(면접자 이름, 회사, 직군, 모집공고, 자소서 문항, 자소서 답변)
 response: json(초기 질문 n개에 대한 데이터{"objectId":id, ""}, 인터뷰 아이디)
 description: 초기 질문 받아오는 API
-GPT call: O (비동기 처리)
+GPT call: O
 ```
 
 request json
@@ -108,10 +108,10 @@ response json
 
 ```
 method : POST
-request: cookie(세션id)
-response: 사용자 답변에 평가 n개 
+request: cookie(세션id), json(user_id, interview_id)
+response: json(질문 내용, 답변 내용, 평가 내용)
 description: 사용자가 답변했던 내용에 대한 평가 내역을 불러오는 api
-GPT call: O (비동기 처리)
+GPT call: O
 ```
 
 response json
@@ -123,12 +123,14 @@ response json
 {
   "evaluations": [
     {
-      "evaluation": "평가 내용. Answer 엔티티 칼럼임.",
-      "question_id": "질문 id. Answer 엔티티 외래키."
+      "question": "질문 내용. Question 엔티티 content 칼럼.",
+      "answer": "답변 내용. Answer 엔티티 content 칼럼.",
+      "evaluation": "평가 내용. Answer 엔티티 칼럼임."
     },
     {
-      "evaluation": "평가 내용. Answer 엔티티 칼럼임.",
-      "question_id": "질문 id. Answer 엔티티 외래키."
+      "question": "질문 내용. Question 엔티티 content 칼럼.",
+      "answer": "답변 내용. Answer 엔티티 content 칼럼.",
+      "evaluation": "평가 내용. Answer 엔티티 칼럼임."
     }
   ]
 }
