@@ -1,5 +1,5 @@
 import asyncio
-from typing import Dict, List, Any
+from typing import Dict, List, Tuple, Any
 
 from moview.utils.singleton_meta_class import SingletonMeta
 from moview.config.loggers.mongo_logger import *
@@ -19,14 +19,14 @@ class EvaluationService(metaclass=SingletonMeta):
         self.question_answer_repository = question_answer_repository
         self.answer_evaluator = answer_evaluator
 
-    async def evaluate_answer_of_interviewee(self, user_id: str, interview_id: str):
+    async def evaluate_answer_of_interviewee(self, user_id: str, interview_id: str) -> List[Tuple[str, str, List[str]]]:
         # 1. 진행 됐던 모든 question id list를 불러온다.
         question_id_list = self.__get_question_id_list_from_interview_session(user_id, interview_id)
 
         # 2. 비동기적으로 평가를 진행한다.
         return await asyncio.gather(*[self._evaluate_single_pair(question_id) for question_id in question_id_list])
 
-    async def _evaluate_single_pair(self, question_id: Dict[str, str]):
+    async def _evaluate_single_pair(self, question_id: Dict[str, str]) -> Tuple[str, str, List[str]]:
         # 2-1. question과 answer를 불러오고, content를 가져온다.
         question_dict = self.__get_question(question_id=question_id["#id"])
         answer_dict = self.__get_answer(question_id=question_id)
