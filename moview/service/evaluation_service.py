@@ -25,6 +25,8 @@ class EvaluationService(metaclass=SingletonMeta):
 
         # 2. 비동기적으로 평가를 진행한다.
         evaluation_results = await asyncio.gather(*[self._evaluate_single_answer_of_interviewee(question_id) for question_id in question_id_list])
+
+        execution_trace_logger(msg="EVALUATE_ANSWERS_OF_INTERVIEWEE", user_id=user_id, interview_id=interview_id, evaluation_results=evaluation_results)
         return evaluation_results
 
     async def _evaluate_single_answer_of_interviewee(self, question_id: Dict[str, str]) -> Tuple[str, str, List[str]]:
@@ -45,22 +47,29 @@ class EvaluationService(metaclass=SingletonMeta):
         return question_content, answer_content, evaluation
 
     def __get_question_id_list_from_interview_session(self, user_id: str, interview_id: str) -> List[Dict[str, Any]]:
-        execution_trace_logger(msg="GET_QUESTION_ID_LIST_FROM_INTERVIEW_SESSION",
-                               user_id=user_id, interview_id=interview_id)
-
         interview_session = self.interview_repository.find_interview_by_object_id(user_id, interview_id)
+
+        execution_trace_logger(msg="GET_QUESTION_ID_LIST_FROM_INTERVIEW_SESSION",
+                               user_id=user_id,
+                               interview_id=interview_id,
+                               interview_session=interview_session,
+                               question_id_list=interview_session["question_id_list"])
         return interview_session["question_id_list"]
 
     def __get_question(self, question_id: str) -> Dict[str, Any]:
-        execution_trace_logger(msg="GET_QUESTION", question_id=question_id)
-        return self.question_answer_repository.find_question_by_object_id(question_id)
+        found_question = self.question_answer_repository.find_question_by_object_id(question_id)
+
+        execution_trace_logger(msg="GET_QUESTION", question_id=question_id, found_question=found_question)
+        return found_question
 
     def __get_answer(self, question_id: Dict[str, str]) -> Dict[str, Any]:
-        execution_trace_logger(msg="GET_ANSWER", question_id=question_id)
-        return self.question_answer_repository.find_answer_by_question_id(question_id)
+        found_answer = self.question_answer_repository.find_answer_by_question_id(question_id)
+
+        execution_trace_logger(msg="GET_ANSWER", question_id=question_id, found_answer=found_answer)
+        return found_answer
 
     def __save_evaluation(self, answer_dict: Dict[str, Any], question_id: Dict[str, str], evaluation: List[str]) -> None:
-        execution_trace_logger(msg="SAVE_EVALUATION", question_id=question_id)
-
         answer_dict["evaluation"] = evaluation
         self.question_answer_repository.update_answer_by_question_id(answer=answer_dict, question_id=question_id)
+
+        execution_trace_logger(msg="SAVE_EVALUATION", question_id=question_id, answer_dict=answer_dict, evaluation=evaluation)
