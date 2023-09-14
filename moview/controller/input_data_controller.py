@@ -1,7 +1,9 @@
 from flask import make_response, jsonify, request
 from flask_restx import Resource, Namespace
 from http import HTTPStatus
+
 from moview.config.container.container_config import ContainerConfig
+from moview.config.loggers.mongo_logger import *
 from moview.utils.async_controller import async_controller
 
 api = Namespace('input_data', description='input data api')
@@ -39,6 +41,16 @@ class InputDataConstructor(Resource):
             session_id=session_id,
             initial_questions=[question for _, question in result['question_document_list']],
         )
+
+        execution_trace_logger("INPUT DATA CONTROLLER: POST",
+                               user_id=session_id,
+                               interviewee_name=interviewee_name,
+                               company_name=company_name,
+                               job_group=job_group,
+                               recruit_announcement=recruit_announcement,
+                               cover_letter_questions=cover_letter_questions,
+                               cover_letter_answers=cover_letter_answers,
+                               interview_document_id=interview_document_id)
 
         return make_response(jsonify(
             {'message': {
