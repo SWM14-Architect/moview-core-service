@@ -55,7 +55,7 @@ class AnswerService(metaclass=SingletonMeta):
                                                                                       followup_question_content=chosen_question)
 
                 # return 파싱된 꼬리 질문 내용, Question 엔티티 id
-                return chosen_question, saved_followup_question_id
+                return chosen_question, str(saved_followup_question_id)
 
             else:  # 파싱 실패했다면, 꼬리 질문을 출제하지 않는다.
                 execution_trace_logger(msg="NO_FOLLOWUP_QUESTION")
