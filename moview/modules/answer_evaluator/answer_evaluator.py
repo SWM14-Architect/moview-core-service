@@ -22,7 +22,7 @@ class AnswerEvaluator(metaclass=SingletonMeta):
         self.llm = LLMModelFactory.create_chat_open_ai(temperature=0.7)
 
     @async_retry()
-    async def evaluate_answer(self, question: str, answer: str) -> str:
+    async def evaluate_answer(self, question: str, answer: str) -> List[str]:
         """
 
         면접자의 답변에 대해서 긍정적 평가와 부정적 평가를 반환하는 메소드

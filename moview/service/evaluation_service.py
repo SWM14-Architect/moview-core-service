@@ -43,7 +43,7 @@ class EvaluationService(metaclass=SingletonMeta):
         # 2-4. evaluation 결과를 반환한다.
         return question_content, answer_content, evaluation
 
-    def __get_question_id_list_from_interview_session(self, user_id: str, interview_id: str) -> Dict[str, Any]:
+    def __get_question_id_list_from_interview_session(self, user_id: str, interview_id: str) -> List[Dict[str, Any]]:
         execution_trace_logger(msg="GET_QUESTION_ID_LIST_FROM_INTERVIEW_SESSION",
                                user_id=user_id, interview_id=interview_id)
 
@@ -58,7 +58,7 @@ class EvaluationService(metaclass=SingletonMeta):
         execution_trace_logger(msg="GET_ANSWER", question_id=question_id)
         return self.question_answer_repository.find_answer_by_question_id(question_id)
 
-    def __save_evaluation(self, answer_dict: Dict[str, Any], question_id: str, evaluation: List[str]) -> None:
+    def __save_evaluation(self, answer_dict: Dict[str, Any], question_id: Dict[str, str], evaluation: List[str]) -> None:
         execution_trace_logger(msg="SAVE_EVALUATION", question_id=question_id)
 
         answer_dict["evaluation"] = evaluation
