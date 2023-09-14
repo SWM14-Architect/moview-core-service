@@ -60,12 +60,12 @@ class TestEvaluationService(asynctest.TestCase):
         self.interview_repository.client.drop_database("test_database")
         self.question_answer_repository.client.drop_database("test_database")
 
-    async def test_evaluate_single_pair(self):
+    async def test_evaluate_single_answer_of_interviewee(self):
         # given
         question_id = self.question_id_list[0]
 
         # when
-        evaluated_question, evaluated_answer, evaluation_result = await self.evaluation_service._evaluate_single_pair(question_id=question_id)
+        evaluated_question, evaluated_answer, evaluation_result = await self.evaluation_service._evaluate_single_answer_of_interviewee(question_id=question_id)
 
         # then
         answer_dict = self.question_answer_repository.find_answer_by_question_id(question_id)
@@ -80,10 +80,10 @@ class TestEvaluationService(asynctest.TestCase):
         self.assertEqual(evaluated_answer, self.answer_content)
         self.assertEqual(evaluation_result, evaluation)
 
-    async def test_evaluate_answer_of_interviewee(self):
+    async def test_evaluate_answers_of_interviewee(self):
         # when
-        result = await self.evaluation_service.evaluate_answer_of_interviewee(user_id=self.user_id,
-                                                                              interview_id=self.interview_id)
+        result = await self.evaluation_service.evaluate_answers_of_interviewee(user_id=self.user_id,
+                                                                               interview_id=self.interview_id)
         # then
         answer_dict = [self.question_answer_repository.find_answer_by_question_id(question_id=question_id) for question_id in self.question_id_list]
         evaluation_list = [answer["evaluation"] for answer in answer_dict]
