@@ -28,8 +28,8 @@ class EvaluationConstructor(Resource):
 
         return make_response(jsonify(
             {'message':
-                 {'evaluations': [{"question": question, "answer": answer, "evaluation": evaluation}
-                                  for question, answer, evaluation in results]
+                 {'evaluations': [{"question_id": question_id, "question": question, "answer": answer, "evaluation": evaluation}
+                                  for question_id, question, answer, evaluation in results]
                   }
              }
         ), HTTPStatus.OK)

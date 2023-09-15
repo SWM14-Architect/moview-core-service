@@ -65,7 +65,8 @@ class TestEvaluationService(asynctest.TestCase):
         question_id = self.question_id_list[0]
 
         # when
-        evaluated_question, evaluated_answer, evaluation_result = await self.evaluation_service._evaluate_single_answer_of_interviewee(question_id=question_id)
+        evaluated_question_id, evaluated_question, evaluated_answer, evaluation_result\
+            = await self.evaluation_service._evaluate_single_answer_of_interviewee(question_id=question_id)
 
         # then
         answer_dict = self.question_answer_repository.find_answer_by_question_id(question_id)
@@ -76,6 +77,7 @@ class TestEvaluationService(asynctest.TestCase):
         self.assertTrue(evaluation[0] != "")
         self.assertTrue(evaluation[1] != "")
 
+        self.assertEqual(evaluated_question_id, str(question_id["#id"]))
         self.assertEqual(evaluated_question, self.question_content)
         self.assertEqual(evaluated_answer, self.answer_content)
         self.assertEqual(evaluation_result, evaluation)
@@ -95,6 +97,7 @@ class TestEvaluationService(asynctest.TestCase):
         self.assertTrue(evaluation_list[0][1] != "")
 
         self.assertTrue(len(result) == self.question_answer_num)
-        self.assertEqual(result[0][0], self.question_content)
-        self.assertEqual(result[0][1], self.answer_content)
-        self.assertEqual(result[0][2], evaluation_list[0])
+        self.assertEqual(result[0][0], str(self.question_id_list[0]["#id"]))
+        self.assertEqual(result[0][1], self.question_content)
+        self.assertEqual(result[0][2], self.answer_content)
+        self.assertEqual(result[0][3], evaluation_list[0])
