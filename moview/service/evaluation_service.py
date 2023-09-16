@@ -19,7 +19,7 @@ class EvaluationService(metaclass=SingletonMeta):
         self.question_answer_repository = question_answer_repository
         self.answer_evaluator = answer_evaluator
 
-    async def evaluate_answers_of_interviewee(self, user_id: str, interview_id: str) -> List[Tuple[str, str, List[str]]]:
+    async def evaluate_answers_of_interviewee(self, user_id: str, interview_id: str) -> List[Tuple[str, str, str, List[str]]]:
         # 1. 진행 됐던 모든 question id list를 불러온다.
         question_id_list = self.__get_question_id_list_from_interview_session(user_id, interview_id)
 
@@ -29,7 +29,7 @@ class EvaluationService(metaclass=SingletonMeta):
         execution_trace_logger(msg="EVALUATE_ANSWERS_OF_INTERVIEWEE", user_id=user_id, interview_id=interview_id, evaluation_results=evaluation_results)
         return evaluation_results
 
-    async def _evaluate_single_answer_of_interviewee(self, question_id: Dict[str, str]) -> Tuple[str, str, List[str]]:
+    async def _evaluate_single_answer_of_interviewee(self, question_id: Dict[str, str]) -> Tuple[str, str, str, List[str]]:
         # 2-1. question과 answer를 불러오고, content를 가져온다.
         question_dict = self.__get_question(question_id=question_id["#id"])
         answer_dict = self.__get_answer(question_id=question_id)
@@ -44,7 +44,7 @@ class EvaluationService(metaclass=SingletonMeta):
         self.__save_evaluation(answer_dict=answer_dict, question_id=question_id, evaluation=evaluation)
 
         # 2-4. evaluation 결과를 반환한다.
-        return question_content, answer_content, evaluation
+        return str(question_id["#id"]), question_content, answer_content, evaluation
 
     def __get_question_id_list_from_interview_session(self, user_id: str, interview_id: str) -> List[Dict[str, Any]]:
         interview_session = self.interview_repository.find_interview_by_object_id(user_id, interview_id)

@@ -123,14 +123,16 @@ response json
 {
   "evaluations": [
     {
+      "question_id": "질문 id. Question 엔티티의 _id.",
       "question": "질문 내용. Question 엔티티 content 칼럼.",
       "answer": "답변 내용. Answer 엔티티 content 칼럼.",
-      "evaluation": "평가 내용. Answer 엔티티 칼럼임."
+      "evaluation": "평가 내용. Answer 엔티티 칼럼."
     },
     {
+      "question_id": "질문 id. Question 엔티티의 _id.",
       "question": "질문 내용. Question 엔티티 content 칼럼.",
       "answer": "답변 내용. Answer 엔티티 content 칼럼.",
-      "evaluation": "평가 내용. Answer 엔티티 칼럼임."
+      "evaluation": "평가 내용. Answer 엔티티 칼럼."
     }
   ]
 }
