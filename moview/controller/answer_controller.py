@@ -1,7 +1,9 @@
 from flask import make_response, jsonify, request
 from flask_restx import Resource, Namespace
 from http import HTTPStatus
+
 from moview.config.container.container_config import ContainerConfig
+from moview.config.loggers.mongo_logger import *
 
 api = Namespace('answer', description='answer api')
 
@@ -24,6 +26,15 @@ class AnswerConstructor(Resource):
         chosen_question, saved_id = answer_service.answer(user_id=session_id, interview_id=interview_id,
                                                           question_id=question_id, question_content=question_content,
                                                           answer_content=answer_content)
+
+        execution_trace_logger("ANSWER CONTROLLER: POST",
+                               user_id=session_id,
+                               interview_id=interview_id,
+                               question_id=question_id,
+                               question_content=question_content,
+                               answer_content=answer_content,
+                               chosen_question=chosen_question,
+                               saved_id=saved_id)
 
         return make_response(jsonify(
             {'message': {

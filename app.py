@@ -3,7 +3,12 @@ from flask_cors import CORS
 from moview.config.jwt.jwt_config import JWTConfig
 from flask_jwt_extended import JWTManager
 
-CORS(app, resources={r"/api/*": {"origins": "http://localhost:3000"}}, supports_credentials=True)
+allowed_origins = [
+    "http://localhost:3000",
+    "https://moview.io",
+]
+
+CORS(app, resources={r"/*": {"origins": allowed_origins}}, supports_credentials=True)
 
 
 def set_jwt_config():

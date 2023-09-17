@@ -22,3 +22,17 @@ class PromptParser(metaclass=SingletonMeta):
                 results.append(match.strip())
 
         return results if results else None
+
+    @staticmethod
+    def parse_evaluation(evaluation_string: str) -> Optional[List[str]]:
+        """
+        evaluation_string에서 ': ' 뒤에 있는 모든 문자열을 찾아서 리스트로 반환하는 메소드
+        만약 매치되는 항목이 없다면, 빈 리스트를 반환
+        """
+        result_list = []
+        matches = re.findall(r':\s*(.*)', evaluation_string)
+
+        for match in matches:
+            result_list.append(match.strip())
+
+        return result_list
