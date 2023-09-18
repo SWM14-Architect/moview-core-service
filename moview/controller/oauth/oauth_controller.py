@@ -13,7 +13,7 @@ from moview.config.oauth.oauth_config import OAuthConfigFactory
 api = Namespace('oauth', description='oauth api')
 
 
-@api.route('/oauth/kakao')
+@api.route('/oauth')
 class KakaoOAuthController(Resource):
 
     def get(self):
