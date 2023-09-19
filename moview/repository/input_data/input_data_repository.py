@@ -9,11 +9,20 @@ from moview.domain.entity.input_data.coverletter_document import CoverLetter
 from moview.domain.entity.input_data.initial_input_data_document import InitialInputData
 from moview.utils.singleton_meta_class import SingletonMeta
 from bson import ObjectId
+from moview.environment.environment_loader import EnvironmentLoader
+
+DB_HOST = "db-host"
+DB_PORT = "db-port"
+DB_USERNAME = "db-username"
+DB_PASSWORD = "db-password"
 
 
 class InputDataRepository(metaclass=SingletonMeta):
     def __init__(self, mongo_config: MongoConfig):
-        self.client = MongoClient(mongo_config.host, mongo_config.port)
+        self.client = MongoClient(host=EnvironmentLoader.getenv(DB_HOST),
+                                  port=int(EnvironmentLoader.getenv(DB_PORT)),
+                                  username=EnvironmentLoader.getenv(DB_USERNAME),
+                                  password=EnvironmentLoader.getenv(DB_PASSWORD))
         self.db = self.client[mongo_config.db_name]
         self.collection = self.db["input_data"]
 
