@@ -7,11 +7,20 @@ from moview.utils.singleton_meta_class import SingletonMeta
 from moview.domain.entity.question_answer.question import Question
 from moview.domain.entity.question_answer.answer import Answer
 from moview.config.loggers.mongo_logger import execution_trace_logger, error_logger
+from moview.environment.environment_loader import EnvironmentLoader
+
+DB_HOST = "db-host"
+DB_PORT = "db-port"
+DB_USERNAME = "db-username"
+DB_PASSWORD = "db-password"
 
 
 class QuestionAnswerRepository(metaclass=SingletonMeta):
     def __init__(self, mongo_config: MongoConfig):
-        self.client = MongoClient(mongo_config.host, mongo_config.port)
+        self.client = MongoClient(host=EnvironmentLoader.getenv(DB_HOST),
+                                  port=int(EnvironmentLoader.getenv(DB_PORT)),
+                                  username=EnvironmentLoader.getenv(DB_USERNAME),
+                                  password=EnvironmentLoader.getenv(DB_PASSWORD))
         self.db = self.client[mongo_config.db_name]
         self.collection = self.db["question_answer"]
 
