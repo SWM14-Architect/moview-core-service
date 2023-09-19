@@ -89,7 +89,7 @@ class TestQuestionAnswerRepository(unittest.TestCase):
 
         # when
         answer = self.question_answer_repository.save_answer(
-            Answer(content="답변", evaluation="good",
+            Answer(content="답변", evaluation=["good", "bad"],
                    question_id={
                        "#ref": self.question_answer_repository.collection.name,
                        "#id": str(initial_question.inserted_id),
@@ -100,3 +100,38 @@ class TestQuestionAnswerRepository(unittest.TestCase):
         found = self.question_answer_repository.find_answer_by_object_id(str(answer.inserted_id))
         self.assertEqual(found["content"], "답변")
         self.assertEqual(found["question_id"]["#id"], str(initial_question.inserted_id))
+
+    def test_save_evaluation_by_question_id(self):
+        # given
+        initial_question = self.save_initial_question(question_content="질문", question_id={
+            "#ref": self.question_answer_repository.collection.name,
+            "#id": None,
+            "#db": self.question_answer_repository.db.name
+        })
+
+        initial_question_id = {
+            "#ref": self.question_answer_repository.collection.name,
+            "#id": str(initial_question.inserted_id),
+            "#db": self.question_answer_repository.db.name
+        }
+
+        answer = self.question_answer_repository.save_answer(
+            Answer(content="답변", evaluation=[],
+                   question_id={
+                       "#ref": self.question_answer_repository.collection.name,
+                       "#id": str(initial_question.inserted_id),
+                       "#db": self.question_answer_repository.db.name
+                   })
+        )
+
+        answer_id = str(answer.inserted_id)
+
+        # when
+        found_answer_by_question_id = self.question_answer_repository.find_answer_by_question_id(initial_question_id)
+        found_answer_by_question_id["evaluation"] = ["good", "bad"]
+        self.question_answer_repository.update_answer_by_question_id(answer=found_answer_by_question_id,
+                                                                     question_id=initial_question_id)
+
+        # then
+        updated_answer = self.question_answer_repository.find_answer_by_object_id(answer_id)
+        self.assertEqual(updated_answer["evaluation"], ["good", "bad"])

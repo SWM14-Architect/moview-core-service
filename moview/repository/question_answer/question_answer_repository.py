@@ -1,7 +1,7 @@
 from bson import ObjectId
 from typing import Any, Dict
 from pymongo import MongoClient
-from pymongo.results import InsertOneResult
+from pymongo.results import InsertOneResult, UpdateResult
 from moview.config.db.mongo_config import MongoConfig
 from moview.utils.singleton_meta_class import SingletonMeta
 from moview.domain.entity.question_answer.question import Question
@@ -27,6 +27,11 @@ class QuestionAnswerRepository(metaclass=SingletonMeta):
         execution_trace_logger(msg="FIND_QUESTION_BY_OBJECT_ID", object_id=object_id)
         return self.collection.find_one({"_id": ObjectId(object_id)})
 
+    def find_answer_by_question_id(self, question_id: Dict[str, str]) -> Dict[str, Any]:
+        execution_trace_logger(msg="FIND_ANSWER_BY_QUESTION_ID", question_id=question_id)
+        other_collection = self.client[question_id["#db"]][question_id["#ref"]]
+        return other_collection.find_one({"question_id": question_id})
+
     def update_question(self, question: Dict[str, Any], object_id: str) -> None:
         execution_trace_logger(msg="UPDATE_QUESTION", object_id=object_id)
         self.collection.update_one({"_id": ObjectId(object_id)}, {"$set": question})
@@ -41,3 +46,8 @@ class QuestionAnswerRepository(metaclass=SingletonMeta):
     def find_answer_by_object_id(self, object_id: str) -> Dict[str, Any]:
         execution_trace_logger(msg="FIND_ANSWER_BY_OBJECT_ID", object_id=object_id)
         return self.collection.find_one({"_id": ObjectId(object_id)})
+
+    def update_answer_by_question_id(self, answer: Dict[str, Any], question_id: Dict[str, str]) -> UpdateResult:
+        execution_trace_logger(msg="UPDATE_ANSWER_BY_QUESTION_ID", question_id=question_id)
+        other_collection = self.client[question_id["#db"]][question_id["#ref"]]
+        other_collection.update_one({"question_id": question_id}, {"$set": answer})

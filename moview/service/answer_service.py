@@ -55,7 +55,7 @@ class AnswerService(metaclass=SingletonMeta):
                                                                                       followup_question_content=chosen_question)
 
                 # return 파싱된 꼬리 질문 내용, Question 엔티티 id
-                return chosen_question, saved_followup_question_id
+                return chosen_question, str(saved_followup_question_id)
 
             else:  # 파싱 실패했다면, 꼬리 질문을 출제하지 않는다.
                 execution_trace_logger(msg="NO_FOLLOWUP_QUESTION")
@@ -80,9 +80,9 @@ class AnswerService(metaclass=SingletonMeta):
         interview_entity = InterviewSession(**interview_dict)
         interview_entity.previous_question_content.append(question_content)
         interview_entity.question_id_list.append({
-            "#ref": self.interview_repository.collection.name,
+            "#ref": self.question_answer_repository.collection.name,
             "#id": question_id,
-            "#db": self.interview_repository.db.name
+            "#db": self.question_answer_repository.db.name
         })
 
         self.interview_repository.update_interview(interview=interview_entity.dict(), object_id=interview_id)

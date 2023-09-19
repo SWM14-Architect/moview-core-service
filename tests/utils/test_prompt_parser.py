@@ -27,3 +27,30 @@ class TestPromptParser(unittest.TestCase):
         question = "이 문장에는 : 도 없고 숫자. 도 없습니다."
         result = PromptParser.parse_question(question)
         self.assertIsNone(result)
+
+    def test_parse_evaluation_with_colon_and_space(self):
+        evaluation_string = """긍정적인 부분: 면접관의 질문에 대한 답변이 꼼꼼했습니다.
+        
+        개선해야 할 부분: 면접관의 질문에 대한 답변이 부족했습니다."""
+        parsed_evaluation = PromptParser.parse_evaluation(evaluation_string)
+        self.assertEqual(parsed_evaluation, ["면접관의 질문에 대한 답변이 꼼꼼했습니다.", "면접관의 질문에 대한 답변이 부족했습니다."])
+
+    def test_parse_evaluation_with_colon(self):
+        evaluation_string = """긍정적인 부분:면접관의 질문에 대한 답변이 꼼꼼했습니다.
+
+        개선해야 할 부분:면접관의 질문에 대한 답변이 부족했습니다."""
+        parsed_evaluation = PromptParser.parse_evaluation(evaluation_string)
+        self.assertEqual(parsed_evaluation, ["면접관의 질문에 대한 답변이 꼼꼼했습니다.", "면접관의 질문에 대한 답변이 부족했습니다."])
+
+    def test_parse_evaluation_without_colon(self):
+        evaluation_string = """긍정적인 부분 [면접관의 질문에 대한 답변이 꼼꼼했습니다.]
+
+        개선해야 할 부분 [면접관의 질문에 대한 답변이 부족했습니다.]"""
+        parsed_evaluation = PromptParser.parse_evaluation(evaluation_string)
+        self.assertEqual(parsed_evaluation, [])
+
+    def test_parse_evaluation_without_line_break(self):
+        evaluation_string = """긍정적인 부분: 면접관의 질문에 대한 답변이 꼼꼼했습니다. 개선해야 할 부분: 면접관의 질문에 대한 답변이 부족했습니다."""
+        parsed_evaluation = PromptParser.parse_evaluation(evaluation_string)
+        self.assertEqual(parsed_evaluation, ["면접관의 질문에 대한 답변이 꼼꼼했습니다. 개선해야 할 부분: 면접관의 질문에 대한 답변이 부족했습니다."])
+        self.assertEqual(len(parsed_evaluation), 1)
