@@ -36,7 +36,6 @@ class KakaoOAuthController(Resource):
         response.set_cookie('logined', 'true')
         set_access_cookies(response, access_token)
         set_refresh_cookies(response, refresh_token)
-
         return response
 
 
@@ -48,7 +47,7 @@ class UserInfoController(Resource):
         user_id = get_jwt_identity()
 
         user_service = ContainerConfig().user_service
-        user = user_service.get_user(user_id)
+        user = user_service.get_user(str(user_id))
 
         return jsonify(user)
 
