@@ -90,22 +90,22 @@ class OAuthUserInfoController(Resource):
         return jsonify(result)
 
 
-@api.route('/token/refresh')
-class TokenRefreshController(Resource):
-
-    @jwt_required(refresh=True)
-    def post(self):
-        # refresh token을 이용해 access token 재발급
-        current_user_id = get_jwt_identity()
-        response = jsonify({'result': True})
-        access_token = create_access_token(identity=current_user_id)
-        set_access_cookies(response, access_token)
-        return response
+# @api.route('/token/refresh')
+# class TokenRefreshController(Resource):
+#
+#     @jwt_required(refresh=True)
+#     def post(self):
+#         req = request
+#         # refresh token을 이용해 access token 재발급
+#         current_user_id = get_jwt_identity()
+#         response = jsonify({'result': True})
+#         access_token = create_access_token(identity=current_user_id)
+#         set_access_cookies(response, access_token)
+#         return response
 
 
 @api.route('/token/remove')
 class TokenRemoveController(Resource):
-
     def post(self):
         # refresh token을 이용해 access token 재발급
         response = jsonify({'result': True})
