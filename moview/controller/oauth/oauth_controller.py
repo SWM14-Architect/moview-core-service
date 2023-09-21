@@ -90,7 +90,7 @@ class OAuthUserInfoController(Resource):
         return jsonify(result)
 
 
-@api.route('token/refresh')
+@api.route('/token/refresh')
 class TokenRefreshController(Resource):
 
     @jwt_required(refresh=True)
@@ -103,7 +103,7 @@ class TokenRefreshController(Resource):
         return response
 
 
-@api.route('token/remove')
+@api.route('/token/remove')
 class TokenRemoveController(Resource):
 
     def post(self):
