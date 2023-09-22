@@ -21,4 +21,4 @@ api.add_namespace(evaluation_controller.api, '/interview')
 api.add_namespace(feedback_controller.api, '/interview')
 
 # oauth api
-api.add_namespace(oauth_controller.api, '/')
+api.add_namespace(oauth_controller.api, '/interview')
