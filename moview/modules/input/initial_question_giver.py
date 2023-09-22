@@ -27,7 +27,7 @@ class InitialQuestionGiver(metaclass=SingletonMeta):
 
     def __init__(self, prompt_loader: PromptLoader):
         self.prompt = prompt_loader.load_prompt_json(InitialQuestionGiver.__name__)
-        self.llm = LLMModelFactory.create_chat_open_ai(temperature=0.7)
+        self.llm = LLMModelFactory.create_chat_open_ai(model_name="gpt-3.5-turbo-16k", temperature=0.7)
 
     @async_retry()
     async def give_initial_questions_by_input_data(

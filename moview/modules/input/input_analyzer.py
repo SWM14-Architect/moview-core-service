@@ -43,7 +43,7 @@ class InputAnalyzer(metaclass=SingletonMeta):
             input_variables=["job_posting", "cover_letter_question", "cover_letter_answer"],
         )
 
-        llm = LLMModelFactory.create_chat_open_ai(temperature=0.5)
+        llm = LLMModelFactory.create_chat_open_ai(model_name="gpt-3.5-turbo-16k", temperature=0.5)
 
         chain = LLMChain(llm=llm, prompt=prompt)
 

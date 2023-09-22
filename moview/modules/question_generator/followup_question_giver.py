@@ -45,7 +45,7 @@ class FollowUpQuestionGiver(metaclass=SingletonMeta):
             input_variables=["question", "answer"],
         )
 
-        llm = LLMModelFactory.create_chat_open_ai(temperature=0.3)
+        llm = LLMModelFactory.create_chat_open_ai(model_name="gpt-3.5-turbo-16k", temperature=0.3)
 
         chain = LLMChain(llm=llm, prompt=prompt)
 
