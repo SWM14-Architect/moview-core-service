@@ -8,19 +8,13 @@ from langchain.prompts.chat import (
     HumanMessagePromptTemplate
 )
 
+from moview.exception.initial_question_parse_error import InitialQuestionParseError
 from moview.utils.prompt_loader import PromptLoader
 from moview.environment.llm_factory import LLMModelFactory
 from moview.config.loggers.mongo_logger import prompt_result_logger
 from moview.utils.prompt_parser import PromptParser
 from moview.utils.retry_decorator import retry, async_retry
 from moview.utils.singleton_meta_class import SingletonMeta
-
-
-class InitialQuestionParseError(Exception):
-
-    def __init__(self, message="initial question parse error"):
-        self.message = message
-        super().__init__(self.message)
 
 
 class InitialQuestionGiver(metaclass=SingletonMeta):
