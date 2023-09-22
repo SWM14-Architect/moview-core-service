@@ -20,7 +20,7 @@ class JWTConfig:
 
     @staticmethod
     def get_jwt_access_token_expires():
-        return 3600  # 1 hour <- 플라스크 jwt 라이브러리 리프레시 토큰 다루는 걸 모르겠어서 1시간으로 책정.
+        return 1800  # 30 minutes
 
     @staticmethod
     def get_jwt_refresh_token_expires():
