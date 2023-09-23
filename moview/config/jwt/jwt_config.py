@@ -1,10 +1,11 @@
-import os
+from moview.environment.environment_loader import EnvironmentLoader
 
 
 class JWTConfig:
     @staticmethod
     def get_jwt_secret_key():
-        return os.getenv("JWT_SECRET_KEY")
+        return EnvironmentLoader.getenv("jwt_secret_key")
+        # return os.getenv("JWT_SECRET_KEY")
 
     @staticmethod
     def get_jwt_location():
