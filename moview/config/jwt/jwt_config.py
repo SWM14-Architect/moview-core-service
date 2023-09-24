@@ -5,7 +5,6 @@ class JWTConfig:
     @staticmethod
     def get_jwt_secret_key():
         return EnvironmentLoader.getenv("jwt-secret-key")
-        # return os.getenv("JWT_SECRET_KEY")
 
     @staticmethod
     def get_jwt_location():
