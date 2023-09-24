@@ -5,7 +5,7 @@ from pymongo.results import UpdateResult, InsertOneResult
 from moview.config.db.mongo_config import MongoConfig
 from moview.utils.singleton_meta_class import SingletonMeta
 from moview.config.loggers.mongo_logger import execution_trace_logger
-from moview.domain.entity.interview_session_document import InterviewSession
+from moview.domain.entity.interview_document import Interview
 from moview.environment.environment_loader import EnvironmentLoader
 
 DB_HOST = "db-host"
@@ -23,7 +23,7 @@ class InterviewRepository(metaclass=SingletonMeta):
         self.db = self.client[mongo_config.db_name]
         self.collection = self.db["interview"]
 
-    def save_interview(self, interview: InterviewSession) -> InsertOneResult:
+    def save_interview(self, interview: Interview) -> InsertOneResult:
         execution_trace_logger(msg="SAVE_INTERVIEW", user_id=interview.user_id)
         return self.collection.insert_one(interview.dict())
 

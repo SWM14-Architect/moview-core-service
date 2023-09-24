@@ -38,9 +38,9 @@ class InputDataConstructor(Resource):
             cover_letter_answers=cover_letter_answers
         )
 
-        # todo 로그인 추가 시 session_id를 user_id로 변경해야 함.
-        interview_document_id = interview_service.create_interview_session(
-            session_id=user_id,
+        interview_document_id = interview_service.create_interview(
+            user_id=user_id,
+            input_data_document_id=result['input_data_document'],
             initial_questions=[question for _, question in result['question_document_list']],
         )
 
