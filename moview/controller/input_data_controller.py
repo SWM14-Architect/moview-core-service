@@ -41,7 +41,7 @@ class InputDataConstructor(Resource):
         interview_document_id = interview_service.create_interview(
             user_id=user_id,
             input_data_document_id=result['input_data_document'],
-            initial_questions=[question for _, question in result['question_document_list']],
+            # initial_questions=[question for _, question in result['question_document_list']],
         )
 
         execution_trace_logger("INPUT DATA CONTROLLER: POST",
