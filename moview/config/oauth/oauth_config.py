@@ -1,6 +1,8 @@
 import os
 from enum import Enum
 
+from moview.environment.environment_loader import EnvironmentLoader
+
 
 # Oauth 제공자 Enum
 class OAuthProvider(Enum):
@@ -30,15 +32,17 @@ class OAuthConfig:
 class KakaoOAuthConfig(OAuthConfig):
     @staticmethod
     def get_client_id():
-        return os.environ.get("KAKAO_CLIENT_ID")
+        # 앱키
+        return EnvironmentLoader.getenv("kakao-client-id")
 
     @staticmethod
     def get_client_secret():
-        return os.environ.get("KAKAO_CLIENT_SECRET")
+        # Secret Key
+        return EnvironmentLoader.getenv("kakao-client-secret")
 
     @staticmethod
     def get_redirect_uri():
-        return os.environ.get("KAKAO_REDIRECT_URI")
+        return EnvironmentLoader.getenv("kakao-redirect-uri")
 
 
 # OAuth factory
