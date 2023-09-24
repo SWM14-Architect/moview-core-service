@@ -1,4 +1,5 @@
 from flask import make_response, jsonify, request
+from flask_jwt_extended import jwt_required, get_jwt_identity
 from flask_restx import Resource, Namespace
 from http import HTTPStatus
 
@@ -12,9 +13,10 @@ api = Namespace('evaluation', description='evaluation api')
 @api.route('/evaluation')
 class EvaluationConstructor(Resource):
 
+    @jwt_required()
     @async_controller
     async def post(self):
-        session_id = request.cookies.get('session')
+        user_id = str(get_jwt_identity())
         request_body = request.get_json()
 
         interview_id = request_body['interview_id']
@@ -22,9 +24,9 @@ class EvaluationConstructor(Resource):
         evaluation_service = ContainerConfig().evaluation_service
 
         # todo 로그인 추가 시 session_id를 user_id로 변경해야 함.
-        results = await evaluation_service.evaluate_answers_of_interviewee(user_id=session_id, interview_id=interview_id)
+        results = await evaluation_service.evaluate_answers_of_interviewee(user_id=user_id, interview_id=interview_id)
 
-        execution_trace_logger("EVALUATION CONTROLLER: POST", user_id=session_id, interview_id=interview_id, results=results)
+        execution_trace_logger("EVALUATION CONTROLLER: POST", user_id=user_id, interview_id=interview_id, results=results)
 
         return make_response(jsonify(
             {'message':

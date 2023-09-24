@@ -48,6 +48,7 @@ class UserInfoController(Resource):
 
         user_service = ContainerConfig().user_service
         user = user_service.get_user(str(user_id))
+        del user['profile_id']
 
         return jsonify(user)
 
@@ -63,8 +64,8 @@ class KakaoOAuthURLController(Resource):
         redirect_uri = OAuthConfigFactory.get_oauth_config(OAuthProvider.KAKAO).get_redirect_uri()
 
         return jsonify(
-            kakao_oauth_url="https://kauth.kakao.com/oauth/authorize?client_id=%s&redirect_uri=%s&response_type=code" \
-                            % (client_id, redirect_uri))
+            kakao_oauth_url=f"https://kauth.kakao.com/oauth/authorize?client_id={client_id}&redirect_uri={redirect_uri}&response_type=code&prompt=select_account"
+        )
 
 
 @api.route("/oauth/refresh")
@@ -78,16 +79,16 @@ class OAuthRefreshController(Resource):
         return jsonify(result)
 
 
-@api.route("/oauth/userinfo")
-class OAuthUserInfoController(Resource):
-
-    def post(self):
-        #     access token을 인자로 받은 후,
-        #     kakao에서 user 정보를 가져옴.
-        access_token = request.args.get('access_token')
-        oauth_helper = OauthControllerHelper(OAuthProvider.KAKAO)
-        result = oauth_helper.userinfo(bearer_token="Bearer " + access_token)
-        return jsonify(result)
+# @api.route("/oauth/userinfo")
+# class OAuthUserInfoController(Resource):
+#
+#     def post(self):
+#         #     access token을 인자로 받은 후,
+#         #     kakao에서 user 정보를 가져옴.
+#         access_token = request.args.get('access_token')
+#         oauth_helper = OauthControllerHelper(OAuthProvider.KAKAO)
+#         result = oauth_helper.userinfo(bearer_token="Bearer " + access_token)
+#         return jsonify(result)
 
 
 @api.route('/token/refresh')

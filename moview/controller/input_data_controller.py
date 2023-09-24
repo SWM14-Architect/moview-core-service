@@ -1,4 +1,5 @@
 from flask import make_response, jsonify, request
+from flask_jwt_extended import jwt_required, get_jwt_identity
 from flask_restx import Resource, Namespace
 from http import HTTPStatus
 
@@ -12,9 +13,10 @@ api = Namespace('input_data', description='input data api')
 @api.route('/input')
 class InputDataConstructor(Resource):
 
+    @jwt_required()
     @async_controller
     async def post(self):
-        session_id = request.cookies.get('session')
+        user_id = str(get_jwt_identity())
         request_body = request.get_json()
 
         interviewee_name = request_body['interviewee_name']
@@ -38,12 +40,12 @@ class InputDataConstructor(Resource):
 
         # todo 로그인 추가 시 session_id를 user_id로 변경해야 함.
         interview_document_id = interview_service.create_interview_session(
-            session_id=session_id,
+            session_id=user_id,
             initial_questions=[question for _, question in result['question_document_list']],
         )
 
         execution_trace_logger("INPUT DATA CONTROLLER: POST",
-                               user_id=session_id,
+                               user_id=user_id,
                                interviewee_name=interviewee_name,
                                company_name=company_name,
                                job_group=job_group,

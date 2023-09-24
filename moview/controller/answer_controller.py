@@ -1,4 +1,5 @@
 from flask import make_response, jsonify, request
+from flask_jwt_extended import jwt_required, get_jwt_identity
 from flask_restx import Resource, Namespace
 from http import HTTPStatus
 
@@ -11,8 +12,9 @@ api = Namespace('answer', description='answer api')
 @api.route('/answer')
 class AnswerConstructor(Resource):
 
+    @jwt_required()
     def post(self):
-        session_id = request.cookies.get('session')
+        user_id = str(get_jwt_identity())
         request_body = request.get_json()
 
         interview_id = request_body['interview_id']
@@ -23,12 +25,12 @@ class AnswerConstructor(Resource):
         answer_service = ContainerConfig().answer_service
 
         # todo 로그인 추가 시 session_id를 user_id로 변경해야 함.
-        chosen_question, saved_id = answer_service.answer(user_id=session_id, interview_id=interview_id,
+        chosen_question, saved_id = answer_service.answer(user_id=user_id, interview_id=interview_id,
                                                           question_id=question_id, question_content=question_content,
                                                           answer_content=answer_content)
 
         execution_trace_logger("ANSWER CONTROLLER: POST",
-                               user_id=session_id,
+                               user_id=user_id,
                                interview_id=interview_id,
                                question_id=question_id,
                                question_content=question_content,
