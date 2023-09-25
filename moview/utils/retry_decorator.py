@@ -3,13 +3,7 @@ import time
 import asyncio
 
 from moview.config.loggers.mongo_logger import execution_trace_logger
-
-
-class RetryExecutionError(Exception):
-
-    def __init__(self, message="Retry Execution Error"):
-        self.message = message
-        super().__init__(self.message)
+from moview.exception.retry_execution_error import RetryExecutionError
 
 
 def retry(max_retries=3, retry_delay=2):

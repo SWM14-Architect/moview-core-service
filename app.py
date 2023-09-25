@@ -20,6 +20,8 @@ allowed_origins = [
 ]
 CORS(app, resources={r"/*": {"origins": allowed_origins}}, supports_credentials=True)
 
+"""This module patches asyncio to allow nested use of `asyncio.run` and `loop.run_until_complete`."""
+__import__("nest_asyncio").apply()
 
 def set_moview_config():
     """
@@ -50,7 +52,6 @@ def set_jwt_config():
     app.config['JWT_ACCESS_TOKEN_EXPIRES'] = JWTConfig.get_jwt_access_token_expires()
     app.config['JWT_REFRESH_TOKEN_EXPIRES'] = JWTConfig.get_jwt_refresh_token_expires()
     JWTManager(app)
-
 
 if __name__ == '__main__':
     set_moview_config()
