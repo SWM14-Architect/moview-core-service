@@ -23,7 +23,6 @@ class EvaluationConstructor(Resource):
 
         evaluation_service = ContainerConfig().evaluation_service
 
-        # todo 로그인 추가 시 session_id를 user_id로 변경해야 함.
         results = await evaluation_service.evaluate_answers_of_interviewee(user_id=user_id, interview_id=interview_id)
 
         execution_trace_logger("EVALUATION CONTROLLER: POST", user_id=user_id, interview_id=interview_id, results=results)

@@ -23,7 +23,6 @@ class FeedbackConstructor(Resource):
 
         feedback_service = ContainerConfig().feedback_service
 
-        # todo 로그인 추가 시 session_id를 user_id로 변경해야 함.
         feedback_service.feedback(user_id=user_id, interview_id=interview_id, question_ids=question_ids,
                                   feedback_scores=feedback_scores)
 

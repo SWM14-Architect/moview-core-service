@@ -24,7 +24,6 @@ class AnswerConstructor(Resource):
 
         answer_service = ContainerConfig().answer_service
 
-        # todo 로그인 추가 시 session_id를 user_id로 변경해야 함.
         chosen_question, saved_id = answer_service.answer(user_id=user_id, interview_id=interview_id,
                                                           question_id=question_id, question_content=question_content,
                                                           answer_content=answer_content)
