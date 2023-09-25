@@ -30,7 +30,9 @@ class KakaoOAuthController(Resource):
         user_service.upsert_user(user_dict)
 
         # 4. 사용자 식별 정보를 바탕으로 access token 생성
-        response = make_response()
+        user = user_service.convert_to_dict(user_dict)
+        del user['profile_id']  # profile_id는 프론트에 전달하면 안됨.
+        response = make_response(jsonify(user))
         access_token = create_access_token(identity=user_dict['id'])
         refresh_token = create_refresh_token(identity=user_dict['id'])
         response.set_cookie('logined', 'true')
@@ -41,6 +43,7 @@ class KakaoOAuthController(Resource):
 
 @api.route("/userinfo")
 class UserInfoController(Resource):
+
     @jwt_required()  # 인가 필요할 때 쓰임
     def get(self):
         # access token 을 이용해 db에서 user 정보를 가져옴
@@ -106,6 +109,7 @@ class TokenRefreshController(Resource):
 
 @api.route('/token/remove')
 class TokenRemoveController(Resource):
+
     def post(self):
         # refresh token을 이용해 access token 재발급
         response = jsonify({'result': True})
