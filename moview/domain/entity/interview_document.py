@@ -3,7 +3,7 @@ from pydantic import BaseModel
 from datetime import datetime
 
 
-class InterviewSession(BaseModel):
+class Interview(BaseModel):
     """
     한 유저가 진행하는 인터뷰 세션을 나타내는 엔티티.
     """

@@ -6,7 +6,7 @@ from moview.repository.question_answer.question_answer_repository import Questio
 from moview.repository.interview_repository import InterviewRepository
 from moview.modules.question_generator import FollowUpQuestionGiver
 from moview.utils.prompt_loader import PromptLoader
-from moview.domain.entity.interview_session_document import InterviewSession
+from moview.domain.entity.interview_document import Interview
 from moview.domain.entity.question_answer.question import Question
 
 PATCH_PATH = "moview.service.answer_service.AnswerService.need_to_give_followup_question"
@@ -25,7 +25,7 @@ class TestAnswerService(unittest.TestCase):
         self.question_answer_repository = QuestionAnswerRepository(self.mongo_config)
 
         self.user_id = "1"
-        self.interview = InterviewSession(user_id=self.user_id)
+        self.interview = Interview(user_id=self.user_id)
         self.interview_id = self.interview_repository.save_interview(self.interview).inserted_id
 
         self.initial_question = Question(content="질문 내용", feedback_score=0, question_id=None)
