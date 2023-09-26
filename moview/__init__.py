@@ -21,3 +21,4 @@ api.add_namespace(feedback_controller.api, '/interview')
 
 # tts
 api.add_namespace(tts_controller.api, '/interview')
+api.add_namespace(stt_controller.api, '/interview')
