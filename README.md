@@ -2,17 +2,7 @@
 
 ## MVP v2 기준
 
-### API 명세서
-
-#### /interview/session
-
-```
-method : POST
-request: X
-response: cookie(세션id)
-description: 플라스크 세션 발급용 API.
-GPT call: X
-```
+### API 명세서 (핵심 기능만 포함)
 
 ***
 
@@ -115,10 +105,6 @@ GPT call: O
 ```
 
 response json
-
-아래 json은 Answer 엔티티에서 불러오는 것이다. 특히, question_id는 Answer 엔티티의 외래키인 question_id를 뜻한다!
-프론트엔드에서는 question_id와 묶어서 evaluation을 저장하는게?
-
 ```json
 {
   "evaluations": [
@@ -169,9 +155,9 @@ request json
 
 ***
 
-### 테스트 커버리지
+### 테스트 커버리지 (v2 기준)
 
-moview 디렉토리 기준 라인 커버리지 88% (v1 기준)
+moview 디렉토리 기준 file coverage 67%, line coverage 92%
 ***
 
 ### 디렉토리 트리
@@ -186,60 +172,84 @@ moview 디렉토리에서 'tree -I '__pycache__|*.pyc|__init__.py'' 명령어를
 │   ├── db
 │   │   ├── mongo_config.py
 │   │   └── mongo_handler.py
-│   └── loggers
-│       └── mongo_logger.py
+│   ├── jwt
+│   │   └── jwt_config.py
+│   ├── loggers
+│   │   └── mongo_logger.py
+│   └── oauth
+│       └── oauth_config.py
 ├── controller
 │   ├── answer_controller.py
 │   ├── evaluation_controller.py
 │   ├── feedback_controller.py
 │   ├── input_data_controller.py
-│   └── interview_controller.py
+│   ├── light_mode_controller.py
+│   └── oauth
+│       ├── oauth_controller.py
+│       └── oauth_controller_helper.py
 ├── domain
 │   └── entity
 │       ├── input_data
 │       │   ├── coverletter_document.py
 │       │   └── initial_input_data_document.py
-│       ├── interview_session_document.py
-│       └── question_answer
-│           ├── answer.py
-│           └── question.py
+│       ├── interview_document.py
+│       ├── question_answer
+│       │   ├── answer.py
+│       │   └── question.py
+│       └── user
+│           └── user.py
 ├── environment
 │   ├── environment_loader.py
 │   └── llm_factory.py
+├── exception
+│   ├── evaluation_parse_error.py
+│   ├── initial_question_parse_error.py
+│   ├── light_question_parse_error.py
+│   └── retry_execution_error.py
 ├── modules
 │   ├── answer_evaluator
-│   │   ├── answer_analyzer.py
-│   │   └── answer_scorer.py
+│   │   └── answer_evaluator.py
 │   ├── input
 │   │   ├── initial_question_giver.py
 │   │   └── input_analyzer.py
+│   ├── light
+│   │   └── light_question_giver.py
 │   └── question_generator
 │       └── followup_question_giver.py
 ├── repository
 │   ├── input_data
 │   │   └── input_data_repository.py
 │   ├── interview_repository.py
-│   └── question_answer
-│       └── question_answer_repository.py
+│   ├── question_answer
+│   │   └── question_answer_repository.py
+│   └── user
+│       └── user_repository.py
 ├── service
 │   ├── answer_service.py
+│   ├── evaluation_service.py
 │   ├── feedback_service.py
 │   ├── input_data_service.py
-│   └── interview_service.py
+│   ├── interview_service.py
+│   ├── light_mode_service.py
+│   └── user_service.py
 └── utils
+    ├── async_controller.py
     ├── prompt_loader
     │   ├── json
     │   │   ├── AnswerAnalyzer.json
     │   │   ├── AnswerCategoryClassifier.json
+    │   │   ├── AnswerEvaluator.json
     │   │   ├── AnswerScorer.json
     │   │   ├── AnswerSubCategoryClassifier.json
     │   │   ├── AnswerValidator.json
     │   │   ├── FollowUpQuestionGiver.json
     │   │   ├── InitialQuestionGiver.json
     │   │   ├── InputAnalyzer.json
+    │   │   ├── LightQuestionGiver.json
     │   │   └── helpme.md
     │   └── prompt_loader.py
     ├── prompt_parser.py
+    ├── retry_decorator.py
     └── singleton_meta_class.py
 ```
 
