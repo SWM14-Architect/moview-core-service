@@ -1,4 +1,4 @@
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional
 
 from moview.config.loggers.mongo_logger import error_logger, execution_trace_logger
 from moview.domain.entity.input_data.initial_input_data_document import InitialInputData
@@ -20,8 +20,9 @@ class LightModeService(metaclass=SingletonMeta):
         self.question_answer_repository = question_answer_repository
         self.light_question_giver = light_question_giver
 
-    def ask_light_question_to_interviewee(self, interviewee_name: str, company_name: str, job_group: str) -> Dict[
-        str, Any]:
+    def ask_light_question_to_interviewee(self, interviewee_name: str, company_name: str, job_group: str) -> Optional[
+        Dict[
+            str, Any]]:
         """
 
         Args:
@@ -34,7 +35,10 @@ class LightModeService(metaclass=SingletonMeta):
         """
 
         # light mode 면접 질문 생성
-        light_question_list = self.__make_light_questions_by_input_data(job_group=job_group)
+        light_question_list = self._make_light_questions_by_input_data(job_group=job_group)
+
+        if len(light_question_list) == 0:
+            return None
 
         # Initial Input Data Entity Model 생성 (Light mode라서 모집공고 None, 자소서 모델 None)
         initial_input_data_model = self.__create_interviewee_data_entity_for_light_mode(
@@ -64,7 +68,7 @@ class LightModeService(metaclass=SingletonMeta):
             "question_document_list": list(zip(question_document_id_list, light_question_list))
         }
 
-    def __make_light_questions_by_input_data(self, job_group: str) -> List[str]:
+    def _make_light_questions_by_input_data(self, job_group: str) -> List[str]:
         try:
             light_questions = self.light_question_giver.give_light_questions_by_input_data(
                 job_group=job_group,
@@ -76,6 +80,8 @@ class LightModeService(metaclass=SingletonMeta):
             return light_questions
         except LightQuestionParseError:
             error_logger("Light Question Parse Error")
+
+            return []
 
     @staticmethod
     def __create_interviewee_data_entity_for_light_mode(interviewee_name: str, company_name: str,

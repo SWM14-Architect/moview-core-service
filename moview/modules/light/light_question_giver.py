@@ -50,7 +50,7 @@ class LightQuestionGiver(metaclass=SingletonMeta):
 
         chain = LLMChain(llm=self.llm, prompt=prompt)
 
-        prompt_result = chain.run()
+        prompt_result = chain.predict()
 
         prompt_result_logger("light question prompt result", prompt_result=prompt_result)
 
