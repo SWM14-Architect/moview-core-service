@@ -13,6 +13,7 @@ from moview.environment.llm_factory import LLMModelFactory
 from moview.config.loggers.mongo_logger import prompt_result_logger
 from moview.utils.prompt_parser import PromptParser
 from moview.utils.singleton_meta_class import SingletonMeta
+from moview.utils.retry_decorator import retry
 
 
 class LightQuestionGiver(metaclass=SingletonMeta):
@@ -21,6 +22,7 @@ class LightQuestionGiver(metaclass=SingletonMeta):
         self.prompt = prompt_loader.load_prompt_json(LightQuestionGiver.__name__)
         self.llm = LLMModelFactory.create_chat_open_ai(model_name="gpt-3.5-turbo-16k", temperature=0.7)
 
+    @retry()
     def give_light_questions_by_input_data(self, job_group: str, question_count: int) -> List[str]:
         """
 
