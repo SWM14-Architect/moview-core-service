@@ -42,6 +42,11 @@ class InputDataRepository(metaclass=SingletonMeta):
         execution_trace_logger(msg="SAVE_INITIAL_INPUT_DATA")
         return self.collection.insert_one(initial_input_data_model)
 
+    def save_for_light_mode(self, initial_input_data: InitialInputData) -> InsertOneResult:
+        initial_input_data_model = initial_input_data.dict()
+        execution_trace_logger(msg="SAVE_INITIAL_INPUT_DATA_FOR_LIGHT_MODE")
+        return self.collection.insert_one(initial_input_data_model)
+
     def find_cover_letter_by_object_id(self, coverletter_id: Dict[str, Optional[str]]) -> Optional[Dict[str, Any]]:
         execution_trace_logger(msg="FIND_COVER_LETTER_BY_OBJECT_ID", object_id=coverletter_id["#id"])
         # "#db"와 "#ref"를 이용해 document가 있는 collection에 접속함.
