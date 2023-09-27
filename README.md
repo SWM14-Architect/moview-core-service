@@ -61,6 +61,53 @@ response json
 
 ***
 
+#### /interview/light
+
+```
+method : POST
+request: json(면접자 이름, 회사, 직군)
+response: json(초기 질문 n개에 대한 데이터{"objectId":id, ""}, 인터뷰 아이디)
+description: 초기 질문 받아오는 API (light mode)
+GPT call: O
+```
+
+request json
+
+```json
+{
+    "interviewee_name":"tester",
+    "company_name":"Facebook",
+    "job_group":"Backend"
+}
+
+```
+
+response json
+
+```json
+{
+  "message": {
+    "light_questions": [
+      {
+        "question_id": "초기 질문 id",
+        "content": "GPT 결과"
+      },
+      {
+        "question_id": "초기 질문 id",
+        "content": "GPT 결과"
+      },
+      {
+        "question_id": "초기 질문 id",
+        "content": "GPT 결과"
+      }
+    ],
+    "interview_id": "인터뷰 id"
+  }
+}
+```
+
+***
+
 #### /interview/answer
 
 ```
