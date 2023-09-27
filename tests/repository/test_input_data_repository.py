@@ -42,8 +42,8 @@ class TestInputDataRepository(unittest.TestCase):
         test_document = self.repository.save(test_initial_input_data_model, test_cover_letter_model_list)
 
         # then
-        self.assertNotEqual(test_document.inserted_id, None) # inserted_id는 insert가 성공했을 때, 해당 document의 id를 나타냄.
-        self.assertEqual(test_document.acknowledged, True) # acknowledged는 insert가 성공했는지 여부를 나타냄.
+        self.assertNotEqual(test_document.inserted_id, None)  # inserted_id는 insert가 성공했을 때, 해당 document의 id를 나타냄.
+        self.assertEqual(test_document.acknowledged, True)  # acknowledged는 insert가 성공했는지 여부를 나타냄.
 
         retrieved_document = self.repository.collection.find_one({"_id": test_document.inserted_id})
         self.assertNotEqual(retrieved_document, None)
@@ -53,10 +53,32 @@ class TestInputDataRepository(unittest.TestCase):
         self.assertEqual(retrieved_document["recruit_announcement"], "test")
         self.assertEqual(len(retrieved_document["coverletter_id_list"]), 3)
 
+    def test_save_for_light_mode(self):
+        # given
+        test_initial_input_data_model = InitialInputData(
+            interviewee_name="test",
+            company_name="test", job_group="test", recruit_announcement=None
+        )
+
+        # when
+        test_document = self.repository.save_for_light_mode(test_initial_input_data_model)
+
+        # then
+        self.assertNotEqual(test_document.inserted_id, None)
+        self.assertEqual(test_document.acknowledged, True)
+
+        retrieved_document = self.repository.collection.find_one({"_id": test_document.inserted_id})
+        self.assertNotEqual(retrieved_document, None)
+        self.assertEqual(retrieved_document["company_name"], "test")
+        self.assertEqual(retrieved_document["job_group"], "test")
+        self.assertEqual(retrieved_document["recruit_announcement"], None)
+        self.assertEqual(len(retrieved_document["coverletter_id_list"]), 0)
+
     def test_find_input_data_by_object_id(self):
         # given
         test_initial_input_data_model = InitialInputData(
-            interviewee_name="find_test", company_name="find_test", job_group="find_test", recruit_announcement="find_test"
+            interviewee_name="find_test", company_name="find_test", job_group="find_test",
+            recruit_announcement="find_test"
         )
         test_cover_letter_model_list = [
             CoverLetter(

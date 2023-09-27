@@ -20,10 +20,12 @@ class LightModeService(metaclass=SingletonMeta):
         self.question_answer_repository = question_answer_repository
         self.light_question_giver = light_question_giver
 
-    def ask_light_question_to_interviewee(self, company_name: str, job_group: str) -> Dict[str, Any]:
+    def ask_light_question_to_interviewee(self, interviewee_name: str, company_name: str, job_group: str) -> Dict[
+        str, Any]:
         """
 
         Args:
+            interviewee_name: 인터뷰 대상자 이름 (jwt 적용 됬으므로 추후 삭제해야 할 칼럼)
             company_name: 인터뷰 대상자 회사 이름
             job_group: 인터뷰 대상자 직군
 
@@ -35,8 +37,10 @@ class LightModeService(metaclass=SingletonMeta):
         light_question_list = self.__make_light_questions_by_input_data(job_group=job_group)
 
         # Initial Input Data Entity Model 생성 (Light mode라서 모집공고 None, 자소서 모델 None)
-        initial_input_data_model = self.__create_interviewee_data_entity_for_light_mode(company_name=company_name,
-                                                                                        job_group=job_group)
+        initial_input_data_model = self.__create_interviewee_data_entity_for_light_mode(
+            interviewee_name=interviewee_name,
+            company_name=company_name,
+            job_group=job_group)
 
         # Initial Input Data Document 저장
         initial_input_document = self.input_data_repository.save_for_light_mode(
@@ -74,12 +78,13 @@ class LightModeService(metaclass=SingletonMeta):
             error_logger("Light Question Parse Error")
 
     @staticmethod
-    def __create_interviewee_data_entity_for_light_mode(company_name: str,
+    def __create_interviewee_data_entity_for_light_mode(interviewee_name: str, company_name: str,
                                                         job_group: str) -> InitialInputData:
         # 도메인 모델 InitialInputData을 재사용한다. 이유는 다음과 같다.
         # 이 모델에 모집공고만 None 처리하면 light mode 용 초기 데이터가 만들어지기 때문.
         # 그리고 CoverLetter 모델 역시 만들 필요가 없어진다.
         return InitialInputData(
+            interviewee_name=interviewee_name,
             company_name=company_name,
             job_group=job_group,
             recruit_announcement=None)
