@@ -7,7 +7,8 @@ from flask_jwt_extended import JWTManager
 import random
 import string
 
-from moview.controller import input_data_controller, answer_controller, evaluation_controller, feedback_controller
+from moview.controller import input_data_controller, answer_controller, evaluation_controller, feedback_controller, \
+    light_mode_controller
 from moview.controller.oauth import oauth_controller
 
 # Flask App 생성
@@ -23,6 +24,7 @@ CORS(app, resources={r"/*": {"origins": allowed_origins}}, supports_credentials=
 """This module patches asyncio to allow nested use of `asyncio.run` and `loop.run_until_complete`."""
 __import__("nest_asyncio").apply()
 
+
 def set_moview_config():
     """
     Flask App에 API 추가
@@ -36,6 +38,7 @@ def set_moview_config():
     api.add_namespace(answer_controller.api, '/interview')
     api.add_namespace(evaluation_controller.api, '/interview')
     api.add_namespace(feedback_controller.api, '/interview')
+    api.add_namespace(light_mode_controller.api, '/interview')
 
     # oauth api
     api.add_namespace(oauth_controller.api, '/interview')
@@ -52,6 +55,7 @@ def set_jwt_config():
     app.config['JWT_ACCESS_TOKEN_EXPIRES'] = JWTConfig.get_jwt_access_token_expires()
     app.config['JWT_REFRESH_TOKEN_EXPIRES'] = JWTConfig.get_jwt_refresh_token_expires()
     JWTManager(app)
+
 
 if __name__ == '__main__':
     set_moview_config()
