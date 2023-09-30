@@ -2,7 +2,17 @@
 
 ## MVP v2 기준
 
-### API 명세서 (핵심 기능만 포함)
+### 기술 스택
+<img src="https://img.shields.io/badge/python-3776AB?style=for-the-badge&logo=python&logoColor=white"> 
+<img src="https://img.shields.io/badge/flask-000000?style=for-the-badge&logo=flask&logoColor=white">
+<img src="https://img.shields.io/badge/mongoDB-47A248?style=for-the-badge&logo=MongoDB&logoColor=white">
+<img src="https://img.shields.io/badge/Langchain-412991?style=for-the-badge&logo=OpenAI&logoColor=white">
+<img src="https://img.shields.io/badge/GitHub Actions-2088FF?style=for-the-badge&logo=GitHubActions&logoColor=white">
+<img src="https://img.shields.io/badge/amazon aws-232F3E?style=for-the-badge&logo=amazonaws&logoColor=white">
+
+***
+
+### API 명세서 (인증 / 인가 관련 명세서는 미포함)
 
 ***
 
@@ -65,7 +75,7 @@ response json
 
 ```
 method : POST
-request: json(면접자 이름, 회사, 직군)
+request: json(면접자 이름, 회사, 직군, 직무면접 키워드)
 response: json(초기 질문 n개에 대한 데이터{"objectId":id, ""}, 인터뷰 아이디)
 description: 초기 질문 받아오는 API (light mode)
 GPT call: O
@@ -77,7 +87,8 @@ request json
 {
     "interviewee_name":"tester",
     "company_name":"Facebook",
-    "job_group":"Backend"
+    "job_group":"Backend",
+    "keyword":"아파치 카프카"
 }
 
 ```
