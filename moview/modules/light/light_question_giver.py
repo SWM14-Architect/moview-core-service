@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Optional
 
 from langchain import LLMChain
 from langchain.prompts.chat import (
@@ -23,16 +23,29 @@ class LightQuestionGiver(metaclass=SingletonMeta):
         self.llm = LLMModelFactory.create_chat_open_ai(model_name="gpt-3.5-turbo-16k", temperature=0.7)
 
     @retry()
-    def give_light_questions_by_input_data(self, job_group: str, question_count: int) -> List[str]:
+    def give_light_questions_by_input_data(self, job_group: str, keyword: Optional[str], question_count: int) \
+            -> List[str]:
         """
 
         Args:
             job_group: 직군
+            keyword: 직무 면접 키워드 문자열
             question_count: 출제할 질문 개수
 
         Returns: 직무 중심으로 출제된 질문 리스트 (light mode 전용)
 
         """
+
+        human_message = HumanMessagePromptTemplate.from_template(
+            """
+             양식을 지켜서 직무 기술 면접 질문을 생성하세요.    
+             """
+        ) if keyword is None else HumanMessagePromptTemplate.from_template(
+            f"""
+            양식을 지켜서 {keyword}에 대한 직무 기술 면접 질문을 생성하세요.    
+            """
+        )
+
         prompt = ChatPromptTemplate(
             messages=[
                 SystemMessagePromptTemplate.from_template(
@@ -40,11 +53,7 @@ class LightQuestionGiver(metaclass=SingletonMeta):
                         job_group=job_group,
                         question_count=question_count)
                 ),
-                HumanMessagePromptTemplate.from_template(
-                    """
-                    양식을 지켜서 직무 기술 면접 질문을 생성하세요.    
-                    """
-                )
+                human_message
             ]
         )
 

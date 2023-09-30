@@ -20,10 +20,13 @@ class TestLightQuestionGiver(unittest.TestCase):
         # given
         job_group = "테스트 직군"
         question_count = 10
+        keyword = "test"
         mock_method.return_value = "light question"
 
         # when
-        result = self.light_question_giver.give_light_questions_by_input_data(job_group, question_count)
+        result = self.light_question_giver.give_light_questions_by_input_data(job_group=job_group,
+                                                                              keyword=keyword,
+                                                                              question_count=question_count)
 
         # then
         self.assertIn("light question", result)
