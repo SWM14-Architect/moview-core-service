@@ -57,7 +57,8 @@ class TestInputDataRepository(unittest.TestCase):
         # given
         test_initial_input_data_model = InitialInputData(
             interviewee_name="test",
-            company_name="test", job_group="test", recruit_announcement=None
+            company_name="test", job_group="test", recruit_announcement=None,
+            keyword="test"
         )
 
         # when
@@ -72,6 +73,7 @@ class TestInputDataRepository(unittest.TestCase):
         self.assertEqual(retrieved_document["company_name"], "test")
         self.assertEqual(retrieved_document["job_group"], "test")
         self.assertEqual(retrieved_document["recruit_announcement"], None)
+        self.assertEqual(retrieved_document["keyword"], "test")
         self.assertEqual(len(retrieved_document["coverletter_id_list"]), 0)
 
     def test_find_input_data_by_object_id(self):
