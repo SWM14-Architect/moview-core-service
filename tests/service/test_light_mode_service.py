@@ -28,6 +28,7 @@ class TestLightModeService(unittest.TestCase):
             "interviewee_name": "test_user",
             "company_name": "IT회사",
             "job_group": "백엔드",
+            "keyword": "데이터베이스, 네트워크",
             "recruit_announcement": None
         }
 
@@ -45,18 +46,20 @@ class TestLightModeService(unittest.TestCase):
         result = self.light_mode_service.ask_light_question_to_interviewee(
             interviewee_name=self.interviewee_data["interviewee_name"],
             company_name=self.interviewee_data["company_name"],
-            job_group=self.interviewee_data["job_group"]
+            job_group=self.interviewee_data["job_group"],
+            keyword=self.interviewee_data["keyword"]
         )
 
         # then
         self.assertEqual(result, None)
 
-    def test_ask_light_question_to_interviewee(self):
+    def test_ask_light_question_to_interviewee_when_keyword_not_exist(self):
         # when
         result = self.light_mode_service.ask_light_question_to_interviewee(
             interviewee_name=self.interviewee_data["interviewee_name"],
             company_name=self.interviewee_data["company_name"],
-            job_group=self.interviewee_data["job_group"]
+            job_group=self.interviewee_data["job_group"],
+            keyword=None
         )
 
         # then
@@ -67,4 +70,25 @@ class TestLightModeService(unittest.TestCase):
 
         self.assertEqual(len(retrieved_document_list), 6)
 
-        # 10초 정도 소요됨을 확인.
+        # 약 3초 소요
+        print(retrieved_document_list)
+
+    def test_ask_light_question_to_interviewee_when_keyword_exist(self):
+        # when
+        result = self.light_mode_service.ask_light_question_to_interviewee(
+            interviewee_name=self.interviewee_data["interviewee_name"],
+            company_name=self.interviewee_data["company_name"],
+            job_group=self.interviewee_data["job_group"],
+            keyword=self.interviewee_data["keyword"]
+        )
+
+        # then
+        retrieved_document_list = []
+        for question_id, question_content in result["question_document_list"]:
+            retrieved_document = self.question_answer_repository.find_question_by_object_id(str(question_id))
+            retrieved_document_list.append(retrieved_document)
+
+        self.assertEqual(len(retrieved_document_list), 6)
+
+        # 4초 정도 소요됨을 확인.
+        print(retrieved_document_list)

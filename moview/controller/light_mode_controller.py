@@ -21,6 +21,7 @@ class LightModeConstructor(Resource):
         interviewee_name = request_body['interviewee_name']
         company_name = request_body['company_name']
         job_group = request_body['job_group']
+        keyword = request_body['keyword']
 
         interview_service = ContainerConfig().interview_service
         light_mode_service = ContainerConfig().light_mode_service
@@ -28,7 +29,7 @@ class LightModeConstructor(Resource):
         result = light_mode_service.ask_light_question_to_interviewee(
             interviewee_name=interviewee_name,
             company_name=company_name,
-            job_group=job_group)
+            job_group=job_group, keyword=keyword)
 
         # Parse Error 발생했을 경우 500 에러 반환
         if result is None:
@@ -49,6 +50,7 @@ class LightModeConstructor(Resource):
                                interviewee_name=interviewee_name,
                                company_name=company_name,
                                job_group=job_group,
+                               keyword=keyword,
                                interview_document_id=interview_document_id)
 
         return make_response(jsonify(

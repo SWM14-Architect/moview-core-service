@@ -20,22 +20,22 @@ class LightModeService(metaclass=SingletonMeta):
         self.question_answer_repository = question_answer_repository
         self.light_question_giver = light_question_giver
 
-    def ask_light_question_to_interviewee(self, interviewee_name: str, company_name: str, job_group: str) -> Optional[
-        Dict[
-            str, Any]]:
+    def ask_light_question_to_interviewee(self, interviewee_name: str, company_name: str, job_group: str,
+                                          keyword: Optional[str]) -> Optional[Dict[str, Any]]:
         """
 
         Args:
             interviewee_name: 인터뷰 대상자 이름 (jwt 적용 됬으므로 추후 삭제해야 할 칼럼)
             company_name: 인터뷰 대상자 회사 이름
             job_group: 인터뷰 대상자 직군
+            keyword: 인터뷰 대상자 직무 키워드 (nullable)
 
         Returns: 직무 기술 중심 면접 질문 리스트
 
         """
 
         # light mode 면접 질문 생성
-        light_question_list = self._make_light_questions_by_input_data(job_group=job_group)
+        light_question_list = self._make_light_questions_by_input_data(job_group=job_group, keyword=keyword)
 
         if len(light_question_list) == 0:
             return None
@@ -68,10 +68,11 @@ class LightModeService(metaclass=SingletonMeta):
             "question_document_list": list(zip(question_document_id_list, light_question_list))
         }
 
-    def _make_light_questions_by_input_data(self, job_group: str) -> List[str]:
+    def _make_light_questions_by_input_data(self, job_group: str, keyword: Optional[str]) -> List[str]:
         try:
             light_questions = self.light_question_giver.give_light_questions_by_input_data(
                 job_group=job_group,
+                keyword=keyword,
                 question_count=self.LIGHT_QUESTION_NUMBER
             )
 
