@@ -4,11 +4,7 @@ import traceback
 
 import pymongo
 from moview.environment.environment_loader import EnvironmentLoader
-
-DB_HOST = "db-host"
-DB_PORT = "db-port"
-DB_USERNAME = "db-username"
-DB_PASSWORD = "db-password"
+from moview.config.db.mongo_constant import DB_HOST, DB_PORT, DB_USERNAME, DB_PASSWORD
 
 
 class MongoHandler(logging.Handler):

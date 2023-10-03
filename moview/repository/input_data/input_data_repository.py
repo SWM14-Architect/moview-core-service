@@ -10,11 +10,7 @@ from moview.domain.entity.input_data.initial_input_data_document import InitialI
 from moview.utils.singleton_meta_class import SingletonMeta
 from bson import ObjectId
 from moview.environment.environment_loader import EnvironmentLoader
-
-DB_HOST = "db-host"
-DB_PORT = "db-port"
-DB_USERNAME = "db-username"
-DB_PASSWORD = "db-password"
+from moview.config.db.mongo_constant import DB_HOST, DB_PORT, DB_USERNAME, DB_PASSWORD
 
 
 class InputDataRepository(metaclass=SingletonMeta):
