@@ -1,5 +1,5 @@
 import time
-from moview.environment.environment_loader import EnvironmentLoader, EnvironmentEnum
+from moview.environment.environment_loader import EnvironmentLoader
 from moview.config.loggers.mongo_logger import execution_trace_logger
 
 
@@ -22,7 +22,7 @@ def api_timing_decorator(f):
         if EnvironmentLoader.getenv("MOVIEW_CORE_ENV") == "local":
             print(message)
         else:
-            execution_trace_logger.info(elapsed=message)
+            execution_trace_logger(elapsed=message)
 
         return ret
 
