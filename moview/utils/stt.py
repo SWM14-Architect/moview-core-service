@@ -2,8 +2,13 @@ import os
 import base64
 import tempfile
 import openai
+from pydub import AudioSegment
 
 from moview.environment.environment_loader import EnvironmentLoader
+from moview.exception.stt_error import AudioTooShortError, AudioTooQuietError
+
+MIN_LENGTH = 1000
+MIN_DBFS = -40
 
 
 class SpeechToText:
@@ -29,6 +34,13 @@ class SpeechToText:
             temp_file_path = temp_file.name
 
         try:
+            # 오디오 길이 또는 레벨 확인
+            audio = AudioSegment.from_file(temp_file_path, format="webm")
+            if len(audio) < MIN_LENGTH:
+                raise AudioTooShortError()
+            if audio.dBFS < MIN_DBFS:
+                raise AudioTooQuietError()
+
             # Whisper API 호출
             with open(temp_file_path, 'rb') as audio_file:
                 transcript = openai.Audio.transcribe("whisper-1", audio_file)
