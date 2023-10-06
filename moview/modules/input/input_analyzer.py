@@ -40,6 +40,7 @@ class InputAnalyzer(metaclass=SingletonMeta):
                     job posting : {job_posting}
                     cover letter question : {cover_letter_question}
                     cover letter answer : {cover_letter_answer}    
+                    양식을 지켜서 질문을 생성하세요.
                     """)
             ],
             input_variables=["job_posting", "cover_letter_question", "cover_letter_answer"],
