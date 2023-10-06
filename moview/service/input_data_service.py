@@ -47,7 +47,7 @@ class InputDataService(metaclass=SingletonMeta):
             cover_letter_answers: 인터뷰 대상자 자소서 답변 리스트
 
         Returns: {
-            "input_data_document": input_data_document_id,
+            "input_data_document": {"#ref":collection, "#id":input_data_document_id, "#db":db name},
             "question_document_list": [(question_document_id, question_content), ...)]
         }
         """
@@ -94,7 +94,11 @@ class InputDataService(metaclass=SingletonMeta):
         execution_trace_logger("Save Initial Question Document", initial_question_list=initial_question_list)
 
         return {
-            "input_data_document": initial_input_document.inserted_id,
+            "input_data_document": {
+                "#ref": self.input_data_repository.collection.name,
+                "#id": str(initial_input_document.inserted_id),
+                "#db": self.input_data_repository.db.name
+            },
             "question_document_list": list(zip(question_document_id_list, initial_question_list))
         }
 

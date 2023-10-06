@@ -8,7 +8,7 @@ from moview.modules.answer_evaluator.answer_evaluator import AnswerEvaluator
 from moview.service.evaluation_service import EvaluationService
 from moview.repository.interview_repository import InterviewRepository
 from moview.repository.question_answer.question_answer_repository import QuestionAnswerRepository
-from moview.domain.entity.interview_session_document import InterviewSession
+from moview.domain.entity.interview_document import Interview
 from moview.domain.entity.question_answer.question import Question
 from moview.domain.entity.question_answer.answer import Answer
 
@@ -51,8 +51,8 @@ class TestEvaluationService(asynctest.TestCase):
             self.question_answer_repository.save_answer(self.answer)
 
         self.user_id = "1"
-        self.interview = InterviewSession(user_id=self.user_id,
-                                          question_id_list=self.question_id_list)
+        self.interview = Interview(user_id=self.user_id,
+                                   question_id_list=self.question_id_list)
         self.interview_id = str(self.interview_repository.save_interview(self.interview).inserted_id)
 
     def tearDown(self):

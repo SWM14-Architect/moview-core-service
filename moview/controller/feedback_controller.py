@@ -1,9 +1,11 @@
 from flask import make_response, jsonify, request
+from flask_jwt_extended import jwt_required, get_jwt_identity
 from flask_restx import Resource, Namespace
 from http import HTTPStatus
 
 from moview.config.container.container_config import ContainerConfig
 from moview.config.loggers.mongo_logger import *
+from moview.utils.timing_decorator import api_timing_decorator
 
 api = Namespace('feedback', description='feedback api')
 
@@ -11,8 +13,10 @@ api = Namespace('feedback', description='feedback api')
 @api.route('/feedback')
 class FeedbackConstructor(Resource):
 
+    @jwt_required()
+    @api_timing_decorator
     def post(self):
-        session_id = request.cookies.get('session')
+        user_id = str(get_jwt_identity())
         request_body = request.get_json()
 
         interview_id = request_body['interview_id']
@@ -21,12 +25,11 @@ class FeedbackConstructor(Resource):
 
         feedback_service = ContainerConfig().feedback_service
 
-        # todo 로그인 추가 시 session_id를 user_id로 변경해야 함.
-        feedback_service.feedback(user_id=session_id, interview_id=interview_id, question_ids=question_ids,
+        feedback_service.feedback(user_id=user_id, interview_id=interview_id, question_ids=question_ids,
                                   feedback_scores=feedback_scores)
 
         execution_trace_logger("FEEDBACK CONTROLLER: POST",
-                               user_id=session_id,
+                               user_id=user_id,
                                interview_id=interview_id,
                                question_ids=question_ids,
                                feedback_scores=feedback_scores)
