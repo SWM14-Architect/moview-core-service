@@ -40,7 +40,8 @@ class STT(Resource):
 
             return make_response(jsonify(
                 {'message': {
-                    'error': str(e)
+                    'error': '음성이 너무 짧거나, 소리가 너무 작아요. 다시 시도해주세요.',
+                    'error_message': str(e)
                 }}
             ), HTTPStatus.BAD_REQUEST)
 
@@ -51,6 +52,7 @@ class STT(Resource):
 
             return make_response(jsonify(
                 {'message': {
-                    'error': "오류가 발생했습니다. 다시 요청해 주세요!"
+                    'error': '면접관이 혼란스러워하는 것 같아요. 다시 시도해주세요.',
+                    'error_message': str(e)
                 }}
             ), HTTPStatus.INTERNAL_SERVER_ERROR)

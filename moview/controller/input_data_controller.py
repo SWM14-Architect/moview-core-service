@@ -5,8 +5,12 @@ from http import HTTPStatus
 
 from moview.config.container.container_config import ContainerConfig
 from moview.config.loggers.mongo_logger import *
+from moview.exception.initial_question_parse_error import InitialQuestionParseError
+from moview.exception.retry_execution_error import RetryExecutionError
 from moview.utils.async_controller import async_controller
 from moview.utils.timing_decorator import api_timing_decorator
+
+import asyncio
 
 api = Namespace('input_data', description='input data api')
 
@@ -31,19 +35,65 @@ class InputDataConstructor(Resource):
         interview_service = ContainerConfig().interview_service
         input_data_service = ContainerConfig().input_data_service
 
-        result = await input_data_service.ask_initial_question_to_interviewee(
-            interviewee_name=interviewee_name,
-            company_name=company_name,
-            job_group=job_group,
-            recruit_announcement=recruit_announcement,
-            cover_letter_questions=cover_letter_questions,
-            cover_letter_answers=cover_letter_answers
-        )
+        try:
+            result = await input_data_service.ask_initial_question_to_interviewee(
+                interviewee_name=interviewee_name,
+                company_name=company_name,
+                job_group=job_group,
+                recruit_announcement=recruit_announcement,
+                cover_letter_questions=cover_letter_questions,
+                cover_letter_answers=cover_letter_answers
+            )
 
-        interview_document_id = interview_service.create_interview(
-            user_id=user_id,
-            input_data_document_id=result['input_data_document']
-        )
+        except asyncio.exceptions.CancelledError as e:
+            error_logger(msg="ASYNCIO CANCELLED ERROR", error=e)
+            return make_response(jsonify(
+                {'message': {
+                    'error': 'Oops! 당신의 질문이 우주로 떠나버렸어! 다시 시도해주세요.',
+                    'error_message': str(e)
+                }}
+            ), HTTPStatus.INTERNAL_SERVER_ERROR)
+
+        except InitialQuestionParseError as e:
+            error_logger(msg="INITIAL QUESTION PARSE ERROR", error=e)
+            return make_response(jsonify(
+                {'message': {
+                    'error': '"뭐라고요? 그건 아마도 우주적 수준의 질문이었나봐요. 다시 시도해주세요.',
+                    'error_message': str(e)
+                }}
+            ), HTTPStatus.INTERNAL_SERVER_ERROR)
+
+        except RetryExecutionError as e:
+            error_logger(msg="RETRY EXECUTION ERROR", error=e)
+            return make_response(jsonify(
+                {'message': {
+                    'error': '앗! 특이한 질문을 찾아내었습니다. 하지만 제 지식 범위를 넘어선 것 같아요. 다시 시도해주세요.',
+                    'error_message': str(e)
+                }}
+            ), HTTPStatus.INTERNAL_SERVER_ERROR)
+
+        except Exception as e:
+            error_logger(msg="UNKNOWN ERROR", error=e)
+            return make_response(jsonify(
+                {'message': {
+                    'error': '면접관이 혼란스러워하는 것 같아요. 다시 시도해주세요.',
+                    'error_message': str(e)
+                }}
+            ), HTTPStatus.INTERNAL_SERVER_ERROR)
+
+        try:
+            interview_document_id = interview_service.create_interview(
+                user_id=user_id,
+                input_data_document_id=result['input_data_document']
+            )
+        except Exception as e:
+            error_logger(msg="CREATE INTERVIEW DOCUMENT ERROR", error=e)
+            return make_response(jsonify(
+                {'message': {
+                    'error': '오잉? 이상한 오류 메시지가 나타났어요. 다시 시도해주세요.',
+                    'error_message': str(e)
+                }}
+            ), HTTPStatus.INTERNAL_SERVER_ERROR)
 
         execution_trace_logger("INPUT DATA CONTROLLER: POST",
                                user_id=user_id,

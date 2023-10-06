@@ -7,6 +7,7 @@ from langchain.prompts.chat import (
 from moview.utils.prompt_loader import PromptLoader
 from moview.environment.llm_factory import LLMModelFactory
 from moview.config.loggers.mongo_logger import prompt_result_logger
+from moview.utils.retry_decorator import async_retry
 from moview.utils.singleton_meta_class import SingletonMeta
 
 
@@ -14,8 +15,9 @@ class InputAnalyzer(metaclass=SingletonMeta):
     def __init__(self, prompt_loader: PromptLoader):
         self.prompt = prompt_loader.load_prompt_json(InputAnalyzer.__name__)
 
+    @async_retry()
     async def analyze_initial_input(self, job_group: str, recruitment_announcement: str, cover_letter_question: str,
-                              cover_letter_answer: str) -> str:
+                                    cover_letter_answer: str) -> str:
         """
         자소서 문항과 자소서 답변을 분석하여 분석 결과를 반환하는 메서드 (답변,문항) 한 개의 쌍에 대해서 분석하는 메서드다.
 
