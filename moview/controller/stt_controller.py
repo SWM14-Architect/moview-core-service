@@ -30,3 +30,10 @@ class STT(Resource):
                     'error': str(e)
                 }}
             ), HTTPStatus.BAD_REQUEST)
+
+        except Exception as e:
+            return make_response(jsonify(
+                {'message': {
+                    'error': "오류가 발생했습니다. 다시 요청해 주세요!"
+                }}
+            ), HTTPStatus.INTERNAL_SERVER_ERROR)
