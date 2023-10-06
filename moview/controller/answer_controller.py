@@ -36,7 +36,7 @@ class AnswerConstructor(Resource):
             error_logger(msg="RETRY EXECUTION ERROR", error=e)
             return make_response(jsonify(
                 {'message': {
-                    'error': '앗! 특이한 질문을 찾아내었습니다. 하지만 제 지식 범위를 넘어선 것 같아요. 다시 시도해주세요.',
+                    'error': '오잉? 이상한 오류 메시지가 나타났어요. 다시 시도해주세요.',
                     'error_message': str(e)
                 }}
             ), HTTPStatus.INTERNAL_SERVER_ERROR)
