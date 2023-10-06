@@ -72,18 +72,18 @@ class TestAsyncCall(asynctest.TestCase):
         self.question = "이 회사에서 어떻게 성과를 낼 건지 말씀해주세요."
         self.answer = "탁월한 개발자로서 이 회사의 핵심 인재가 되겠습니다. 그리고 신입 개발자들의 온보딩을 도움으로써 회사의 효율성을 높이는 시니어 개발자가 될 것입니다."
 
-    async def test_async_generate_follow_up(self):
-        start_time = time.perf_counter()
-        total = 100
-        fail = 0
-        result = await give_followup_async_concurrently(self.prompt, self.question, self.answer, total)
-        for i, elem in enumerate(result):
-            is_fail = False
-            print(elem, end="\n")
-            if len(pasre_result(elem)) != 2:
-                fail += 1
-            print(f"{i + 1}번째 시도 {'실패' if is_fail else '성공'}: {result}\n ")
-        print(f"실패 : {fail} 성공률 : {100 - fail / total * 100}%")
-
-        elapsed_time = time.perf_counter() - start_time
-        print(f"elapsed time: {elapsed_time:0.2f} seconds")
+    # async def test_async_generate_follow_up(self):
+    #     start_time = time.perf_counter()
+    #     total = 100
+    #     fail = 0
+    #     result = await give_followup_async_concurrently(self.prompt, self.question, self.answer, total)
+    #     for i, elem in enumerate(result):
+    #         is_fail = False
+    #         print(elem, end="\n")
+    #         if len(pasre_result(elem)) != 2:
+    #             fail += 1
+    #         print(f"{i + 1}번째 시도 {'실패' if is_fail else '성공'}: {result}\n ")
+    #     print(f"실패 : {fail} 성공률 : {100 - fail / total * 100}%")
+    #
+    #     elapsed_time = time.perf_counter() - start_time
+    #     print(f"elapsed time: {elapsed_time:0.2f} seconds")

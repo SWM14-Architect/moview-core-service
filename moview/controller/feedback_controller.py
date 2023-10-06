@@ -5,6 +5,7 @@ from http import HTTPStatus
 
 from moview.config.container.container_config import ContainerConfig
 from moview.config.loggers.mongo_logger import *
+from moview.utils.timing_decorator import api_timing_decorator
 
 api = Namespace('feedback', description='feedback api')
 
@@ -13,6 +14,7 @@ api = Namespace('feedback', description='feedback api')
 class FeedbackConstructor(Resource):
 
     @jwt_required()
+    @api_timing_decorator
     def post(self):
         user_id = str(get_jwt_identity())
         request_body = request.get_json()
