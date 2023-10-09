@@ -5,7 +5,7 @@ from http import HTTPStatus
 
 from moview.exception.stt_error import AudioTooShortError, AudioTooQuietError
 from moview.utils.stt import SpeechToText
-from moview.utils.timing_decorator import api_timing_decorator
+from moview.decorator.timing_decorator import api_timing_decorator
 from moview.config.loggers.mongo_logger import *
 
 api = Namespace('stt', description='stt api')
@@ -14,8 +14,8 @@ api = Namespace('stt', description='stt api')
 @api.route('/stt')
 class STT(Resource):
 
-    @jwt_required()
     @api_timing_decorator
+    @jwt_required()
     def post(self):
         try:
             request_body = request.get_json()

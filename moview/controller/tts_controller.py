@@ -4,8 +4,10 @@ from flask_restx import Resource, Namespace
 from http import HTTPStatus
 
 from moview.utils.tts import TextToSpeech
-from moview.utils.timing_decorator import api_timing_decorator
 from moview.config.loggers.mongo_logger import *
+from moview.decorator.timing_decorator import api_timing_decorator
+from moview.decorator.validation_decorator import validate_char_count
+from moview.controller.constants.answer_contants import MAX_INTERVIEW_ANSWER_LENGTH
 
 api = Namespace('tts', description='tts api')
 
@@ -13,8 +15,11 @@ api = Namespace('tts', description='tts api')
 @api.route('/tts')
 class TTS(Resource):
 
-    @jwt_required()
     @api_timing_decorator
+    @validate_char_count({
+        'text': MAX_INTERVIEW_ANSWER_LENGTH
+    })
+    @jwt_required()
     def post(self):
         request_body = request.get_json()
 

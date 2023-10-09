@@ -6,7 +6,11 @@ from http import HTTPStatus
 from moview.config.container.container_config import ContainerConfig
 from moview.config.loggers.mongo_logger import *
 from moview.utils.async_controller import async_controller
-from moview.utils.timing_decorator import api_timing_decorator
+from moview.decorator.timing_decorator import api_timing_decorator
+from moview.decorator.validation_decorator import validate_char_count
+from moview.controller.constants.input_data_constants import (MAX_COMPANY_NAME_LENGTH, MAX_POSITION_NAME_LENGTH,
+                                                              MAX_RECRUITMENT_LENGTH, MAX_COVERLETTER_QUESTION_LENGTH,
+                                                              MAX_COVERLETTER_ANSWER_LENGTH)
 
 api = Namespace('input_data', description='input data api')
 
@@ -14,8 +18,15 @@ api = Namespace('input_data', description='input data api')
 @api.route('/input')
 class InputDataConstructor(Resource):
 
-    @jwt_required()
     @api_timing_decorator
+    @validate_char_count({
+        'company_name': MAX_COMPANY_NAME_LENGTH,
+        'job_group': MAX_POSITION_NAME_LENGTH,
+        'recruit_announcement': MAX_RECRUITMENT_LENGTH,
+        'cover_letter_questions': MAX_COVERLETTER_QUESTION_LENGTH,
+        'cover_letter_answers': MAX_COVERLETTER_ANSWER_LENGTH
+    })
+    @jwt_required()
     @async_controller
     async def post(self):
         user_id = str(get_jwt_identity())
