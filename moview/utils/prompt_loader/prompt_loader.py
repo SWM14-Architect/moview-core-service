@@ -1,7 +1,7 @@
 import json
-import os
 
 from moview.utils.singleton_meta_class import SingletonMeta
+from moview.environment.environment_loader import EnvironmentLoader
 
 
 class PromptLoader(metaclass=SingletonMeta):
@@ -20,10 +20,8 @@ class PromptLoader(metaclass=SingletonMeta):
         if class_name == 'InterviewAnswerScorer':
             raise ValueError('InterviewAnswerScorer는 이 메서드를 사용할 수 없습니다.')
 
-        abs_path = os.path.dirname(os.path.abspath(__file__))
-
-        with open(abs_path + '/json/' + class_name + '.json', 'r', encoding='utf-8') as f:
-            data = json.load(f)
+        json_str = EnvironmentLoader.getenv(f'json/{class_name}')
+        data = json.loads(json_str)
 
         return data['prompt']
 
@@ -32,10 +30,8 @@ class PromptLoader(metaclass=SingletonMeta):
         if class_name != 'AnswerScorer':
             raise ValueError('AnswerScorer만 이 메서드를 사용할 수 있습니다.')
 
-        abs_path = os.path.dirname(os.path.abspath(__file__))
-
-        with open(abs_path + '/json/' + class_name + '.json', 'r', encoding='utf-8') as f:
-            data = json.load(f)
+        json_str = EnvironmentLoader.getenv(f'json/{class_name}')
+        data = json.loads(json_str)
 
         return data['multi_prompt_template']
 
@@ -44,10 +40,8 @@ class PromptLoader(metaclass=SingletonMeta):
         if class_name != 'AnswerScorer':
             raise ValueError('AnswerScorer만 이 메서드를 사용할 수 있습니다.')
 
-        abs_path = os.path.dirname(os.path.abspath(__file__))
-
-        with open(abs_path + '/json/' + class_name + '.json', 'r', encoding='utf-8') as f:
-            data = json.load(f)
+        json_str = EnvironmentLoader.getenv(f'json/{class_name}')
+        data = json.loads(json_str)
 
         keys = {
             "Details": 'details_template',
