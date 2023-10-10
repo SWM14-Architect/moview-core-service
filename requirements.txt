@@ -14,3 +14,4 @@ pandas==2.0.3
 pinecone-client==2.2.2
 pip-chill==1.0.3
 tiktoken==0.4.0
+markupsafe==2.0.1
