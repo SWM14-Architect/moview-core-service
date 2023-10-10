@@ -6,6 +6,14 @@ from moview.config.loggers.mongo_logger import error_logger
 
 
 def validate_char_count(fields_limits):
+    """
+    Request Body의 특정 필드의 글자 수를 제한하는 데코레이터입니다.
+    Args:
+        fields_limits: 글자 수를 제한할 필드와 제한할 글자 수를 key-value로 가지는 딕셔너리
+
+    Returns:
+        검증에 실패했을 경우 HTTPStatus.BAD_REQUEST를 반환
+    """
     def decorator(f):
         @wraps(f)
         def decorated_function(*args, **kwargs):
