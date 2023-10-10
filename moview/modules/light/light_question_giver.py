@@ -13,7 +13,7 @@ from moview.environment.llm_factory import LLMModelFactory
 from moview.config.loggers.mongo_logger import prompt_result_logger
 from moview.utils.prompt_parser import PromptParser
 from moview.utils.singleton_meta_class import SingletonMeta
-from moview.utils.retry_decorator import retry
+from moview.decorator.retry_decorator import retry
 
 
 class LightQuestionGiver(metaclass=SingletonMeta):

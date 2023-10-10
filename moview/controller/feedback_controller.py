@@ -5,7 +5,7 @@ from http import HTTPStatus
 
 from moview.config.container.container_config import ContainerConfig
 from moview.config.loggers.mongo_logger import *
-from moview.utils.timing_decorator import api_timing_decorator
+from moview.decorator.timing_decorator import api_timing_decorator
 
 api = Namespace('feedback', description='feedback api')
 

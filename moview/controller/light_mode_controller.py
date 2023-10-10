@@ -5,7 +5,10 @@ from http import HTTPStatus
 
 from moview.config.container.container_config import ContainerConfig
 from moview.config.loggers.mongo_logger import *
-from moview.utils.timing_decorator import api_timing_decorator
+from moview.decorator.timing_decorator import api_timing_decorator
+from moview.decorator.validation_decorator import validate_char_count
+from moview.controller.constants.input_data_constants import (MAX_COMPANY_NAME_LENGTH, MAX_POSITION_NAME_LENGTH,
+                                                              MAX_KEYWORD_LENGTH)
 
 api = Namespace('light_mode', description='light mode api')
 
@@ -13,8 +16,13 @@ api = Namespace('light_mode', description='light mode api')
 @api.route('/light')
 class LightModeConstructor(Resource):
 
-    @jwt_required()
     @api_timing_decorator
+    @validate_char_count({
+        'company_name': MAX_COMPANY_NAME_LENGTH,
+        'job_group': MAX_POSITION_NAME_LENGTH,
+        'keyword': MAX_KEYWORD_LENGTH
+    })
+    @jwt_required()
     def post(self):
         user_id = str(get_jwt_identity())
 

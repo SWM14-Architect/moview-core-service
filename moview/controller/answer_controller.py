@@ -5,8 +5,10 @@ from http import HTTPStatus
 
 from moview.config.container.container_config import ContainerConfig
 from moview.config.loggers.mongo_logger import *
+from moview.decorator.timing_decorator import api_timing_decorator
+from moview.decorator.validation_decorator import validate_char_count
+from moview.controller.constants.answer_contants import MAX_INTERVIEW_QUESTION_LENGTH, MAX_INTERVIEW_ANSWER_LENGTH
 from moview.exception.retry_execution_error import RetryExecutionError
-from moview.utils.timing_decorator import api_timing_decorator
 
 api = Namespace('answer', description='answer api')
 
@@ -16,6 +18,11 @@ class AnswerConstructor(Resource):
 
     @jwt_required()
     @api_timing_decorator
+    @validate_char_count({
+        'question_content': MAX_INTERVIEW_QUESTION_LENGTH,
+        'answer_content': MAX_INTERVIEW_ANSWER_LENGTH
+    })
+    @jwt_required()
     def post(self):
         user_id = str(get_jwt_identity())
         request_body = request.get_json()

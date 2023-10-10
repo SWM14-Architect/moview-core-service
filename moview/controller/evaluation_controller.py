@@ -9,7 +9,7 @@ from moview.config.container.container_config import ContainerConfig
 from moview.config.loggers.mongo_logger import *
 from moview.exception.retry_execution_error import RetryExecutionError
 from moview.utils.async_controller import async_controller
-from moview.utils.timing_decorator import api_timing_decorator
+from moview.decorator.timing_decorator import api_timing_decorator
 
 api = Namespace('evaluation', description='evaluation api')
 
@@ -17,8 +17,8 @@ api = Namespace('evaluation', description='evaluation api')
 @api.route('/evaluation')
 class EvaluationConstructor(Resource):
 
-    @jwt_required()
     @api_timing_decorator
+    @jwt_required()
     @async_controller
     async def post(self):
         user_id = str(get_jwt_identity())
