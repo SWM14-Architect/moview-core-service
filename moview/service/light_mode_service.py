@@ -44,7 +44,8 @@ class LightModeService(metaclass=SingletonMeta):
         initial_input_data_model = self.__create_interviewee_data_entity_for_light_mode(
             interviewee_name=interviewee_name,
             company_name=company_name,
-            job_group=job_group)
+            job_group=job_group,
+            keyword=keyword)
 
         # Initial Input Data Document 저장
         initial_input_document = self.input_data_repository.save_for_light_mode(
@@ -86,7 +87,7 @@ class LightModeService(metaclass=SingletonMeta):
 
     @staticmethod
     def __create_interviewee_data_entity_for_light_mode(interviewee_name: str, company_name: str,
-                                                        job_group: str) -> InitialInputData:
+                                                        job_group: str, keyword: str) -> InitialInputData:
         # 도메인 모델 InitialInputData을 재사용한다. 이유는 다음과 같다.
         # 이 모델에 모집공고만 None 처리하면 light mode 용 초기 데이터가 만들어지기 때문.
         # 그리고 CoverLetter 모델 역시 만들 필요가 없어진다.
@@ -94,6 +95,7 @@ class LightModeService(metaclass=SingletonMeta):
             interviewee_name=interviewee_name,
             company_name=company_name,
             job_group=job_group,
+            keyword=keyword,
             recruit_announcement=None)
 
     @staticmethod

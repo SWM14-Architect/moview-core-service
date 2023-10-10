@@ -45,8 +45,8 @@ class LightModeConstructor(Resource):
         if result is None:
             return make_response(jsonify(
                 {'message': {
-                    'light_questions': None,
-                    'interview_id': None
+                    'error': 'Oops! 당신의 질문이 우주로 떠나버렸어! 다시 시도해주세요.',
+                    'error_message': 'Parse Error'
                 }}
             ), HTTPStatus.INTERNAL_SERVER_ERROR)
 

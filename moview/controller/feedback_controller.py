@@ -25,8 +25,18 @@ class FeedbackConstructor(Resource):
 
         feedback_service = ContainerConfig().feedback_service
 
-        feedback_service.feedback(user_id=user_id, interview_id=interview_id, question_ids=question_ids,
-                                  feedback_scores=feedback_scores)
+        try:
+            feedback_service.feedback(user_id=user_id, interview_id=interview_id, question_ids=question_ids,
+                                      feedback_scores=feedback_scores)
+
+        except Exception as e:
+            error_logger(msg="UNKNOWN ERROR", error=e)
+            return make_response(jsonify(
+                {'message': {
+                    'error': '면접관이 혼란스러워하는 것 같아요. 다시 시도해주세요.',
+                    'error_message': str(e)
+                }}
+            ), HTTPStatus.INTERNAL_SERVER_ERROR)
 
         execution_trace_logger("FEEDBACK CONTROLLER: POST",
                                user_id=user_id,

@@ -8,6 +8,7 @@ from moview.config.loggers.mongo_logger import *
 from moview.decorator.timing_decorator import api_timing_decorator
 from moview.decorator.validation_decorator import validate_char_count
 from moview.controller.constants.answer_contants import MAX_INTERVIEW_QUESTION_LENGTH, MAX_INTERVIEW_ANSWER_LENGTH
+from moview.exception.retry_execution_error import RetryExecutionError
 
 api = Namespace('answer', description='answer api')
 
@@ -15,6 +16,7 @@ api = Namespace('answer', description='answer api')
 @api.route('/answer')
 class AnswerConstructor(Resource):
 
+    @jwt_required()
     @api_timing_decorator
     @validate_char_count({
         'question_content': MAX_INTERVIEW_QUESTION_LENGTH,
@@ -32,9 +34,28 @@ class AnswerConstructor(Resource):
 
         answer_service = ContainerConfig().answer_service
 
-        chosen_question, saved_id = answer_service.answer(user_id=user_id, interview_id=interview_id,
-                                                          question_id=question_id, question_content=question_content,
-                                                          answer_content=answer_content)
+        try:
+            chosen_question, saved_id = answer_service.answer(user_id=user_id, interview_id=interview_id,
+                                                              question_id=question_id, question_content=question_content,
+                                                              answer_content=answer_content)
+
+        except RetryExecutionError as e:
+            error_logger(msg="RETRY EXECUTION ERROR", error=e)
+            return make_response(jsonify(
+                {'message': {
+                    'error': '오잉? 이상한 오류 메시지가 나타났어요. 다시 시도해주세요.',
+                    'error_message': str(e)
+                }}
+            ), HTTPStatus.INTERNAL_SERVER_ERROR)
+
+        except Exception as e:
+            error_logger(msg="UNKNOWN ERROR", error=e)
+            return make_response(jsonify(
+                {'message': {
+                    'error': '면접관이 혼란스러워하는 것 같아요. 다시 시도해주세요.',
+                    'error_message': str(e)
+                }}
+            ), HTTPStatus.INTERNAL_SERVER_ERROR)
 
         execution_trace_logger("ANSWER CONTROLLER: POST",
                                user_id=user_id,
