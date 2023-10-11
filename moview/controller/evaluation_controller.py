@@ -1,6 +1,6 @@
 import asyncio
 
-from flask import make_response, jsonify, request
+from flask import make_response, jsonify, request, g
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from flask_restx import Resource, Namespace
 from http import HTTPStatus
@@ -22,9 +22,11 @@ class EvaluationConstructor(Resource):
     @async_controller
     async def post(self):
         user_id = str(get_jwt_identity())
+        g.user_id = user_id
         request_body = request.get_json()
 
         interview_id = request_body['interview_id']
+        g.interview_id = interview_id
 
         evaluation_service = ContainerConfig().evaluation_service
 
@@ -58,7 +60,7 @@ class EvaluationConstructor(Resource):
                 }}
             ), HTTPStatus.INTERNAL_SERVER_ERROR)
 
-        execution_trace_logger("EVALUATION CONTROLLER: POST", user_id=user_id, interview_id=interview_id, results=results)
+        execution_trace_logger("EVALUATION CONTROLLER: POST", results=results)
 
         return make_response(jsonify(
             {'message':

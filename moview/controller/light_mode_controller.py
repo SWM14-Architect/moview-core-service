@@ -1,4 +1,4 @@
-from flask import make_response, jsonify, request
+from flask import make_response, jsonify, request, g
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from flask_restx import Resource, Namespace
 from http import HTTPStatus
@@ -25,7 +25,7 @@ class LightModeConstructor(Resource):
     @jwt_required()
     def post(self):
         user_id = str(get_jwt_identity())
-
+        g.user_id = user_id
         request_body = request.get_json()
 
         interviewee_name = request_body['interviewee_name']
@@ -54,9 +54,9 @@ class LightModeConstructor(Resource):
             user_id=user_id,
             input_data_document_id=result['input_data_document']
         )
+        g.interview_id = interview_document_id
 
         execution_trace_logger("LIGHT MODE CONTROLLER: POST",
-                               user_id=user_id,
                                interviewee_name=interviewee_name,
                                company_name=company_name,
                                job_group=job_group,

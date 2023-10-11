@@ -1,3 +1,5 @@
+from flask import g
+
 from moview.utils.singleton_meta_class import SingletonMeta
 from moview.config.loggers.mongo_logger import execution_trace_logger
 from moview.repository.user.user_repository import UserRepository
@@ -11,7 +13,8 @@ class UserService(metaclass=SingletonMeta):
 
     def upsert_user(self, user: dict):
         oauth_user = self.__convert_to_oauth_user(user)
-        execution_trace_logger(msg="UPSERT_USER", user_profile_id=oauth_user.profile_id)
+        g.user_id = oauth_user.profile_id
+        execution_trace_logger(msg="UPSERT_USER")
         self.user_repository.upsert_user(oauth_user)
         return oauth_user
 
@@ -24,7 +27,7 @@ class UserService(metaclass=SingletonMeta):
         Returns: 해당 profile_id를 가진 user
 
         """
-        execution_trace_logger(msg="GET_USER", user_id=profile_id_in_jwt_identity)
+        execution_trace_logger(msg="GET_USER")
         found_user = self.user_repository.find_user_by_profile_id_for_jwt(profile_id_in_jwt_identity)
 
         if found_user:

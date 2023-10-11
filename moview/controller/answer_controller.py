@@ -1,4 +1,4 @@
-from flask import make_response, jsonify, request
+from flask import make_response, jsonify, request, g
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from flask_restx import Resource, Namespace
 from http import HTTPStatus
@@ -25,9 +25,11 @@ class AnswerConstructor(Resource):
     @jwt_required()
     def post(self):
         user_id = str(get_jwt_identity())
+        g.user_id = user_id
         request_body = request.get_json()
 
         interview_id = request_body['interview_id']
+        g.interview_id = interview_id
         question_id = request_body['question_id']
         question_content = request_body['question_content']
         answer_content = request_body['answer_content']
@@ -58,8 +60,6 @@ class AnswerConstructor(Resource):
             ), HTTPStatus.INTERNAL_SERVER_ERROR)
 
         execution_trace_logger("ANSWER CONTROLLER: POST",
-                               user_id=user_id,
-                               interview_id=interview_id,
                                question_id=question_id,
                                question_content=question_content,
                                answer_content=answer_content,

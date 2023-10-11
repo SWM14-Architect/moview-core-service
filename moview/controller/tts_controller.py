@@ -1,5 +1,5 @@
-from flask import make_response, jsonify, request
-from flask_jwt_extended import jwt_required
+from flask import make_response, jsonify, request, g
+from flask_jwt_extended import jwt_required, get_jwt_identity
 from flask_restx import Resource, Namespace
 from http import HTTPStatus
 
@@ -21,9 +21,14 @@ class TTS(Resource):
     })
     @jwt_required()
     def post(self):
+        user_id = str(get_jwt_identity())
+        g.user_id = user_id
         request_body = request.get_json()
 
+        interview_id = request_body['interview_id']
+        g.interview_id = interview_id
         text = request_body['text']
+
         try:
             audio_data = TextToSpeech.text_to_base64(text)
 

@@ -20,11 +20,11 @@ class InterviewRepository(metaclass=SingletonMeta):
         self.collection = self.db["interview"]
 
     def save_interview(self, interview: Interview) -> InsertOneResult:
-        execution_trace_logger(msg="SAVE_INTERVIEW", user_id=interview.user_id)
+        execution_trace_logger(msg="SAVE_INTERVIEW")
         return self.collection.insert_one(interview.dict())
 
     def find_interview_by_object_id(self, user_id: str, interview_id) -> Dict[str, Any]:
-        execution_trace_logger(msg="FIND_INTERVIEW_BY_OBJECT_ID", user_id=user_id, interview_id=interview_id)
+        execution_trace_logger(msg="FIND_INTERVIEW_BY_OBJECT_ID")
         return self.collection.find_one({"user_id": user_id, "_id": ObjectId(interview_id)})
 
     def update_interview(self, interview: Dict[str, Any], object_id: str) -> UpdateResult:
