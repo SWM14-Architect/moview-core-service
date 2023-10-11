@@ -36,6 +36,21 @@ class LightModeConstructor(Resource):
         interview_service = ContainerConfig().interview_service
         light_mode_service = ContainerConfig().light_mode_service
 
+        # 1. Interview Document 생성
+        try:
+            interview_document_id = interview_service.create_interview(
+                user_id=user_id,
+            )
+        except Exception as e:
+            error_logger(msg="CREATE INTERVIEW DOCUMENT ERROR", error=e)
+            return make_response(jsonify(
+                {'message': {
+                    'error': '오잉? 이상한 오류 메시지가 나타났어요. 다시 시도해주세요.',
+                    'error_message': str(e)
+                }}
+            ), HTTPStatus.INTERNAL_SERVER_ERROR)
+
+        # 2. Initial Question 생성
         result = light_mode_service.ask_light_question_to_interviewee(
             interviewee_name=interviewee_name,
             company_name=company_name,
@@ -50,10 +65,21 @@ class LightModeConstructor(Resource):
                 }}
             ), HTTPStatus.INTERNAL_SERVER_ERROR)
 
-        interview_document_id = interview_service.create_interview(
-            user_id=user_id,
-            input_data_document_id=result['input_data_document']
-        )
+        # 3. Interview Document에 Initial Input Data Document ID 업데이트
+        try:
+            interview_service.update_interview_with_initial_input_data(
+                user_id=user_id,
+                interview_document_id=interview_document_id,
+                input_data_document_id=result['input_data_document']['#id']
+            )
+        except Exception as e:
+            error_logger(msg="CREATE INTERVIEW DOCUMENT ERROR", error=e)
+            return make_response(jsonify(
+                {'message': {
+                    'error': '오잉? 이상한 오류 메시지가 나타났어요. 다시 시도해주세요.',
+                    'error_message': str(e)
+                }}
+            ), HTTPStatus.INTERNAL_SERVER_ERROR)
 
         execution_trace_logger("LIGHT MODE CONTROLLER: POST",
                                user_id=user_id,

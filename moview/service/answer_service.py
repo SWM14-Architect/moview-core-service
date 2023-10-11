@@ -85,7 +85,7 @@ class AnswerService(metaclass=SingletonMeta):
             "#db": self.question_answer_repository.db.name
         })
 
-        self.interview_repository.update_interview(interview=interview_entity.dict(), object_id=interview_id)
+        self.interview_repository.update_interview(interview_model=interview_entity, interview_id=interview_id)
 
         return interview_entity
 
