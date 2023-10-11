@@ -1,7 +1,7 @@
 version: '3.8'
 
 services:
-  web:
+  moview:
     build: ../../
     command: python app.py run -h 0.0.0.0
     volumes:
@@ -9,9 +9,40 @@ services:
     ports:
       - 5005:5005
     environment:
-      MOVIEW_CORE_ENV : ${MOVIEW_CORE_ENV}
+      MOVIEW_CORE_ENV : "dev"
+
       AWS_IAM: ${AWS_IAM}
       AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
       AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
       AWS_DEFAULT_REGION: ${AWS_DEFAULT_REGION}
       OUTPUT_FORMAT: ${OUTPUT_FORMAT}
+
+    depends_on:
+      - mongodb
+    networks:
+      - backend
+
+  mongodb:
+    container_name: mongodb
+    hostname: mongodb
+    image: mongo:latest
+    environment:
+      MONGO_INITDB_ROOT_USERNAME:  ${MONGO_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONG0_PASSWORD}
+      MONGODB_DATA_DIR: /data/db
+      MONDODB_LOG_DIR: /dev/null
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodbdata:/data/db
+    networks:
+      backend:
+        aliases:
+          - "mongodb"
+
+volumes:
+  mongodbdata:
+
+networks:
+  backend:
+    driver: bridge
