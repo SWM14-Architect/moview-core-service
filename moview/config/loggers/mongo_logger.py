@@ -2,6 +2,7 @@ import inspect
 import logging
 import sys
 import traceback
+
 from moview.config.db.mongo_handler import MongoHandler
 
 
@@ -110,10 +111,10 @@ class MongoLogger:
                                                                         collection_name='executionTraceLogs',
                                                                         log_level=logging.INFO))
         self.error_logger = LoggerWrapper(self._create_logger(logger_name='error_logger',
-                                                              collection_name='errorLogs',
+                                                              collection_name='executionTraceLogs',
                                                               log_level=logging.ERROR))
         self.prompt_result_logger = LoggerWrapper(self._create_logger(logger_name='prompt_result_logger',
-                                                                      collection_name='promptResultLogs',
+                                                                      collection_name='executionTraceLogs',
                                                                       log_level=logging.INFO))
 
     def _create_logger(self, logger_name, collection_name, log_level):

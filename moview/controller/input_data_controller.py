@@ -1,4 +1,4 @@
-from flask import make_response, jsonify, request
+from flask import make_response, jsonify, request, g
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from flask_restx import Resource, Namespace
 from http import HTTPStatus
@@ -34,6 +34,7 @@ class InputDataConstructor(Resource):
     @async_controller
     async def post(self):
         user_id = str(get_jwt_identity())
+        g.user_id = user_id
         request_body = request.get_json()
 
         interviewee_name = request_body['interviewee_name']
@@ -51,6 +52,8 @@ class InputDataConstructor(Resource):
             interview_document_id = interview_service.create_interview(
                 user_id=user_id,
             )
+            g.interview_id = interview_document_id
+
         except Exception as e:
             error_logger(msg="CREATE INTERVIEW DOCUMENT ERROR", error=e)
             return make_response(jsonify(
@@ -114,6 +117,7 @@ class InputDataConstructor(Resource):
                 interview_document_id=interview_document_id,
                 input_data_document_id=result['input_data_document']['#id']
             )
+
         except Exception as e:
             error_logger(msg="CREATE INTERVIEW DOCUMENT ERROR", error=e)
             return make_response(jsonify(
@@ -124,14 +128,12 @@ class InputDataConstructor(Resource):
             ), HTTPStatus.INTERNAL_SERVER_ERROR)
 
         execution_trace_logger("INPUT DATA CONTROLLER: POST",
-                               user_id=user_id,
                                interviewee_name=interviewee_name,
                                company_name=company_name,
                                job_group=job_group,
                                recruit_announcement=recruit_announcement,
                                cover_letter_questions=cover_letter_questions,
-                               cover_letter_answers=cover_letter_answers,
-                               interview_document_id=interview_document_id)
+                               cover_letter_answers=cover_letter_answers)
 
         return make_response(jsonify(
             {'message': {

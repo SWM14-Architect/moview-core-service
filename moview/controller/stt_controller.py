@@ -1,5 +1,5 @@
-from flask import make_response, jsonify, request
-from flask_jwt_extended import jwt_required
+from flask import make_response, jsonify, request, g
+from flask_jwt_extended import jwt_required, get_jwt_identity
 from flask_restx import Resource, Namespace
 from http import HTTPStatus
 
@@ -18,8 +18,12 @@ class STT(Resource):
     @jwt_required()
     def post(self):
         try:
+            user_id = str(get_jwt_identity())
+            g.user_id = user_id
             request_body = request.get_json()
 
+            interview_id = request_body['interview_id']
+            g.interview_id = interview_id
             base64_audio_data = request_body['audio_data']
             text = SpeechToText.base64_to_text(base64_audio_data)
 
@@ -47,8 +51,8 @@ class STT(Resource):
 
         except Exception as e:
             execution_trace_logger("STT CONTROLLER: POST (ERROR)",
-                                      base64_audio_data=base64_audio_data,
-                                      error=str(e))
+                                   base64_audio_data=base64_audio_data,
+                                   error=str(e))
 
             return make_response(jsonify(
                 {'message': {

@@ -3,6 +3,8 @@ import logging
 import traceback
 
 import pymongo
+import flask
+
 from moview.environment.environment_loader import EnvironmentLoader
 from moview.config.db.mongo_constant import DB_HOST, DB_PORT, DB_USERNAME, DB_PASSWORD
 
@@ -39,8 +41,16 @@ class MongoHandler(logging.Handler):
                                          size=100 * 1024 * 1024)  # 컬렉션 최대 크기(100MB) 지정(단위: bytes)
 
     def emit(self, record):
+        if flask.has_app_context():
+            user_id = getattr(flask.g, 'user_id', None)
+            interview_id = getattr(flask.g, 'interview_id', None)
+        else:
+            user_id = 'test'
+            interview_id = 'test'
+
         document = {
-            # session id는 추가 파라미터로 직접 추가
+            'userId': user_id,  # 유저 id
+            'interviewId': interview_id,  # 인터뷰 id
             'timestamp': datetime.datetime.now(),  # 시간
             'fileName': record.filename,  # 파일명
             'className': getattr(record, 'classname', '(unknown class)'),  # 클래스명

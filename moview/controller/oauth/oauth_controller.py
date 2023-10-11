@@ -1,6 +1,6 @@
 from http import HTTPStatus
 
-from flask import make_response, jsonify, request
+from flask import make_response, jsonify, request, g
 from flask_restx import Resource, Namespace
 from flask_jwt_extended import (create_access_token,
                                 get_jwt_identity, jwt_required,
@@ -62,6 +62,7 @@ class UserInfoController(Resource):
         try:
             # access token 을 이용해 db에서 user 정보를 가져옴
             user_id = get_jwt_identity()
+            g.user_id = user_id
 
             user_service = ContainerConfig().user_service
             user = user_service.get_user(str(user_id))
@@ -127,18 +128,6 @@ class OAuthRefreshController(Resource):
         return jsonify(result)
 
 
-# @api.route("/oauth/userinfo")
-# class OAuthUserInfoController(Resource):
-#
-#     def post(self):
-#         #     access token을 인자로 받은 후,
-#         #     kakao에서 user 정보를 가져옴.
-#         access_token = request.args.get('access_token')
-#         oauth_helper = OauthControllerHelper(OAuthProvider.KAKAO)
-#         result = oauth_helper.userinfo(bearer_token="Bearer " + access_token)
-#         return jsonify(result)
-
-
 @api.route('/token/refresh')
 class TokenRefreshController(Resource):
 
@@ -147,6 +136,7 @@ class TokenRefreshController(Resource):
         # refresh token을 이용해 access token 재발급
         try:
             current_user_id = get_jwt_identity()
+            g.user_id = current_user_id
             response = jsonify({'result': True})
             access_token = create_access_token(identity=current_user_id)
             set_access_cookies(response, access_token)
