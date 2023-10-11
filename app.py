@@ -8,7 +8,7 @@ import random
 import string
 
 from moview.controller import input_data_controller, answer_controller, evaluation_controller, feedback_controller, \
-    light_mode_controller, tts_controller, stt_controller
+    light_mode_controller, tts_controller, stt_controller, slack_controller
 from moview.controller.oauth import oauth_controller
 
 # Flask App 생성
@@ -46,6 +46,9 @@ def set_moview_config():
     # tts, stt api
     api.add_namespace(tts_controller.api, '/interview')
     api.add_namespace(stt_controller.api, '/interview')
+
+    # slack api
+    api.add_namespace(slack_controller.api, '/slack')
 
 
 def set_jwt_config():
