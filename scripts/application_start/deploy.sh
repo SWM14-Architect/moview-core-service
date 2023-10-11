@@ -13,5 +13,5 @@ echo ">>> log와 pid를 저장할 파일을 생성합니다."
 touch app.log pid.txt
 
 echo ">>> Flask 앱을 실행합니다."
-nohup python3 app.py > app.log 2>&1 &
+nohup gunicorn app:app -b 0.0.0.0:5005 --workers 4 --threads 8 --timeout=120 > app.log 2>&1 &
 echo $! > pid.txt

@@ -6,7 +6,7 @@ from moview.utils.singleton_meta_class import SingletonMeta
 from moview.config.loggers.mongo_logger import execution_trace_logger
 from moview.repository.question_answer.question_answer_repository import QuestionAnswerRepository
 from moview.repository.interview_repository import InterviewRepository
-from moview.domain.entity.interview_session_document import InterviewSession
+from moview.domain.entity.interview_document import Interview
 from moview.domain.entity.question_answer.question import Question
 from moview.utils.prompt_parser import PromptParser
 
@@ -73,11 +73,11 @@ class AnswerService(metaclass=SingletonMeta):
         return self.interview_repository.find_interview_by_object_id(user_id=user_id, interview_id=interview_id)
 
     def __update_interview_session(self, interview_id: str, interview_dict: Dict[str, Any], question_id: str,
-                                   question_content: str) -> InterviewSession:
+                                   question_content: str) -> Interview:
         execution_trace_logger(msg="UPDATE_INTERVIEW_SESSION", interview_id=interview_id, question_id=question_id)
 
         # 이전 질문들에 현재 질문을 저장하고 그 id를 인터뷰 세션에 저장한다.
-        interview_entity = InterviewSession(**interview_dict)
+        interview_entity = Interview(**interview_dict)
         interview_entity.previous_question_content.append(question_content)
         interview_entity.question_id_list.append({
             "#ref": self.question_answer_repository.collection.name,
@@ -85,7 +85,7 @@ class AnswerService(metaclass=SingletonMeta):
             "#db": self.question_answer_repository.db.name
         })
 
-        self.interview_repository.update_interview(interview=interview_entity.dict(), object_id=interview_id)
+        self.interview_repository.update_interview(interview_model=interview_entity, interview_id=interview_id)
 
         return interview_entity
 

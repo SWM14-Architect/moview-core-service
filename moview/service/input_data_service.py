@@ -47,7 +47,7 @@ class InputDataService(metaclass=SingletonMeta):
             cover_letter_answers: 인터뷰 대상자 자소서 답변 리스트
 
         Returns: {
-            "input_data_document": input_data_document_id,
+            "input_data_document": {"#ref":collection, "#id":input_data_document_id, "#db":db name},
             "question_document_list": [(question_document_id, question_content), ...)]
         }
         """
@@ -94,7 +94,11 @@ class InputDataService(metaclass=SingletonMeta):
         execution_trace_logger("Save Initial Question Document", initial_question_list=initial_question_list)
 
         return {
-            "input_data_document": initial_input_document.inserted_id,
+            "input_data_document": {
+                "#ref": self.input_data_repository.collection.name,
+                "#id": str(initial_input_document.inserted_id),
+                "#db": self.input_data_repository.db.name
+            },
             "question_document_list": list(zip(question_document_id_list, initial_question_list))
         }
 
@@ -156,38 +160,30 @@ class InputDataService(metaclass=SingletonMeta):
         # 초기질문 생성
         initial_question_list = []  # List[str]
 
-        try:
-            # 직군 정보만 가지고 초기질문 생성.
-            created_questions = await self.initial_question_giver.give_initial_questions(
-                job_group=job_group,
-                question_count=self.INIT_QUESTION_NUMBER // 2
-            )
-            initial_question_list.extend(created_questions)
+        # 직군 정보만 가지고 초기질문 생성.
+        created_questions = await self.initial_question_giver.give_initial_questions(
+            job_group=job_group,
+            question_count=self.INIT_QUESTION_NUMBER // 2
+        )
+        initial_question_list.extend(created_questions)
 
-            execution_trace_logger("Initial Question By Job", created_questions=created_questions)
+        execution_trace_logger("Initial Question By Job", created_questions=created_questions)
 
-        except InitialQuestionParseError:  # 파싱에 실패한 경우
-            error_logger("Initial Question Parse Error")
+        # coverletter를 하나의 스트링으로 합침.
+        coverletter = ""
+        for question, answer in zip(cover_letter_questions, cover_letter_answers):
+            coverletter += f"Q. {question}\nA. {answer}\n\n"
 
-        try:
-            # coverletter를 하나의 스트링으로 합침.
-            coverletter = ""
-            for question, answer in zip(cover_letter_questions, cover_letter_answers):
-                coverletter += f"Q. {question}\nA. {answer}\n\n"
+        # 자기소개서와 모집공고를 기반으로 초기질문 생성.
+        created_questions = await self.initial_question_giver.give_initial_questions_by_input_data(
+            recruit_announcement=recruit_announcement,
+            coverletter=coverletter,
+            question_count=self.INIT_QUESTION_NUMBER // 2,
+            exclusion_list=initial_question_list  # 이미 생성된 질문은 제외
+        )
+        initial_question_list.extend(created_questions)
 
-            # 자기소개서와 모집공고를 기반으로 초기질문 생성.
-            created_questions = await self.initial_question_giver.give_initial_questions_by_input_data(
-                recruit_announcement=recruit_announcement,
-                coverletter=coverletter,
-                question_count=self.INIT_QUESTION_NUMBER // 2,
-                exclusion_list=initial_question_list  # 이미 생성된 질문은 제외
-            )
-            initial_question_list.extend(created_questions)
-
-            execution_trace_logger("Initial Question By Recruit & Coverletter", created_questions=created_questions)
-
-        except InitialQuestionParseError:  # 파싱에 실패한 경우
-            error_logger("InitialQuestionParseError")
+        execution_trace_logger("Initial Question By Recruit & Coverletter", created_questions=created_questions)
 
         execution_trace_logger("End Initial Question Creation", initial_question_list=initial_question_list)
         return initial_question_list

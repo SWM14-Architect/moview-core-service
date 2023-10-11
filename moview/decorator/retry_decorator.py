@@ -2,14 +2,8 @@ import functools
 import time
 import asyncio
 
-from moview.config.loggers.mongo_logger import execution_trace_logger
-
-
-class RetryExecutionError(Exception):
-
-    def __init__(self, message="Retry Execution Error"):
-        self.message = message
-        super().__init__(self.message)
+from moview.config.loggers.mongo_logger import error_logger
+from moview.exception.retry_execution_error import RetryExecutionError
 
 
 def retry(max_retries=3, retry_delay=2):
@@ -31,13 +25,13 @@ def retry(max_retries=3, retry_delay=2):
                 try:
                     result = func(*args, **kwargs)
                     return result  # 성공한 경우 결과를 반환합니다.
-                except Exception:
+                except Exception as e:
                     retries += 1
                     if retries < max_retries:
-                        execution_trace_logger(msg=f"{func.__name__} Execution Error: Retry ({retries}/{max_retries})...")
+                        error_logger(msg=f"{func.__name__} Execution Error: Retry ({retries}/{max_retries})...", error=str(e))
                         time.sleep(retry_delay)
                     else:
-                        execution_trace_logger(msg=f"{func.__name__} Execution Error: Failed due to excessive number of retries.")
+                        error_logger(msg=f"{func.__name__} Execution Error: Failed due to excessive number of retries.", error=str(e))
                         raise RetryExecutionError() # 재시도 횟수를 초과하면 예외를 다시 발생시킵니다.
         return wrapper
     return decorator
@@ -62,13 +56,13 @@ def async_retry(max_retries=3, retry_delay=2):
                 try:
                     result = await func(*args, **kwargs)
                     return result  # 성공한 경우 결과를 반환합니다.
-                except Exception:
+                except Exception as e:
                     retries += 1
                     if retries < max_retries:
-                        execution_trace_logger(msg=f"{func.__name__} Execution Error: Retry ({retries}/{max_retries})...")
+                        error_logger(msg=f"{func.__name__} Execution Error: Retry ({retries}/{max_retries})...", error=str(e))
                         await asyncio.sleep(retry_delay)  # 비동기 대기
                     else:
-                        execution_trace_logger(msg=f"{func.__name__} Execution Error: Failed due to excessive number of retries.")
+                        error_logger(msg=f"{func.__name__} Execution Error: Failed due to excessive number of retries.", error=str(e))
                         raise RetryExecutionError() # 재시도 횟수를 초과하면 예외를 다시 발생시킵니다.
         return wrapper
     return decorator

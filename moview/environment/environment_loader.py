@@ -19,7 +19,7 @@ class EnvironmentLoader(metaclass=SingletonMeta):
     AWS_IAM = "AWS_IAM"
 
     # 개발자별로 다른 값을 사용해야 하는 파라미터인 경우, 아래 리스트에 파라미터 이름을 추가하면 됩니다.
-    USER_SPECIFIC_PARAMETERS = ["openai-api-key"]
+    USER_SPECIFIC_PARAMETERS = ["openai-api-key", "google-cloud-api-key", "kakao-client-id"]
 
     @staticmethod
     def get_local_env(local_env_name):
@@ -42,7 +42,7 @@ class EnvironmentLoader(metaclass=SingletonMeta):
 
     @staticmethod
     def get_ssm_parameter(parameter_name):
-        ssm = boto3.client('ssm')
+        ssm = boto3.client('ssm', region_name='ap-northeast-2')
         parameter_path = EnvironmentLoader.build_ssm_parameter_path(parameter_name)
 
         response = ssm.get_parameter(Name=parameter_path, WithDecryption=True)

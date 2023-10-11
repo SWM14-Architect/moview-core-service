@@ -8,6 +8,7 @@ from langchain.prompts.chat import (
 from moview.utils.prompt_loader import PromptLoader
 from moview.environment.llm_factory import LLMModelFactory
 from moview.config.loggers.mongo_logger import prompt_result_logger
+from moview.decorator.retry_decorator import retry
 from moview.utils.singleton_meta_class import SingletonMeta
 
 
@@ -16,6 +17,7 @@ class FollowUpQuestionGiver(metaclass=SingletonMeta):
     def __init__(self, prompt_loader: PromptLoader):
         self.prompt = prompt_loader.load_prompt_json(FollowUpQuestionGiver.__name__)
 
+    @retry()
     def give_followup_question(self, question: str, answer: str) -> str:
         """
         꼬리질문을 출제하는 메서드
@@ -45,7 +47,7 @@ class FollowUpQuestionGiver(metaclass=SingletonMeta):
             input_variables=["question", "answer"],
         )
 
-        llm = LLMModelFactory.create_chat_open_ai(temperature=0.3)
+        llm = LLMModelFactory.create_chat_open_ai(model_name="gpt-3.5-turbo-16k", temperature=0.3)
 
         chain = LLMChain(llm=llm, prompt=prompt)
 

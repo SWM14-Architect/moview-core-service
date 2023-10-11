@@ -2,7 +2,8 @@ import asynctest
 from asynctest.mock import patch
 
 from moview.modules.input import InputAnalyzer
-from moview.modules.input.initial_question_giver import InitialQuestionParseError, InitialQuestionGiver
+from moview.modules.input.initial_question_giver import InitialQuestionGiver
+from moview.exception.initial_question_parse_error import InitialQuestionParseError
 from moview.service.input_data_service import InputDataService
 from moview.repository.input_data.input_data_repository import InputDataRepository
 from moview.repository.question_answer.question_answer_repository import QuestionAnswerRepository
@@ -59,13 +60,12 @@ class TestInputService(asynctest.TestCase):
         mock_method2.side_effect = InitialQuestionParseError()
 
         # when
-        result = await self.input_data_service.ask_initial_question_to_interviewee(
-            **self.interviewee_data,
-            cover_letter_questions=["당신의 창의력을 어떻게 발휘해 왔습니까?"],
-            cover_letter_answers=["여러 언어를 이용한 프로그램 개발을 통해 독특한 해결책을 제시해 왔습니다."]
-        )
-        # then
-        self.assertEqual(result["question_document_list"], [])
+        with self.assertRaises(InitialQuestionParseError):
+            await self.input_data_service.ask_initial_question_to_interviewee(
+                **self.interviewee_data,
+                cover_letter_questions=["당신의 창의력을 어떻게 발휘해 왔습니까?"],
+                cover_letter_answers=["여러 언어를 이용한 프로그램 개발을 통해 독특한 해결책을 제시해 왔습니다."]
+            )
 
     @patch('moview.modules.input.input_analyzer.InputAnalyzer.analyze_initial_input')
     async def test_ask_initial_question_to_interviewee_without_analyze(self, mock_method):

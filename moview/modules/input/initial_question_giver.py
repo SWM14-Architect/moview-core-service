@@ -1,5 +1,4 @@
 from typing import List
-import re
 
 from langchain import LLMChain
 from langchain.prompts.chat import (
@@ -8,26 +7,20 @@ from langchain.prompts.chat import (
     HumanMessagePromptTemplate
 )
 
+from moview.exception.initial_question_parse_error import InitialQuestionParseError
 from moview.utils.prompt_loader import PromptLoader
 from moview.environment.llm_factory import LLMModelFactory
 from moview.config.loggers.mongo_logger import prompt_result_logger
 from moview.utils.prompt_parser import PromptParser
-from moview.utils.retry_decorator import retry, async_retry
+from moview.decorator.retry_decorator import async_retry
 from moview.utils.singleton_meta_class import SingletonMeta
-
-
-class InitialQuestionParseError(Exception):
-
-    def __init__(self, message="initial question parse error"):
-        self.message = message
-        super().__init__(self.message)
 
 
 class InitialQuestionGiver(metaclass=SingletonMeta):
 
     def __init__(self, prompt_loader: PromptLoader):
         self.prompt = prompt_loader.load_prompt_json(InitialQuestionGiver.__name__)
-        self.llm = LLMModelFactory.create_chat_open_ai(temperature=0.7)
+        self.llm = LLMModelFactory.create_chat_open_ai(model_name="gpt-3.5-turbo-16k", temperature=0.7)
 
     @async_retry()
     async def give_initial_questions_by_input_data(
