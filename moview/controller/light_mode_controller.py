@@ -87,8 +87,7 @@ class LightModeConstructor(Resource):
                                interviewee_name=interviewee_name,
                                company_name=company_name,
                                job_group=job_group,
-                               keyword=keyword,
-                               interview_document_id=interview_document_id)
+                               keyword=keyword)
 
         return make_response(jsonify(
             {'message': {

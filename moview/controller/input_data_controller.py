@@ -52,6 +52,8 @@ class InputDataConstructor(Resource):
             interview_document_id = interview_service.create_interview(
                 user_id=user_id,
             )
+            g.interview_id = interview_document_id
+
         except Exception as e:
             error_logger(msg="CREATE INTERVIEW DOCUMENT ERROR", error=e)
             return make_response(jsonify(
@@ -115,7 +117,6 @@ class InputDataConstructor(Resource):
                 interview_document_id=interview_document_id,
                 input_data_document_id=result['input_data_document']['#id']
             )
-            g.interview_id = interview_document_id
 
         except Exception as e:
             error_logger(msg="CREATE INTERVIEW DOCUMENT ERROR", error=e)
@@ -132,8 +133,7 @@ class InputDataConstructor(Resource):
                                job_group=job_group,
                                recruit_announcement=recruit_announcement,
                                cover_letter_questions=cover_letter_questions,
-                               cover_letter_answers=cover_letter_answers,
-                               interview_document_id=interview_document_id)
+                               cover_letter_answers=cover_letter_answers)
 
         return make_response(jsonify(
             {'message': {
