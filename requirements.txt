@@ -6,6 +6,8 @@ flask-cors==4.0.0
 flask-jwt-extended==4.0.0
 flask-pymongo==2.3.0
 flask-restx==1.1.0
+gunicorn==21.2.0
+importlib-metadata==6.8.0
 langchain==0.0.229
 mongomock==4.1.2
 nest-asyncio==1.5.8
@@ -13,5 +15,6 @@ openai==0.27.8
 pandas==2.0.3
 pinecone-client==2.2.2
 pip-chill==1.0.3
+slack-sdk==3.23.0
 tiktoken==0.4.0
 markupsafe==2.0.1

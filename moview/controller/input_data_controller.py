@@ -47,6 +47,21 @@ class InputDataConstructor(Resource):
         interview_service = ContainerConfig().interview_service
         input_data_service = ContainerConfig().input_data_service
 
+        # 1. Interview Document 생성
+        try:
+            interview_document_id = interview_service.create_interview(
+                user_id=user_id,
+            )
+        except Exception as e:
+            error_logger(msg="CREATE INTERVIEW DOCUMENT ERROR", error=e)
+            return make_response(jsonify(
+                {'message': {
+                    'error': '오잉? 이상한 오류 메시지가 나타났어요. 다시 시도해주세요.',
+                    'error_message': str(e)
+                }}
+            ), HTTPStatus.INTERNAL_SERVER_ERROR)
+        
+        # 2. Initial Question 생성
         try:
             result = await input_data_service.ask_initial_question_to_interviewee(
                 interviewee_name=interviewee_name,
@@ -93,10 +108,12 @@ class InputDataConstructor(Resource):
                 }}
             ), HTTPStatus.INTERNAL_SERVER_ERROR)
 
+        # 3. Interview Document에 Initial Input Data Document ID 업데이트
         try:
-            interview_document_id = interview_service.create_interview(
+            interview_service.update_interview_with_initial_input_data(
                 user_id=user_id,
-                input_data_document_id=result['input_data_document']
+                interview_document_id=interview_document_id,
+                input_data_document_id=result['input_data_document']['#id']
             )
             g.interview_id = interview_document_id
 

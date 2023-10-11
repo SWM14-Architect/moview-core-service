@@ -27,6 +27,6 @@ class InterviewRepository(metaclass=SingletonMeta):
         execution_trace_logger(msg="FIND_INTERVIEW_BY_OBJECT_ID")
         return self.collection.find_one({"user_id": user_id, "_id": ObjectId(interview_id)})
 
-    def update_interview(self, interview: Dict[str, Any], object_id: str) -> UpdateResult:
-        execution_trace_logger(msg="UPDATE_INTERVIEW", object_id=object_id)
-        return self.collection.update_one({"_id": ObjectId(object_id)}, {"$set": interview})
+    def update_interview(self, interview_model: Interview, interview_id: str) -> UpdateResult:
+        execution_trace_logger(msg="UPDATE_INTERVIEW", object_id=interview_id)
+        return self.collection.update_one({"_id": ObjectId(interview_id)}, {"$set": interview_model.dict()})
