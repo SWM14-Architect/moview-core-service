@@ -72,7 +72,7 @@ class LightModeConstructor(Resource):
             interview_service.update_interview_with_initial_input_data(
                 user_id=user_id,
                 interview_document_id=interview_document_id,
-                input_data_document_id=result['input_data_document']['#id']
+                input_data_document_id=result['input_data_document']
             )
         except Exception as e:
             error_logger(msg="CREATE INTERVIEW DOCUMENT ERROR", error=e)
