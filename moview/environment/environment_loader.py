@@ -42,7 +42,7 @@ class EnvironmentLoader(metaclass=SingletonMeta):
 
     @staticmethod
     def get_ssm_parameter(parameter_name):
-        ssm = boto3.client('ssm')
+        ssm = boto3.client('ssm', region_name='ap-northeast-2')
         parameter_path = EnvironmentLoader.build_ssm_parameter_path(parameter_name)
 
         response = ssm.get_parameter(Name=parameter_path, WithDecryption=True)

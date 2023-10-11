@@ -18,6 +18,7 @@ app = Flask(__name__)
 allowed_origins = [
     "http://localhost:3000",
     "https://test.moview.io",
+    "https://moview.io"
 ]
 CORS(app, resources={r"/*": {"origins": allowed_origins}}, supports_credentials=True)
 
