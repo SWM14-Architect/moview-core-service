@@ -1,7 +1,9 @@
 asynctest==0.13.0
+blinker==1.6.2
 boto3==1.28.12
 coverage==7.2.7
 flask-cors==4.0.0
+flask-jwt-extended==4.0.0
 flask-pymongo==2.3.0
 flask-restx==1.1.0
 langchain==0.0.229
@@ -11,8 +13,6 @@ openai==0.27.8
 pandas==2.0.3
 pinecone-client==2.2.2
 pip-chill==1.0.3
-tiktoken==0.4.0
-Flask-JWT-Extended==4.0.0
-PyJWT==2.1.0
-markupsafe==2.0.1
 slack-sdk==3.23.0
+tiktoken==0.4.0
+markupsafe==2.0.1
