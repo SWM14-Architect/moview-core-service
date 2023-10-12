@@ -1,5 +1,7 @@
 #!/bin/bash
 
+source /home/ubuntu/.bashrc
+
 REPOSITORY=/home/ubuntu/app
 VENV=$REPOSITORY/venv
 
