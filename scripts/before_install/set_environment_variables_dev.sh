@@ -7,6 +7,11 @@ ENV_FILE="/etc/profile.d/codedeploy.sh"
 
 echo ">>> MOVIEW_CORE_ENV 환경 변수 설정을 확인합니다."
 
+if [[ ! -f $ENV_FILE ]]; then
+    touch $ENV_FILE
+    echo ">>> $ENV_FILE 파일을 생성하였습니다."
+fi
+
 if grep -q 'export MOVIEW_CORE_ENV=' $ENV_FILE; then
     if ! grep -q 'export MOVIEW_CORE_ENV="dev"' $ENV_FILE; then
         sed -i '/export MOVIEW_CORE_ENV=/d' $ENV_FILE
