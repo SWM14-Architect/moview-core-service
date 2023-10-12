@@ -20,6 +20,9 @@ jobs:
       - name: Checkout source code
         uses: actions/checkout@v3
 
+      - name: Prepare appspec file for main branch
+        run: cp appspec-main.yml appspec.yml
+
       - name: Set up Python ${{ env.PYTHON_VERSION }}
         uses: actions/setup-python@v4
         with:

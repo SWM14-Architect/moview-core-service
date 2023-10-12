@@ -7,7 +7,7 @@ on:
 
 env:
   PYTHON_VERSION: '3.10'
-  MOVIEW_CORE_ENV: 'prod'
+  MOVIEW_CORE_ENV: 'dev'
 
 jobs:
   test_and_comment:
