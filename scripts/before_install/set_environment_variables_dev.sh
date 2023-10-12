@@ -2,6 +2,27 @@
 
 echo ">>> MOVIEW_CORE_ENV 환경 변수 설정을 확인합니다."
 
+# /etc/profile.d/codedeploy.sh
+ENV_FILE="/etc/profile.d/codedeploy.sh"
+
+echo ">>> MOVIEW_CORE_ENV 환경 변수 설정을 확인합니다."
+
+if grep -q 'export MOVIEW_CORE_ENV=' $ENV_FILE; then
+    if ! grep -q 'export MOVIEW_CORE_ENV="dev"' $ENV_FILE; then
+        sed -i '/export MOVIEW_CORE_ENV=/d' $ENV_FILE
+        echo 'export MOVIEW_CORE_ENV="dev"' >> $ENV_FILE
+        echo ">>> MOVIEW_CORE_ENV 환경 변수가 잘못 설정되어 있었습니다. 'dev'로 재설정하였습니다."
+    else
+        echo ">>> MOVIEW_CORE_ENV 환경 변수가 이미 올바르게 설정되어 있습니다."
+    fi
+else
+    echo 'export MOVIEW_CORE_ENV="dev"' >> $ENV_FILE
+    echo ">>> MOVIEW_CORE_ENV 환경 변수가 설정되지 않았습니다. 'dev'로 설정하였습니다."
+fi
+
+source $ENV_FILE
+
+# .bashrc
 if grep -q 'export MOVIEW_CORE_ENV=' /home/ubuntu/.bashrc; then
     if ! grep -q 'export MOVIEW_CORE_ENV="dev"' /home/ubuntu/.bashrc; then
         sed -i '/export MOVIEW_CORE_ENV=/d' /home/ubuntu/.bashrc
