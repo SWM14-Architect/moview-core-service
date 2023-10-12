@@ -24,7 +24,7 @@ hooks:
     - location: scripts/before_install/install_mongodb.sh
       timeout: 300
       runas: root
-    - location: scripts/before_install/set_environment_variables.sh
+    - location: scripts/before_install/set_environment_variables_main.sh
       timeout: 60
       runas: ubuntu
 
