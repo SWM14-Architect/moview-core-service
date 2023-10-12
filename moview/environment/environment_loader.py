@@ -15,7 +15,7 @@ class EnvironmentEnum(Enum):
 class EnvironmentLoader(metaclass=SingletonMeta):
     # 주요 환경 변수명 상수 처리
     MOVIEW_CORE_ENV = "MOVIEW_CORE_ENV"
-    MOVIEW_IS_LOCAL = "MOVIEW_IS_LOCAL"
+    MOVIEW_NO_SSM = "MOVIEW_NO_SSM"
     AWS_IAM = "AWS_IAM"
 
     # 개발자별로 다른 값을 사용해야 하는 파라미터인 경우, 아래 리스트에 파라미터 이름을 추가하면 됩니다.
@@ -57,7 +57,7 @@ class EnvironmentLoader(metaclass=SingletonMeta):
 
     @staticmethod
     def getenv(env_name):
-        is_local = EnvironmentLoader.get_local_env(EnvironmentLoader.MOVIEW_IS_LOCAL)
+        is_local = EnvironmentLoader.get_local_env(EnvironmentLoader.MOVIEW_NO_SSM)
         if is_local is not None and is_local.upper() == "TRUE":
             # MOVIEW_IS_LOCAL이 True인 경우 시스템 환경 변수를 사용
             env_value = EnvironmentLoader.get_local_env(env_name.replace("-", "_").upper())
