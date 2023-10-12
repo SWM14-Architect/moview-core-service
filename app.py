@@ -59,6 +59,8 @@ def set_jwt_config():
     app.config['JWT_SECRET_KEY'] = JWTConfig.get_jwt_secret_key()
     app.config['JWT_TOKEN_LOCATION'] = JWTConfig.get_jwt_location()
     app.config['JWT_COOKIE_SECURE'] = JWTConfig.get_jwt_cookie_secure()
+    app.config['JWT_COOKIE_SAMESITE'] = JWTConfig.get_jwt_cookie_samesite()
+    app.config['JWT_COOKIE_DOMAIN'] = JWTConfig.get_jwt_cookie_domain()
     app.config['JWT_COOKIE_CSRF_PROTECT'] = JWTConfig.get_jwt_cookie_csrf_protect()
     app.config['JWT_ACCESS_TOKEN_EXPIRES'] = JWTConfig.get_jwt_access_token_expires()
     app.config['JWT_REFRESH_TOKEN_EXPIRES'] = JWTConfig.get_jwt_refresh_token_expires()

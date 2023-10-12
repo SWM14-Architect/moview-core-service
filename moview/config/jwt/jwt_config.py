@@ -19,6 +19,20 @@ class JWTConfig:
         return True
 
     @staticmethod
+    def get_jwt_cookie_samesite():
+        if EnvironmentLoader.get_local_env("MOVIEW_CORE_ENV") == EnvironmentLoader.EnvironmentEnum.PRODUCTION.value:
+            return "None"
+        else:
+            return None
+
+    @staticmethod
+    def get_jwt_cookie_domain():
+        if EnvironmentLoader.get_local_env("MOVIEW_CORE_ENV") == EnvironmentLoader.EnvironmentEnum.PRODUCTION.value:
+            return ".moview.io"
+        else:
+            return None
+
+    @staticmethod
     def get_jwt_access_token_expires():
         return 1800  # 30 minutes
 
