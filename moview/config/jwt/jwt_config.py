@@ -1,4 +1,4 @@
-from moview.environment.environment_loader import EnvironmentLoader
+from moview.environment.environment_loader import EnvironmentLoader, EnvironmentEnum
 
 
 class JWTConfig:
@@ -12,7 +12,11 @@ class JWTConfig:
 
     @staticmethod
     def get_jwt_cookie_secure():
-        return False
+        if EnvironmentLoader.get_local_env("MOVIEW_CORE_ENV") in [EnvironmentEnum.PRODUCTION.value,
+                                                                  EnvironmentEnum.DEVELOPMENT.value]:
+            return True
+        else:
+            return False
 
     @staticmethod
     def get_jwt_cookie_csrf_protect():
@@ -20,14 +24,16 @@ class JWTConfig:
 
     @staticmethod
     def get_jwt_cookie_samesite():
-        if EnvironmentLoader.get_local_env("MOVIEW_CORE_ENV") == EnvironmentLoader.EnvironmentEnum.PRODUCTION.value:
+        if EnvironmentLoader.get_local_env("MOVIEW_CORE_ENV") in [EnvironmentEnum.PRODUCTION.value,
+                                                                  EnvironmentEnum.DEVELOPMENT.value]:
             return "None"
         else:
             return None
 
     @staticmethod
     def get_jwt_cookie_domain():
-        if EnvironmentLoader.get_local_env("MOVIEW_CORE_ENV") == EnvironmentLoader.EnvironmentEnum.PRODUCTION.value:
+        if EnvironmentLoader.get_local_env("MOVIEW_CORE_ENV") in [EnvironmentEnum.PRODUCTION.value,
+                                                                  EnvironmentEnum.DEVELOPMENT.value]:
             return ".moview.io"
         else:
             return None
