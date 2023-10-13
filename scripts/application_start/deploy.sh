@@ -1,6 +1,6 @@
 #!/bin/bash
 
-source /home/ubuntu/.bashrc
+source /etc/profile.d/codedeploy.sh
 
 REPOSITORY=/home/ubuntu/app
 VENV=$REPOSITORY/venv
