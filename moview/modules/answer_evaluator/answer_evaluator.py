@@ -19,7 +19,7 @@ from moview.utils.singleton_meta_class import SingletonMeta
 class AnswerEvaluator(metaclass=SingletonMeta):
     def __init__(self, prompt_loader: PromptLoader):
         self.prompt = prompt_loader.load_prompt_json(AnswerEvaluator.__name__)
-        self.llm = LLMModelFactory.create_chat_open_ai(temperature=0.7)
+        self.llm = LLMModelFactory.create_chat_open_ai(model_name="gpt-3.5-turbo-16k", temperature=0.7)
 
     @async_retry()
     async def evaluate_answer(self, question: str, answer: str) -> List[str]:

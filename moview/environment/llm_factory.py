@@ -25,7 +25,7 @@ class LLMModelFactory:
     """
 
     @staticmethod
-    def create_chat_open_ai(model_name: str = "gpt-3.5-turbo",
+    def create_chat_open_ai(model_name: str = "gpt-3.5-turbo-16k",
                             temperature: float = 0.5,
                             request_timeout: int = 60) -> ChatOpenAI:
         return ChatOpenAI(openai_api_key=EnvironmentLoader.getenv(OPENAI_API_KEY_PARAM),
