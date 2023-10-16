@@ -10,7 +10,7 @@ on:
 
 env:
   PYTHON_VERSION: '3.10'
-  MOVIEW_CORE_ENV: 'prod'
+  MOVIEW_CORE_ENV: 'dev'
 
 jobs:
   test_and_deploy:
@@ -19,6 +19,9 @@ jobs:
       # 1. 환경 설정
       - name: Checkout source code
         uses: actions/checkout@v3
+
+      - name: Prepare appspec file for main branch
+        run: cp appspec-dev.yml appspec.yml
 
       - name: Set up Python ${{ env.PYTHON_VERSION }}
         uses: actions/setup-python@v4

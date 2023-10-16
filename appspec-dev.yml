@@ -1,0 +1,42 @@
+version: 0.0
+os: linux
+
+files:
+  - source: /
+    destination: /home/ubuntu/app
+
+permissions:
+  - object: /
+    pattern: "**"
+    owner: ubuntu
+    group: ubuntu
+
+hooks:
+  ApplicationStop:
+    - location: scripts/application_stop/stop_application.sh
+      timeout: 60
+      runas: ubuntu
+
+  BeforeInstall:
+    - location: scripts/before_install/install_python_dependencies.sh
+      timeout: 300
+      runas: ubuntu
+    - location: scripts/before_install/install_mongodb.sh
+      timeout: 300
+      runas: root
+    - location: scripts/before_install/set_environment_variables_dev.sh
+      timeout: 60
+      runas: ubuntu
+
+  AfterInstall:
+    - location: scripts/after_install/install_packages.sh
+      timeout: 300
+      runas: ubuntu
+    - location: scripts/after_install/install_aws_cli.sh
+      timeout: 120
+      runas: ubuntu
+
+  ApplicationStart:
+    - location: scripts/application_start/deploy.sh
+      timeout: 60
+      runas: ubuntu

@@ -9,13 +9,13 @@ from moview.utils.singleton_meta_class import SingletonMeta
 class EnvironmentEnum(Enum):
     LOCAL = "local"
     DEVELOPMENT = "dev"
-    STAGING = "sta"
     PRODUCTION = "prod"
 
 
 class EnvironmentLoader(metaclass=SingletonMeta):
     # 주요 환경 변수명 상수 처리
     MOVIEW_CORE_ENV = "MOVIEW_CORE_ENV"
+    MOVIEW_NO_SSM = "MOVIEW_NO_SSM"
     AWS_IAM = "AWS_IAM"
 
     # 개발자별로 다른 값을 사용해야 하는 파라미터인 경우, 아래 리스트에 파라미터 이름을 추가하면 됩니다.
@@ -35,7 +35,8 @@ class EnvironmentLoader(metaclass=SingletonMeta):
 
         base_path = f"/moview-core/{environment}"
 
-        if parameter_name in EnvironmentLoader.USER_SPECIFIC_PARAMETERS and environment == EnvironmentEnum.DEVELOPMENT.value:  # 개발자별로 다른 값을 사용해야 하고, 개발 환경이라면
+        # 개발자별로 다른 값을 사용해야 하고, 로컬 환경이라면 AWS IAM을 path에 추가
+        if parameter_name in EnvironmentLoader.USER_SPECIFIC_PARAMETERS and environment == EnvironmentEnum.LOCAL.value:
             return f"{base_path}/{aws_iam}/{parameter_name}"  # AWS IAM을 path에 추가
         else:
             return f"{base_path}/{parameter_name}"
@@ -45,12 +46,24 @@ class EnvironmentLoader(metaclass=SingletonMeta):
         ssm = boto3.client('ssm', region_name='ap-northeast-2')
         parameter_path = EnvironmentLoader.build_ssm_parameter_path(parameter_name)
 
-        response = ssm.get_parameter(Name=parameter_path, WithDecryption=True)
+        try:
+            response = ssm.get_parameter(Name=parameter_path, WithDecryption=True)
+        except Exception as e:
+            raise Exception(f"\n{parameter_path} 환경 변수를 가져오는 중 에러가 발생했습니다.\nERROR:\n{e}")
+
         return response['Parameter']['Value']
+
+
 
     @staticmethod
     def getenv(env_name):
-        if EnvironmentLoader.get_local_env(EnvironmentLoader.MOVIEW_CORE_ENV) == EnvironmentEnum.LOCAL.value:
-            return EnvironmentLoader.get_local_env(env_name.replace("-", "_").upper())  # local은 시스템 환경 변수를 사용
+        is_local = EnvironmentLoader.get_local_env(EnvironmentLoader.MOVIEW_NO_SSM)
+        if is_local is not None and is_local.upper() == "TRUE":
+            # MOVIEW_IS_LOCAL이 True인 경우 시스템 환경 변수를 사용
+            env_value = EnvironmentLoader.get_local_env(env_name.replace("-", "_").upper())
+            if env_value is None:
+                raise Exception(f"{env_name} 환경 변수가 Local에서 설정되지 않았습니다.")
+            return env_value
         else:
-            return EnvironmentLoader.get_ssm_parameter(env_name)  # dev, stage, prod는 AWS SSM 파라미터 스토어를 사용
+            # local, dev, prod는 AWS SSM 파라미터 스토어를 사용
+            return EnvironmentLoader.get_ssm_parameter(env_name)
