@@ -15,7 +15,13 @@ class UserService(metaclass=SingletonMeta):
         oauth_user = self.__convert_to_oauth_user(user)
         g.user_id = oauth_user.profile_id
         execution_trace_logger(msg="UPSERT_USER")
-        return self.user_repository.upsert_user(oauth_user)
+        # 회원가입은 InsertOneResult, 로그인은 None
+        new_user_id = self.user_repository.upsert_user(oauth_user)
+
+        if new_user_id is not None:
+            return True
+
+        return False
 
     def get_user(self, profile_id_in_jwt_identity: str) -> dict:
         """
