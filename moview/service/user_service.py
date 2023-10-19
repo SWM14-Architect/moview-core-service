@@ -15,8 +15,7 @@ class UserService(metaclass=SingletonMeta):
         oauth_user = self.__convert_to_oauth_user(user)
         g.user_id = oauth_user.profile_id
         execution_trace_logger(msg="UPSERT_USER")
-        self.user_repository.upsert_user(oauth_user)
-        return oauth_user
+        return self.user_repository.upsert_user(oauth_user)
 
     def get_user(self, profile_id_in_jwt_identity: str) -> dict:
         """

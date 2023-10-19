@@ -31,12 +31,17 @@ class KakaoOAuthController(Resource):
 
             # 3. 사용자 정보를 DB에 저장
             user_service = ContainerConfig().user_service
-            user_service.upsert_user(user_dict)
+            has_signed_up = user_service.upsert_user(user_dict)
 
             # 4. 사용자 식별 정보를 바탕으로 access token 생성
             user = user_service.convert_to_dict(user_dict)
             del user['profile_id']  # profile_id는 프론트에 전달하면 안됨.
-            response = make_response(jsonify(user))
+            response = make_response(jsonify(
+                {'message': {
+                    'has_signed_up': has_signed_up,
+                    'user': user
+                }}
+            ), HTTPStatus.OK)
             access_token = create_access_token(identity=user_dict['id'])
             refresh_token = create_refresh_token(identity=user_dict['id'])
             response.set_cookie('logined', 'true')
