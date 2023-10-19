@@ -38,8 +38,8 @@ class KakaoOAuthController(Resource):
             del user['profile_id']  # profile_id는 프론트에 전달하면 안됨.
             response = make_response(jsonify(
                 {'message': {
+                    'user_profile': user,
                     'has_signed_up': has_signed_up,
-                    'user': user
                 }}
             ), HTTPStatus.OK)
             access_token = create_access_token(identity=user_dict['id'])
