@@ -5,7 +5,6 @@ from moview.modules.question_generator.followup_question_giver import FollowUpQu
 from moview.utils.prompt_loader import PromptLoader
 import openai
 from moview.environment.llm_factory import LLMModelFactory
-from moview.exception.retry_execution_error import RetryExecutionError
 
 OPENAI_API_KEY_PARAM = "openai-api-key"
 
@@ -75,6 +74,7 @@ class TestAsyncCall(asynctest.TestCase):
             is_fail = False
             print(elem, end="\n")
             if len(pasre_result(elem)) != 2:
+                is_fail = True
                 fail += 1
             print(f"{i + 1}번째 시도 {'실패' if is_fail else '성공'}: {result}\n ")
         print(f"실패 : {fail} 성공률 : {100 - fail / total * 100}%")
