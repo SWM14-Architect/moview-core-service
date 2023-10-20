@@ -5,6 +5,7 @@ from moview.modules.question_generator.followup_question_giver import FollowUpQu
 from moview.utils.prompt_loader import PromptLoader
 import openai
 from moview.environment.llm_factory import LLMModelFactory
+from moview.exception.retry_execution_error import RetryExecutionError
 
 OPENAI_API_KEY_PARAM = "openai-api-key"
 
@@ -61,9 +62,15 @@ class TestAsyncCall(asynctest.TestCase):
 
     async def test_async_generate_follow_up(self):
         start_time = time.perf_counter()
-        total = 100
+        total = 5
         fail = 0
-        result = await give_followup_async_concurrently(self.prompt, self.question, self.answer, total)
+        try:
+            result = await give_followup_async_concurrently(self.prompt, self.question, self.answer, total)
+        except openai.error.RateLimitError as e:
+            print("RateLimitError 발생. 1분 뒤에 다시 시도해주세요.")
+            print(e)
+            result = []
+
         for i, elem in enumerate(result):
             is_fail = False
             print(elem, end="\n")
