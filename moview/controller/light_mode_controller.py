@@ -9,6 +9,7 @@ from moview.decorator.timing_decorator import api_timing_decorator
 from moview.decorator.validation_decorator import validate_char_count
 from moview.controller.constants.input_data_constants import (MAX_COMPANY_NAME_LENGTH, MAX_POSITION_NAME_LENGTH,
                                                               MAX_KEYWORD_LENGTH)
+import openai
 
 api = Namespace('light_mode', description='light mode api')
 
@@ -42,7 +43,7 @@ class LightModeConstructor(Resource):
                 user_id=user_id,
             )
             g.interview_id = interview_document_id
-            
+
         except Exception as e:
             error_logger(msg="CREATE INTERVIEW DOCUMENT ERROR", error=e)
             return make_response(jsonify(
@@ -53,10 +54,20 @@ class LightModeConstructor(Resource):
             ), HTTPStatus.INTERNAL_SERVER_ERROR)
 
         # 2. Initial Question 생성
-        result = light_mode_service.ask_light_question_to_interviewee(
-            interviewee_name=interviewee_name,
-            company_name=company_name,
-            job_group=job_group, keyword=keyword)
+        try:
+            result = light_mode_service.ask_light_question_to_interviewee(
+                interviewee_name=interviewee_name,
+                company_name=company_name,
+                job_group=job_group, keyword=keyword)
+
+        except openai.error.RateLimitError as e:
+            error_logger(msg="RATE LIMIT ERROR", error=e)
+            return make_response(jsonify(
+                {'message': {
+                    'error': 'LLM 토큰 1분당 사용량이 초과되었어요. 1분 뒤에 다시 시도해주세요~ :)',
+                    'error_message': str(e)
+                }}
+            ), HTTPStatus.INTERNAL_SERVER_ERROR)
 
         # Parse Error 발생했을 경우 500 에러 반환
         if result is None:

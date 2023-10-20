@@ -2,7 +2,7 @@ from flask import make_response, jsonify, request, g
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from flask_restx import Resource, Namespace
 from http import HTTPStatus
-
+import openai
 from moview.config.container.container_config import ContainerConfig
 from moview.config.loggers.mongo_logger import *
 from moview.decorator.timing_decorator import api_timing_decorator
@@ -40,6 +40,14 @@ class AnswerConstructor(Resource):
             chosen_question, saved_id = answer_service.answer(user_id=user_id, interview_id=interview_id,
                                                               question_id=question_id, question_content=question_content,
                                                               answer_content=answer_content)
+        except openai.error.RateLimitError as e:
+            error_logger(msg="RATE LIMIT ERROR", error=e)
+            return make_response(jsonify(
+                {'message': {
+                    'error': 'LLM 토큰 1분당 사용량이 초과되었어요. 1분 뒤에 다시 시도해주세요~ :)',
+                    'error_message': str(e)
+                }}
+            ), HTTPStatus.INTERNAL_SERVER_ERROR)
 
         except RetryExecutionError as e:
             error_logger(msg="RETRY EXECUTION ERROR", error=e)

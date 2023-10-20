@@ -6,7 +6,7 @@ from http import HTTPStatus
 from moview.config.container.container_config import ContainerConfig
 from moview.config.loggers.mongo_logger import *
 from moview.decorator.timing_decorator import api_timing_decorator
-
+import openai
 api = Namespace('feedback', description='feedback api')
 
 
@@ -30,6 +30,15 @@ class FeedbackConstructor(Resource):
         try:
             feedback_service.feedback(user_id=user_id, interview_id=interview_id,
                                       question_ids=question_ids, feedback_scores=feedback_scores)
+
+        except openai.error.RateLimitError as e:
+            error_logger(msg="RATE LIMIT ERROR", error=e)
+            return make_response(jsonify(
+                {'message': {
+                    'error': 'LLM 토큰 1분당 사용량이 초과되었어요. 1분 뒤에 다시 시도해주세요~ :)',
+                    'error_message': str(e)
+                }}
+            ), HTTPStatus.INTERNAL_SERVER_ERROR)
 
         except Exception as e:
             error_logger(msg="UNKNOWN ERROR", error=e)

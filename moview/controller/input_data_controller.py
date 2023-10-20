@@ -15,6 +15,7 @@ from moview.controller.constants.input_data_constants import (MAX_COMPANY_NAME_L
                                                               MAX_COVERLETTER_ANSWER_LENGTH)
 
 import asyncio
+import openai
 
 api = Namespace('input_data', description='input data api')
 
@@ -53,7 +54,6 @@ class InputDataConstructor(Resource):
                 user_id=user_id,
             )
             g.interview_id = interview_document_id
-
         except Exception as e:
             error_logger(msg="CREATE INTERVIEW DOCUMENT ERROR", error=e)
             return make_response(jsonify(
@@ -62,7 +62,7 @@ class InputDataConstructor(Resource):
                     'error_message': str(e)
                 }}
             ), HTTPStatus.INTERNAL_SERVER_ERROR)
-        
+
         # 2. Initial Question 생성
         try:
             result = await input_data_service.ask_initial_question_to_interviewee(
@@ -73,6 +73,15 @@ class InputDataConstructor(Resource):
                 cover_letter_questions=cover_letter_questions,
                 cover_letter_answers=cover_letter_answers
             )
+
+        except openai.error.RateLimitError as e:
+            error_logger(msg="RATE LIMIT ERROR", error=e)
+            return make_response(jsonify(
+                {'message': {
+                    'error': 'LLM 토큰 1분당 사용량이 초과되었어요. 1분 뒤에 다시 시도해주세요~ :)',
+                    'error_message': str(e)
+                }}
+            ), HTTPStatus.INTERNAL_SERVER_ERROR)
 
         except asyncio.exceptions.CancelledError as e:
             error_logger(msg="ASYNCIO CANCELLED ERROR", error=e)
