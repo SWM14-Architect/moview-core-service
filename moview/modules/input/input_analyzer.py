@@ -1,9 +1,4 @@
-from langchain import LLMChain
-from langchain.prompts.chat import (
-    SystemMessagePromptTemplate,
-    ChatPromptTemplate,
-    HumanMessagePromptTemplate
-)
+import openai
 from moview.utils.prompt_loader import PromptLoader
 from moview.environment.llm_factory import LLMModelFactory
 from moview.config.loggers.mongo_logger import prompt_result_logger
@@ -14,6 +9,7 @@ from moview.utils.singleton_meta_class import SingletonMeta
 class InputAnalyzer(metaclass=SingletonMeta):
     def __init__(self, prompt_loader: PromptLoader):
         self.prompt = prompt_loader.load_prompt_json(InputAnalyzer.__name__)
+        openai.api_key = LLMModelFactory.load_api_key_for_open_ai()
 
     @async_retry()
     async def analyze_initial_input(self, job_group: str, recruitment_announcement: str, cover_letter_question: str,
@@ -30,30 +26,24 @@ class InputAnalyzer(metaclass=SingletonMeta):
         Returns: i번째 자소서 답변, 문항 순서쌍에 대해 분석한 결과 문자열
 
         """
-        prompt = ChatPromptTemplate(
-            messages=[
-                SystemMessagePromptTemplate.from_template(
-                    self.prompt.format(job_group=job_group)
-                ),
-                HumanMessagePromptTemplate.from_template(
-                    """
-                    job posting : {job_posting}
+
+        model = "gpt-3.5-turbo-16k"
+
+        messages = [{
+            "role": "system",
+            "content": self.prompt.format(job_group=job_group)
+        }, {
+            "role": "user",
+            "content": f"""
+                    recruitment_announcement : {recruitment_announcement}
                     cover letter question : {cover_letter_question}
                     cover letter answer : {cover_letter_answer}    
                     양식을 지켜서 질문을 생성하세요.
-                    """)
-            ],
-            input_variables=["job_posting", "cover_letter_question", "cover_letter_answer"],
-        )
+                    """
+        }]
+        response = await openai.ChatCompletion.acreate(model=model, messages=messages, temperature=0.5)
 
-        llm = LLMModelFactory.create_chat_open_ai(model_name="gpt-3.5-turbo-16k", temperature=0.5)
-
-        chain = LLMChain(llm=llm, prompt=prompt)
-
-        prompt_result = await chain.arun({
-            "job_posting": recruitment_announcement,
-            "cover_letter_question": cover_letter_question,
-            "cover_letter_answer": cover_letter_answer})
+        prompt_result = response['choices'][0]['message']['content']
 
         prompt_result_logger("input analyzer prompt result", prompt_result=prompt_result)
 
