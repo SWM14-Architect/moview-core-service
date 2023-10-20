@@ -1,12 +1,5 @@
 from typing import List, Optional
-
-from langchain import LLMChain
-from langchain.prompts.chat import (
-    SystemMessagePromptTemplate,
-    ChatPromptTemplate,
-    HumanMessagePromptTemplate
-)
-
+import openai
 from moview.exception.light_question_parse_error import LightQuestionParseError
 from moview.utils.prompt_loader import PromptLoader
 from moview.environment.llm_factory import LLMModelFactory
@@ -20,7 +13,7 @@ class LightQuestionGiver(metaclass=SingletonMeta):
 
     def __init__(self, prompt_loader: PromptLoader):
         self.prompt = prompt_loader.load_prompt_json(LightQuestionGiver.__name__)
-        self.llm = LLMModelFactory.create_chat_open_ai(model_name="gpt-3.5-turbo-16k", temperature=0.7)
+        openai.api_key = LLMModelFactory.load_api_key_for_open_ai()
 
     @retry()
     def give_light_questions_by_input_data(self, job_group: str, keyword: Optional[str], question_count: int) \
@@ -36,30 +29,22 @@ class LightQuestionGiver(metaclass=SingletonMeta):
 
         """
 
-        human_message = HumanMessagePromptTemplate.from_template(
-            """
-             양식을 지켜서 직무 기술 면접 질문을 생성하세요.    
-             """
-        ) if keyword is None else HumanMessagePromptTemplate.from_template(
-            f"""
-            양식을 지켜서 {keyword}에 대한 직무 기술 면접 질문을 생성하세요.    
-            """
-        )
+        model = "gpt-3.5-turbo-16k"
 
-        prompt = ChatPromptTemplate(
-            messages=[
-                SystemMessagePromptTemplate.from_template(
-                    self.prompt.format(
-                        job_group=job_group,
-                        question_count=question_count)
-                ),
-                human_message
-            ]
-        )
+        human_message = "양식을 지켜서 직무 기술 면접 질문을 생성하세요." if keyword is None \
+            else f" 양식을 지켜서 {keyword}에 대한 직무 기술 면접 질문을 생성하세요."
 
-        chain = LLMChain(llm=self.llm, prompt=prompt)
+        messages = [{
+            "role": "system",
+            "content": self.prompt.format(job_group=job_group, question_count=question_count)
+        }, {
+            "role": "user",
+            "content": human_message
+        }]
 
-        prompt_result = chain.predict()
+        response = openai.ChatCompletion.create(model=model, messages=messages, temperature=0.7)
+
+        prompt_result = response['choices'][0]['message']['content']
 
         prompt_result_logger("light question prompt result", prompt_result=prompt_result)
 
