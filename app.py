@@ -80,7 +80,7 @@ def handle_retry_execution_error(e):
             'error': 'OpenAI API 호출 중 오류가 발생했어요. 다시 시도해주세요.',
             'error_message': str(e)
         }}
-    ), HTTPStatus.SERVICE_UNAVAILABLE)
+    ), HTTPStatus.INTERNAL_SERVER_ERROR)
 
 
 @app.errorhandler(openai.error.RateLimitError)

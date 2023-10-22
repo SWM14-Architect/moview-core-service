@@ -40,32 +40,17 @@ class AnswerConstructor(Resource):
             chosen_question, saved_id = answer_service.answer(user_id=user_id, interview_id=interview_id,
                                                               question_id=question_id, question_content=question_content,
                                                               answer_content=answer_content)
-        except openai.error.RateLimitError as e:
-            error_logger(msg="RATE LIMIT ERROR", error=e)
-            return make_response(jsonify(
-                {'message': {
-                    'error': 'LLM 토큰 1분당 사용량이 초과되었어요. 1분 뒤에 다시 시도해주세요~ :)',
-                    'error_message': str(e)
-                }}
-            ), HTTPStatus.INTERNAL_SERVER_ERROR)
-
         except RetryExecutionError as e:
-            error_logger(msg="RETRY EXECUTION ERROR", error=e)
-            return make_response(jsonify(
-                {'message': {
-                    'error': '오잉? 이상한 오류 메시지가 나타났어요. 다시 시도해주세요.',
-                    'error_message': str(e)
-                }}
-            ), HTTPStatus.INTERNAL_SERVER_ERROR)
+            error_logger(msg="RETRY EXECUTION ERROR")
+            raise e
+
+        except openai.error.RateLimitError as e:
+            error_logger(msg="RATE LIMIT ERROR")
+            raise e
 
         except Exception as e:
             error_logger(msg="UNKNOWN ERROR", error=e)
-            return make_response(jsonify(
-                {'message': {
-                    'error': '면접관이 혼란스러워하는 것 같아요. 다시 시도해주세요.',
-                    'error_message': str(e)
-                }}
-            ), HTTPStatus.INTERNAL_SERVER_ERROR)
+            raise e
 
         execution_trace_logger("ANSWER CONTROLLER: POST",
                                question_id=question_id,
