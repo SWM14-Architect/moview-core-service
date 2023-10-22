@@ -13,6 +13,7 @@ import string
 from moview.controller import input_data_controller, answer_controller, evaluation_controller, feedback_controller, \
     light_mode_controller, tts_controller, stt_controller, slack_controller
 from moview.controller.oauth import oauth_controller
+from moview.exception.retry_execution_error import RetryExecutionError
 
 # Flask App 생성
 app = Flask(__name__)
@@ -68,6 +69,17 @@ def set_jwt_config():
     app.config['JWT_ACCESS_TOKEN_EXPIRES'] = JWTConfig.get_jwt_access_token_expires()
     app.config['JWT_REFRESH_TOKEN_EXPIRES'] = JWTConfig.get_jwt_refresh_token_expires()
     JWTManager(app)
+
+
+# 아래 에러 핸들러들은 컨트롤러 단에서 exception을 raise할 때 캐치합니다.
+@app.errorhandler(RetryExecutionError)
+def handle_retry_execution_error(e):
+    return make_response(jsonify(
+        {'message': {
+            'error': 'OpenAI API 호출 중 오류가 발생했어요. 다시 시도해주세요.',
+            'error_message': str(e)
+        }}
+    ), HTTPStatus.SERVICE_UNAVAILABLE)
 
 
 @app.errorhandler(openai.error.RateLimitError)
