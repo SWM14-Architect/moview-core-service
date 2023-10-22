@@ -32,50 +32,32 @@ class EvaluationConstructor(Resource):
         evaluation_service = ContainerConfig().evaluation_service
 
         try:
-            results = await evaluation_service.evaluate_answers_of_interviewee(user_id=user_id, interview_id=interview_id)
+            results = await evaluation_service.evaluate_answers_of_interviewee(user_id=user_id,
+                                                                               interview_id=interview_id)
+
+        except RetryExecutionError as e:
+            error_logger(msg="RETRY EXECUTION ERROR")
+            raise e
 
         except openai.error.RateLimitError as e:
-            error_logger(msg="RATE LIMIT ERROR", error=e)
-            return make_response(jsonify(
-                {'message': {
-                    'error': 'LLM 토큰 1분당 사용량이 초과되었어요. 1분 뒤에 다시 시도해주세요~ :)',
-                    'error_message': str(e)
-                }}
-            ), HTTPStatus.INTERNAL_SERVER_ERROR)
+            error_logger(msg="RATE LIMIT ERROR")
+            raise e
 
         except asyncio.exceptions.CancelledError as e:
             error_logger(msg="ASYNCIO CANCELLED ERROR", error=e)
-            return make_response(jsonify(
-                {'message': {
-                    'error': 'Oops! 당신의 평가데이터가 우주로 떠나버렸어! 다시 시도해주세요.',
-                    'error_message': str(e)
-                }}
-            ), HTTPStatus.INTERNAL_SERVER_ERROR)
-
-        except RetryExecutionError as e:
-            error_logger(msg="RETRY EXECUTION ERROR", error=e)
-            return make_response(jsonify(
-                {'message': {
-                    'error': '앗! 우리 서버에 문제가 발생했네요. 다시 시도해주세요.',
-                    'error_message': str(e)
-                }}
-            ), HTTPStatus.INTERNAL_SERVER_ERROR)
+            raise e
 
         except Exception as e:
             error_logger(msg="UNKNOWN ERROR", error=e)
-            return make_response(jsonify(
-                {'message': {
-                    'error': '면접관이 혼란스러워하는 것 같아요. 다시 시도해주세요.',
-                    'error_message': str(e)
-                }}
-            ), HTTPStatus.INTERNAL_SERVER_ERROR)
+            raise e
 
         execution_trace_logger("EVALUATION CONTROLLER: POST", results=results)
 
         return make_response(jsonify(
             {'message':
-                 {'evaluations': [{"question_id": question_id, "question": question, "answer": answer, "evaluation": evaluation}
-                                  for question_id, question, answer, evaluation in results]
+                 {'evaluations': [
+                     {"question_id": question_id, "question": question, "answer": answer, "evaluation": evaluation}
+                     for question_id, question, answer, evaluation in results]
                   }
              }
         ), HTTPStatus.OK)
