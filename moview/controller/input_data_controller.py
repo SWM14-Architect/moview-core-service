@@ -54,14 +54,10 @@ class InputDataConstructor(Resource):
                 user_id=user_id,
             )
             g.interview_id = interview_document_id
+
         except Exception as e:
             error_logger(msg="CREATE INTERVIEW DOCUMENT ERROR", error=e)
-            return make_response(jsonify(
-                {'message': {
-                    'error': '오잉? 이상한 오류 메시지가 나타났어요. 다시 시도해주세요.',
-                    'error_message': str(e)
-                }}
-            ), HTTPStatus.INTERNAL_SERVER_ERROR)
+            raise e
 
         # 2. Initial Question 생성
         try:
@@ -74,50 +70,25 @@ class InputDataConstructor(Resource):
                 cover_letter_answers=cover_letter_answers
             )
 
+        except RetryExecutionError as e:
+            error_logger(msg="RETRY EXECUTION ERROR")
+            raise e
+
         except openai.error.RateLimitError as e:
-            error_logger(msg="RATE LIMIT ERROR", error=e)
-            return make_response(jsonify(
-                {'message': {
-                    'error': 'LLM 토큰 1분당 사용량이 초과되었어요. 1분 뒤에 다시 시도해주세요~ :)',
-                    'error_message': str(e)
-                }}
-            ), HTTPStatus.INTERNAL_SERVER_ERROR)
+            error_logger(msg="RATE LIMIT ERROR")
+            raise e
+
+        except InitialQuestionParseError as e:
+            error_logger(msg="INITIAL QUESTION PARSE ERROR")
+            raise e
 
         except asyncio.exceptions.CancelledError as e:
             error_logger(msg="ASYNCIO CANCELLED ERROR", error=e)
-            return make_response(jsonify(
-                {'message': {
-                    'error': 'Oops! 당신의 질문이 우주로 떠나버렸어! 다시 시도해주세요.',
-                    'error_message': str(e)
-                }}
-            ), HTTPStatus.INTERNAL_SERVER_ERROR)
-
-        except InitialQuestionParseError as e:
-            error_logger(msg="INITIAL QUESTION PARSE ERROR", error=e)
-            return make_response(jsonify(
-                {'message': {
-                    'error': '"뭐라고요? 그건 아마도 우주적 수준의 질문이었나봐요. 다시 시도해주세요.',
-                    'error_message': str(e)
-                }}
-            ), HTTPStatus.INTERNAL_SERVER_ERROR)
-
-        except RetryExecutionError as e:
-            error_logger(msg="RETRY EXECUTION ERROR", error=e)
-            return make_response(jsonify(
-                {'message': {
-                    'error': '앗! 특이한 질문을 찾아내었습니다. 하지만 제 지식 범위를 넘어선 것 같아요. 다시 시도해주세요.',
-                    'error_message': str(e)
-                }}
-            ), HTTPStatus.INTERNAL_SERVER_ERROR)
+            raise Exception  # raise e로 캐치하면 플라스크 앱 실행할 때 에러 발생해서 이렇게 던짐.
 
         except Exception as e:
             error_logger(msg="UNKNOWN ERROR", error=e)
-            return make_response(jsonify(
-                {'message': {
-                    'error': '면접관이 혼란스러워하는 것 같아요. 다시 시도해주세요.',
-                    'error_message': str(e)
-                }}
-            ), HTTPStatus.INTERNAL_SERVER_ERROR)
+            raise e
 
         # 3. Interview Document에 Initial Input Data Document ID 업데이트
         try:
@@ -129,12 +100,7 @@ class InputDataConstructor(Resource):
 
         except Exception as e:
             error_logger(msg="CREATE INTERVIEW DOCUMENT ERROR", error=e)
-            return make_response(jsonify(
-                {'message': {
-                    'error': '오잉? 이상한 오류 메시지가 나타났어요. 다시 시도해주세요.',
-                    'error_message': str(e)
-                }}
-            ), HTTPStatus.INTERNAL_SERVER_ERROR)
+            raise e
 
         execution_trace_logger("INPUT DATA CONTROLLER: POST",
                                interviewee_name=interviewee_name,

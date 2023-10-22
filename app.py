@@ -1,9 +1,7 @@
-import openai.error
 from flask import Flask, jsonify, make_response
 from flask_restx import Api
 from flask_cors import CORS
 from http import HTTPStatus
-
 from moview.config.jwt.jwt_config import JWTConfig
 from flask_jwt_extended import JWTManager
 
@@ -13,7 +11,10 @@ import string
 from moview.controller import input_data_controller, answer_controller, evaluation_controller, feedback_controller, \
     light_mode_controller, tts_controller, stt_controller, slack_controller
 from moview.controller.oauth import oauth_controller
+
+from moview.exception.initial_question_parse_error import InitialQuestionParseError
 from moview.exception.retry_execution_error import RetryExecutionError
+import openai.error
 
 # Flask App 생성
 app = Flask(__name__)
@@ -71,7 +72,7 @@ def set_jwt_config():
     JWTManager(app)
 
 
-# 아래 에러 핸들러들은 컨트롤러 단에서 exception을 raise할 때 캐치합니다.
+# 아래 에러 핸들러들은 컨트롤러 단에서 메서드 exception을 raise할 때 캐치합니다.
 @app.errorhandler(RetryExecutionError)
 def handle_retry_execution_error(e):
     return make_response(jsonify(
@@ -90,6 +91,16 @@ def handle_rate_limit_error(e):
             'error_message': str(e)
         }}
     ), HTTPStatus.SERVICE_UNAVAILABLE)
+
+
+@app.errorhandler(InitialQuestionParseError)
+def handle_initial_question_parse_error(e):
+    return make_response(jsonify(
+        {'message': {
+            'error': '초기 질문 파싱이 실패했어요. 다시 시도해주세요.',
+            'error_message': str(e)
+        }}
+    ), HTTPStatus.INTERNAL_SERVER_ERROR)
 
 
 @app.errorhandler(Exception)
