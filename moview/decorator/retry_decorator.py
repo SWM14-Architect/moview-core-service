@@ -68,6 +68,10 @@ def async_retry(max_retries=3, retry_delay=2):
                 try:
                     result = await func(*args, **kwargs)
                     return result  # 성공한 경우 결과를 반환합니다.
+
+                except openai.error.RateLimitError as e:  # 토큰 사용량이 초과되면, 예외 떠넘김
+                    raise e
+
                 except Exception as e:
                     retries += 1
                     if retries < max_retries:
