@@ -1,6 +1,9 @@
-from flask import Flask
+import openai.error
+from flask import Flask, jsonify, make_response
 from flask_restx import Api
 from flask_cors import CORS
+from http import HTTPStatus
+
 from moview.config.jwt.jwt_config import JWTConfig
 from flask_jwt_extended import JWTManager
 
@@ -67,7 +70,28 @@ def set_jwt_config():
     JWTManager(app)
 
 
+@app.errorhandler(openai.error.RateLimitError)
+def handle_rate_limit_error(e):
+    return make_response(jsonify(
+        {'message': {
+            'error': 'LLM 토큰 1분당 사용량이 초과되었어요. 1분 뒤에 다시 시도해주세요~ :)',
+            'error_message': str(e)
+        }}
+    ), HTTPStatus.SERVICE_UNAVAILABLE)
+
+
+@app.errorhandler(Exception)
+def handle_exception(e):
+    return make_response(jsonify(
+        {'message': {
+            'error': '오잉? 이상한 오류 메시지가 나타났어요. 다시 시도해주세요.',
+            'error_message': str(e)
+        }}
+    ), HTTPStatus.INTERNAL_SERVER_ERROR)
+
+
 set_moview_config()
 set_jwt_config()
+
 if __name__ == '__main__':
     app.run(host="0.0.0.0", port=5005, debug=True)

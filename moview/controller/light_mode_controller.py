@@ -59,15 +59,12 @@ class LightModeConstructor(Resource):
                 interviewee_name=interviewee_name,
                 company_name=company_name,
                 job_group=job_group, keyword=keyword)
-
         except openai.error.RateLimitError as e:
-            error_logger(msg="RATE LIMIT ERROR", error=e)
-            return make_response(jsonify(
-                {'message': {
-                    'error': 'LLM 토큰 1분당 사용량이 초과되었어요. 1분 뒤에 다시 시도해주세요~ :)',
-                    'error_message': str(e)
-                }}
-            ), HTTPStatus.INTERNAL_SERVER_ERROR)
+            error_logger(msg="RATE LIMIT ERROR")
+            raise e
+        except Exception as e:
+            error_logger(msg="CREATE INTERVIEW DOCUMENT ERROR", error=e)
+            raise e
 
         # Parse Error 발생했을 경우 500 에러 반환
         if result is None:
