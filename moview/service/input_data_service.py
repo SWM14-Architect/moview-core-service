@@ -169,15 +169,15 @@ class InputDataService(metaclass=SingletonMeta):
 
         execution_trace_logger("Initial Question By Job", created_questions=created_questions)
 
-        # coverletter를 하나의 스트링으로 합침.
-        coverletter = ""
+        # cover_letter를 하나의 스트링으로 합침.
+        cover_letter = ""
         for question, answer in zip(cover_letter_questions, cover_letter_answers):
-            coverletter += f"Q. {question}\nA. {answer}\n\n"
+            cover_letter += f"Q. {question}\nA. {answer}\n\n"
 
         # 자기소개서와 모집공고를 기반으로 초기질문 생성.
         created_questions = await self.initial_question_giver.give_initial_questions_by_input_data(
             recruit_announcement=recruit_announcement,
-            coverletter=coverletter,
+            cover_letter=cover_letter,
             question_count=self.INIT_QUESTION_NUMBER // 2,
             exclusion_list=initial_question_list  # 이미 생성된 질문은 제외
         )

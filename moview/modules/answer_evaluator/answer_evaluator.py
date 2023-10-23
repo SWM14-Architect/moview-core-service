@@ -1,12 +1,5 @@
 from typing import List
-
-from langchain import LLMChain
-from langchain.prompts.chat import (
-    SystemMessagePromptTemplate,
-    ChatPromptTemplate,
-    HumanMessagePromptTemplate
-)
-
+import openai
 from moview.exception.evaluation_parse_error import EvaluationParseError
 from moview.decorator.retry_decorator import async_retry
 from moview.utils.prompt_loader import PromptLoader
@@ -19,7 +12,7 @@ from moview.utils.singleton_meta_class import SingletonMeta
 class AnswerEvaluator(metaclass=SingletonMeta):
     def __init__(self, prompt_loader: PromptLoader):
         self.prompt = prompt_loader.load_prompt_json(AnswerEvaluator.__name__)
-        self.llm = LLMModelFactory.create_chat_open_ai(temperature=0.7)
+        openai.api_key = LLMModelFactory.load_api_key_for_open_ai()
 
     @async_retry()
     async def evaluate_answer(self, question: str, answer: str) -> List[str]:
@@ -35,30 +28,28 @@ class AnswerEvaluator(metaclass=SingletonMeta):
             List["긍정적인 점", "개선해야 할 점"]
 
         """
-        prompt = ChatPromptTemplate(
-            messages=[
-                SystemMessagePromptTemplate.from_template(
-                    self.prompt.format()
-                ),
-                HumanMessagePromptTemplate.from_template(
-                    """
+
+        model = "gpt-3.5-turbo-16k"
+
+        messages = [{
+            "role": "system",
+            "content": self.prompt.format()
+        }, {
+            "role": "user",
+            "content": f"""
                     면접관의 질문 : {question}
                     면접 지원자의 답변 : {answer}
                     
                     양식을 지켜서 평가하세요. 
-                    """)
-            ],
-            input_variables=["question", "answer"],
-        )
+                    """
+        }]
 
-        chain = LLMChain(llm=self.llm, prompt=prompt)
+        response = await openai.ChatCompletion.acreate(model=model, messages=messages, temperature=0.7)
 
-        prompt_result = await chain.arun({
-            "question": question,
-            "answer": answer
-        })
+        prompt_result = response['choices'][0]['message']['content']
 
-        prompt_result_logger("answer analyze prompt result", question=question, answer=answer, prompt_result=prompt_result)
+        prompt_result_logger("answer analyze prompt result", question=question, answer=answer,
+                             prompt_result=prompt_result)
 
         parsed_result = PromptParser.parse_evaluation(prompt_result)
         # 파싱된 평가의 개수가 2개(긍정적인 점, 개선해야 할 점)이며 비어 있지 않다면, 파싱 성공으로 간주합니다. 파싱이 성공하면, 파싱된 질문 리스트를 반환합니다.

@@ -29,3 +29,15 @@ class TestFollowUpQuestionGiver(unittest.TestCase):
 
         # then
         self.assertIn("followup question", result)
+
+    def test_open_ai_call(self):
+        # given
+        question = "MongoDB에 대해 설명해주세요."
+        answer = "MongoDB는 NoSQL 데이터베이스입니다."
+
+        # when
+        result = self.followup_question_giver.give_followup_question(question, answer)
+
+        # then
+        print(result)
+        self.assertTrue(result is not None)

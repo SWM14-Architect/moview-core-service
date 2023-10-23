@@ -1,10 +1,4 @@
-from langchain import LLMChain
-from langchain.prompts.chat import (
-    SystemMessagePromptTemplate,
-    ChatPromptTemplate,
-    HumanMessagePromptTemplate
-)
-
+import openai
 from moview.utils.prompt_loader import PromptLoader
 from moview.environment.llm_factory import LLMModelFactory
 from moview.config.loggers.mongo_logger import prompt_result_logger
@@ -16,6 +10,7 @@ class FollowUpQuestionGiver(metaclass=SingletonMeta):
 
     def __init__(self, prompt_loader: PromptLoader):
         self.prompt = prompt_loader.load_prompt_json(FollowUpQuestionGiver.__name__)
+        openai.api_key = LLMModelFactory.load_api_key_for_open_ai()
 
     @retry()
     def give_followup_question(self, question: str, answer: str) -> str:
@@ -30,31 +25,26 @@ class FollowUpQuestionGiver(metaclass=SingletonMeta):
             출제할 꼬리 질문
 
         """
-        prompt = ChatPromptTemplate(
-            messages=[
-                SystemMessagePromptTemplate.from_template(
-                    self.prompt.format()
-                ),
-                HumanMessagePromptTemplate.from_template(
-                    """
+
+        model = "gpt-3.5-turbo-16k"
+
+        messages = [{
+            "role": "system",
+            "content": self.prompt.format()
+        }, {
+            "role": "user",
+            "content": f"""
                     면접관의 질문: {question}
 
                     면접 지원자의 답변: {answer} 
                     
                     양식을 지켜서 후속 질문을 생성하세요.    
-                    """)
-            ],
-            input_variables=["question", "answer"],
-        )
+                    """
+        }]
 
-        llm = LLMModelFactory.create_chat_open_ai(model_name="gpt-3.5-turbo-16k", temperature=0.3)
+        response = openai.ChatCompletion.create(model=model, messages=messages, temperature=0.3)
 
-        chain = LLMChain(llm=llm, prompt=prompt)
-
-        prompt_result = chain.run({
-            "question": question,
-            "answer": answer
-        })
+        prompt_result = response['choices'][0]['message']['content']
 
         prompt_result_logger("followup question prompt result", prompt_result=prompt_result)
 
