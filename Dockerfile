@@ -14,6 +14,8 @@ COPY . .
 # 환경 변수 설정
 ENV MOVIEW_CORE_ENV=dev
 
+# 해당 포트를 사용할 것을 선언
+EXPOSE 5005
+
 # 애플리케이션 실행
 CMD ["flask", "run", "--host=0.0.0.0", "--port=5005"]
-
