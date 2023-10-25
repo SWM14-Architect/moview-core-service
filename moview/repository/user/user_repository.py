@@ -12,12 +12,28 @@ from moview.environment.environment_loader import EnvironmentLoader
 
 class UserRepository(metaclass=SingletonMeta):
     def __init__(self, mongo_config: MongoConfig):
-        self.client = MongoClient(host=EnvironmentLoader.getenv(DB_HOST),
-                                  port=int(EnvironmentLoader.getenv(DB_PORT)),
-                                  username=EnvironmentLoader.getenv(DB_USERNAME),
-                                  password=EnvironmentLoader.getenv(DB_PASSWORD))
+        # 공통 MongoDB 설정
+        common_config = {
+            "host": EnvironmentLoader.getenv(DB_HOST),
+            "port": int(EnvironmentLoader.getenv(DB_PORT)),
+            "username": EnvironmentLoader.getenv(DB_USERNAME),
+            "password": EnvironmentLoader.getenv(DB_PASSWORD)
+        }
+
+        # prod 환경일 경우 DocumentDB 설정
+        if EnvironmentLoader.is_prod_env():
+            prod_config = {
+                "tls": True,
+                "tlsCAFile": EnvironmentLoader.getenv(TLS_CA_FILE),
+                "replicaSet": EnvironmentLoader.getenv(REPLICA_SET),
+                "readPreference": EnvironmentLoader.getenv(READ_PREFERENCE),
+                "retryWrites": False
+            }
+            common_config.update(prod_config)
+
+        self.client = MongoClient(**common_config)
         self.db = self.client[mongo_config.db_name]
-        self.collection = self.db["user"]
+        self.collection = self.db["input_data"]
 
     def upsert_user(self, user: OauthUser) -> Optional[InsertOneResult]:
         # 전에 가입한 적 없으면, 새로이 가입시키는 메서드
