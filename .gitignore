@@ -364,7 +364,3 @@ logs/
 *.txt
 
 # End of https://www.toptal.com/developers/gitignore/api/python,pycharm+all,flask,venv
-# Elastic Beanstalk Files
-.elasticbeanstalk/*
-!.elasticbeanstalk/*.cfg.yml
-!.elasticbeanstalk/*.global.yml

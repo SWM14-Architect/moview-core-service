@@ -52,9 +52,10 @@ class MongoHandler(logging.Handler):
 
     def _create_collection(self, collection_name):
         # 컬렉션 이름으로 컬렉션을 만들고 리턴 한다.
-        return self.db.create_collection(collection_name,
-                                         capped=True,  # 고정 크기 컬렉션 (size를 넘어서면 오래된 document부터 삭제)
-                                         size=100 * 1024 * 1024)  # 컬렉션 최대 크기(100MB) 지정(단위: bytes)
+        # return self.db.create_collection(collection_name,
+        #                                  capped=True,  # 고정 크기 컬렉션 (size를 넘어서면 오래된 document부터 삭제)
+        #                                  size=100 * 1024 * 1024)  # 컬렉션 최대 크기(100MB) 지정(단위: bytes)
+        return self.db.create_collection(collection_name)
 
     def emit(self, record):
         if flask.has_app_context():
