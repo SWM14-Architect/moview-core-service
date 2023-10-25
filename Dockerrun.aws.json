@@ -1,0 +1,12 @@
+{
+  "AWSEBDockerrunVersion": "1",
+  "Image": {
+    "Name": "091492491028.dkr.ecr.ap-northeast-2.amazonaws.com/moview-core-ecr:latest",
+    "Update": "true"
+  },
+  "Ports": [
+    {
+      "ContainerPort": "5005"
+    }
+  ]
+}
