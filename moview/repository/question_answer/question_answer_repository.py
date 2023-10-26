@@ -8,7 +8,7 @@ from moview.domain.entity.question_answer.question import Question
 from moview.domain.entity.question_answer.answer import Answer
 from moview.config.loggers.mongo_logger import execution_trace_logger, error_logger
 from moview.environment.environment_loader import EnvironmentLoader
-from moview.config.db.mongo_constant import DB_HOST, DB_PORT, DB_USERNAME, DB_PASSWORD
+from moview.config.db.mongo_constant import *
 
 
 class QuestionAnswerRepository(metaclass=SingletonMeta):

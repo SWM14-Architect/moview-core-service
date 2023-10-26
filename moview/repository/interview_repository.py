@@ -7,7 +7,7 @@ from moview.utils.singleton_meta_class import SingletonMeta
 from moview.config.loggers.mongo_logger import execution_trace_logger
 from moview.domain.entity.interview_document import Interview
 from moview.environment.environment_loader import EnvironmentLoader
-from moview.config.db.mongo_constant import DB_HOST, DB_PORT, DB_USERNAME, DB_PASSWORD
+from moview.config.db.mongo_constant import *
 
 
 class InterviewRepository(metaclass=SingletonMeta):

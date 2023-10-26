@@ -6,7 +6,7 @@ from moview.config.db.mongo_config import MongoConfig
 from moview.utils.singleton_meta_class import SingletonMeta
 from moview.config.loggers.mongo_logger import execution_trace_logger
 from moview.domain.entity.user.user import OauthUser
-from moview.config.db.mongo_constant import DB_HOST, DB_PORT, DB_USERNAME, DB_PASSWORD
+from moview.config.db.mongo_constant import *
 from moview.environment.environment_loader import EnvironmentLoader
 
 
