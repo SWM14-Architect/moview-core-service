@@ -19,4 +19,4 @@ EXPOSE 5005
 
 # 애플리케이션 실행
 # CMD ["gunicorn", "app:app", "-b", "0.0.0.0:5005", "--workers", "4", "--threads", "8", "--timeout=120"]
-CMD ["python", "app.py"]
+CMD ["flask", "run", "--host=0.0.0.0", "--port=5005"]
