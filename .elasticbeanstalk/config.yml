@@ -2,7 +2,7 @@ branch-defaults:
   feat/eb:
     environment: moview-core-eb-prod
 environment-defaults:
-  Moview-core-eb-env:
+  moview-core-eb-prod:
     branch: null
     repository: null
 global:
