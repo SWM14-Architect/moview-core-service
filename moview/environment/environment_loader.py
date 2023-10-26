@@ -92,6 +92,5 @@ class EnvironmentLoader(metaclass=SingletonMeta):
         '''
         현재 환경이 prod인지 판단합니다.
         '''
-        # return EnvironmentLoader.get_local_env(EnvironmentLoader.MOVIEW_CORE_ENV) == EnvironmentEnum.PRODUCTION.value
-        return EnvironmentLoader.get_local_env(EnvironmentLoader.MOVIEW_CORE_ENV) == EnvironmentEnum.DEVELOPMENT.value
+        return EnvironmentLoader.get_local_env(EnvironmentLoader.MOVIEW_CORE_ENV) == EnvironmentEnum.PRODUCTION.value
 

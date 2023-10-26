@@ -12,7 +12,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
 
 # 환경 변수 설정
-ENV MOVIEW_CORE_ENV=dev
+ENV MOVIEW_CORE_ENV=prod
 
 # 해당 포트를 사용할 것을 선언
 EXPOSE 5005
