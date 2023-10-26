@@ -12,7 +12,6 @@ class UserService(metaclass=SingletonMeta):
         self.user_repository = user_repository
 
     def upsert_user(self, user: dict):
-        print("user_service-user = " + str(user))
         oauth_user = self.__convert_to_oauth_user(user)
         g.user_id = oauth_user.profile_id
         execution_trace_logger(msg="UPSERT_USER")
@@ -20,7 +19,6 @@ class UserService(metaclass=SingletonMeta):
         new_user_id = self.user_repository.upsert_user(oauth_user)
 
         if new_user_id is not None:
-            print("user_service-new_user_id = " + str(new_user_id))
             return True
 
         return False
