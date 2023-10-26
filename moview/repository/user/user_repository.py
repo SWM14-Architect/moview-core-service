@@ -46,7 +46,6 @@ class UserRepository(metaclass=SingletonMeta):
     def find_user_by_oauth_id(self, user: OauthUser) -> Optional[Dict[str, Any]]:
         # 전에 가입한적 있는지 확인하기 위해 oauth_profile_id로 검색하는 메서드.
         execution_trace_logger(msg="FIND_USER_BY_OAUTH_ID")
-        print(self.collection.find_one({"profile_id": user.profile_id}))
         return self.collection.find_one({"profile_id": user.profile_id})
 
     def find_user_by_profile_id_for_jwt(self, user_profile_id: str) -> Optional[Dict[str, Any]]:
