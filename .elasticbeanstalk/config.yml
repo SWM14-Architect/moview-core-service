@@ -1,6 +1,6 @@
 branch-defaults:
   feat/eb:
-    environment: Moview-core-eb-env
+    environment: moview-core-eb-prod
 environment-defaults:
   Moview-core-eb-env:
     branch: null
