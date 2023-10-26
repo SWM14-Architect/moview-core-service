@@ -34,13 +34,19 @@ class UserRepository(metaclass=SingletonMeta):
         self.client = MongoClient(**common_config)
         self.db = self.client[mongo_config.db_name]
         self.collection = self.db["input_data"]
+        print(**common_config)
+        print(self.client)
+        print(self.db)
+        print(self.collection)
 
     def upsert_user(self, user: OauthUser) -> Optional[InsertOneResult]:
         # 전에 가입한 적 없으면, 새로이 가입시키는 메서드
         execution_trace_logger(msg="UPSERT_USER")
         if not self.find_user_by_oauth_id(user):
+            print("user_repository-user found")
             return self.collection.insert_one(user.dict())
         else:
+            print("user_repository-user not found")
             return None
 
     def find_user_by_oauth_id(self, user: OauthUser) -> Optional[Dict[str, Any]]:
