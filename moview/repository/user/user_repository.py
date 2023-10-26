@@ -34,7 +34,10 @@ class UserRepository(metaclass=SingletonMeta):
         self.client = MongoClient(**common_config)
         self.db = self.client[mongo_config.db_name]
         self.collection = self.db["input_data"]
-        print(**common_config)
+        print(EnvironmentLoader.getenv(DB_HOST))
+        print(EnvironmentLoader.getenv(TLS_CA_FILE))
+        print(EnvironmentLoader.getenv(REPLICA_SET))
+        print(EnvironmentLoader.getenv(READ_PREFERENCE))
         print(self.client)
         print(self.db)
         print(self.collection)
