@@ -18,4 +18,5 @@ ENV MOVIEW_CORE_ENV=prod
 EXPOSE 5000
 
 # 애플리케이션 실행
-CMD ["gunicorn", "app:app", "-b", "0.0.0.0:5000", "--workers", "4", "--threads", "8", "--timeout=120"]
+# CMD ["gunicorn", "app:app", "-b", "0.0.0.0:5000", "--workers", "4", "--threads", "8", "--timeout=120"]
+CMD ["flask", "run", "--host=0.0.0.0", "--port=5000"]
