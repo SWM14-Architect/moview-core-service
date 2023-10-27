@@ -9,7 +9,7 @@ import random
 import string
 
 from moview.controller import input_data_controller, answer_controller, evaluation_controller, feedback_controller, \
-    light_mode_controller, tts_controller, stt_controller, slack_controller
+    light_mode_controller, tts_controller, stt_controller, slack_controller, health_controller
 from moview.controller.oauth import oauth_controller
 
 from moview.exception.initial_question_parse_error import InitialQuestionParseError
@@ -55,6 +55,9 @@ def set_moview_config():
 
     # slack api
     api.add_namespace(slack_controller.api, '/slack')
+
+    # health check api
+    api.add_namespace(health_controller.api, '/')
 
 
 def set_jwt_config():
