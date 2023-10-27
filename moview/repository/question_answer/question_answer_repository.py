@@ -34,7 +34,7 @@ class QuestionAnswerRepository(metaclass=SingletonMeta):
 
         self.client = MongoClient(**common_config)
         self.db = self.client[mongo_config.db_name]
-        self.collection = self.db["input_data"]
+        self.collection = self.db["question_answer"]
 
     def save_question(self, question: Question) -> InsertOneResult:
         if question.prev_question_id is None:

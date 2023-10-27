@@ -33,7 +33,7 @@ class InterviewRepository(metaclass=SingletonMeta):
 
         self.client = MongoClient(**common_config)
         self.db = self.client[mongo_config.db_name]
-        self.collection = self.db["input_data"]
+        self.collection = self.db["interview"]
 
     def save_interview(self, interview: Interview) -> InsertOneResult:
         execution_trace_logger(msg="SAVE_INTERVIEW")

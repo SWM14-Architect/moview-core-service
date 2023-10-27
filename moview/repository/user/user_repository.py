@@ -33,7 +33,7 @@ class UserRepository(metaclass=SingletonMeta):
 
         self.client = MongoClient(**common_config)
         self.db = self.client[mongo_config.db_name]
-        self.collection = self.db["input_data"]
+        self.collection = self.db["user"]
 
     def upsert_user(self, user: OauthUser) -> Optional[InsertOneResult]:
         # 전에 가입한 적 없으면, 새로이 가입시키는 메서드
