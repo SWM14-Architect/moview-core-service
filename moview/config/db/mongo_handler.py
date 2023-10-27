@@ -6,7 +6,7 @@ import pymongo
 import flask
 
 from moview.environment.environment_loader import EnvironmentLoader
-from moview.config.db.mongo_constant import DB_HOST, DB_PORT, DB_USERNAME, DB_PASSWORD
+from moview.config.db.mongo_constant import *
 
 
 class MongoHandler(logging.Handler):
@@ -18,10 +18,26 @@ class MongoHandler(logging.Handler):
         logging.Handler.__init__(self, level)
 
         # MongoClient를 만들고, database를 가져 온다.
-        self.conn = pymongo.MongoClient(host=EnvironmentLoader.getenv(DB_HOST),
-                                        port=int(EnvironmentLoader.getenv(DB_PORT)),
-                                        username=EnvironmentLoader.getenv(DB_USERNAME),
-                                        password=EnvironmentLoader.getenv(DB_PASSWORD))
+        # 공통 MongoDB 설정
+        common_config = {
+            "host": EnvironmentLoader.getenv(DB_HOST),
+            "port": int(EnvironmentLoader.getenv(DB_PORT)),
+            "username": EnvironmentLoader.getenv(DB_USERNAME),
+            "password": EnvironmentLoader.getenv(DB_PASSWORD)
+        }
+
+        # prod 환경일 경우 DocumentDB 설정
+        if EnvironmentLoader.is_prod_env():
+            prod_config = {
+                "tls": True,
+                "tlsCAFile": EnvironmentLoader.getenv(TLS_CA_FILE),
+                "replicaSet": EnvironmentLoader.getenv(REPLICA_SET),
+                "readPreference": EnvironmentLoader.getenv(READ_PREFERENCE),
+                "retryWrites": False
+            }
+            common_config.update(prod_config)
+
+        self.conn = pymongo.MongoClient(**common_config)
         self.db = self.conn.get_database(database_name)
 
         # 데이터베이스 컬렉션을 가져온다
@@ -36,9 +52,10 @@ class MongoHandler(logging.Handler):
 
     def _create_collection(self, collection_name):
         # 컬렉션 이름으로 컬렉션을 만들고 리턴 한다.
-        return self.db.create_collection(collection_name,
-                                         capped=True,  # 고정 크기 컬렉션 (size를 넘어서면 오래된 document부터 삭제)
-                                         size=100 * 1024 * 1024)  # 컬렉션 최대 크기(100MB) 지정(단위: bytes)
+        # return self.db.create_collection(collection_name,
+        #                                  capped=True,  # 고정 크기 컬렉션 (size를 넘어서면 오래된 document부터 삭제)
+        #                                  size=100 * 1024 * 1024)  # 컬렉션 최대 크기(100MB) 지정(단위: bytes)
+        return self.db.create_collection(collection_name)
 
     def emit(self, record):
         if flask.has_app_context():
