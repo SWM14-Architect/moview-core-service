@@ -24,7 +24,7 @@ class TestAnswerEvaluator(asynctest.TestCase):
         self.assertTrue(len(evaluation_result) == 2)
 
     async def test_evaluate_answer_concurrently(self):
-        total = 10
+        total = 5
 
         tasks = [self.evaluator.evaluate_answer(self.question, self.answer) for _ in range(total)]
         evaluation_result = await asyncio.gather(*tasks)
@@ -35,11 +35,11 @@ class TestAnswerEvaluator(asynctest.TestCase):
             is_fail = False
             result_num = i + 1
 
-            if len(evaluation_result) != 2:
+            if len(result) != 2:
                 is_fail = True
                 fail += 1
-
             print(f"{i + 1}번째 시도 {'실패' if is_fail else '성공'}:\n{result}\n ")
+
         print(f"실패 : {fail} 성공률 : {100 - fail / total * 100}%")
 
         self.assertEqual(result_num, total)

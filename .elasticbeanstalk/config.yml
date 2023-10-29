@@ -1,0 +1,19 @@
+branch-defaults:
+  feat/eb:
+    environment: moview-core-eb-prod
+environment-defaults:
+  moview-core-eb-prod:
+    branch: null
+    repository: null
+global:
+  application_name: moview-core-eb
+  default_ec2_keyname: moview-core-ec2
+  default_platform: Docker running on 64bit Amazon Linux 2023
+  default_region: ap-northeast-2
+  include_git_submodules: true
+  instance_profile: null
+  platform_name: null
+  platform_version: null
+  profile: null
+  sc: git
+  workspace_type: Application

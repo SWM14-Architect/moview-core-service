@@ -3,7 +3,7 @@ from flask import g
 from moview.utils.singleton_meta_class import SingletonMeta
 from moview.config.loggers.mongo_logger import execution_trace_logger
 from moview.repository.user.user_repository import UserRepository
-from moview.domain.entity.user.user import OauthUser
+from moview.domain.entity.user.user_document import OauthUser
 
 
 class UserService(metaclass=SingletonMeta):
@@ -15,8 +15,13 @@ class UserService(metaclass=SingletonMeta):
         oauth_user = self.__convert_to_oauth_user(user)
         g.user_id = oauth_user.profile_id
         execution_trace_logger(msg="UPSERT_USER")
-        self.user_repository.upsert_user(oauth_user)
-        return oauth_user
+        # 회원가입은 InsertOneResult, 로그인은 None
+        new_user_id = self.user_repository.upsert_user(oauth_user)
+
+        if new_user_id is not None:
+            return True
+
+        return False
 
     def get_user(self, profile_id_in_jwt_identity: str) -> dict:
         """

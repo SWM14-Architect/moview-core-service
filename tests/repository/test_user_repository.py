@@ -1,6 +1,6 @@
 import unittest
 from moview.config.db.mongo_config import MongoConfig
-from moview.domain.entity.user.user import OauthUser
+from moview.domain.entity.user.user_document import OauthUser
 from moview.repository.user.user_repository import UserRepository
 
 

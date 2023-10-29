@@ -1,12 +1,5 @@
 from typing import List
-
-from langchain import LLMChain
-from langchain.prompts.chat import (
-    SystemMessagePromptTemplate,
-    ChatPromptTemplate,
-    HumanMessagePromptTemplate
-)
-
+import openai
 from moview.exception.initial_question_parse_error import InitialQuestionParseError
 from moview.utils.prompt_loader import PromptLoader
 from moview.environment.llm_factory import LLMModelFactory
@@ -20,42 +13,37 @@ class InitialQuestionGiver(metaclass=SingletonMeta):
 
     def __init__(self, prompt_loader: PromptLoader):
         self.prompt = prompt_loader.load_prompt_json(InitialQuestionGiver.__name__)
-        self.llm = LLMModelFactory.create_chat_open_ai(model_name="gpt-3.5-turbo-16k", temperature=0.7)
+        openai.api_key = LLMModelFactory.load_api_key_for_open_ai()
 
     @async_retry()
     async def give_initial_questions_by_input_data(
-            self, recruit_announcement: str, coverletter: str, question_count: int, exclusion_list: List[str] = None
+            self, recruit_announcement: str, cover_letter: str, question_count: int, exclusion_list: List[str] = None
     ) -> List[str]:
         """
         Args:
             recruit_announcement: 모집공고
-            coverletter: 자기소개서
+            cover_letter: 자기소개서
             question_count: 출제할 질문 개수
             exclusion_list: 제외할 질문 리스트
         Returns: 생성된 질문 리스트 (자기소개서와 모집공고가 포함되어 있기 때문에 개인맞춤형 질문)
         """
         exclusion_question = self.__create_exclusion_question_string(exclusion_list)
 
-        prompt = ChatPromptTemplate(
-            messages=[
-                SystemMessagePromptTemplate.from_template(
-                    self.prompt["create_question_by_input_data"].format(
-                        exclusion_question=exclusion_question,
-                        question_count=question_count
-                    )
-                ),
-                HumanMessagePromptTemplate.from_template(
-                    "양식을 지켜서 질문을 생성하세요.\n\n[회사의 모집공고]\n{recruit_announcement}\n\n[면접자의 자기소개서]\n{coverletter}"
-                )
-            ],
-            input_variables=["recruit_announcement", "coverletter"],
-        )
+        model = "gpt-3.5-turbo-16k"
 
-        chain = LLMChain(llm=self.llm, prompt=prompt)
-        initial_questions_from_llm = await chain.arun({
-            "recruit_announcement": recruit_announcement,
-            "coverletter": coverletter
-        })
+        messages = [{
+            "role": "system",
+            "content": self.prompt["create_question_by_input_data"].format(
+                exclusion_question=exclusion_question,
+                question_count=question_count)
+        }, {
+            "role": "user",
+            "content": f"양식을 지켜서 질문을 생성하세요.\n\n[회사의 모집공고]\n{recruit_announcement}\n\n[면접자의 자기소개서]\n{cover_letter}"
+        }]
+
+        response = await openai.ChatCompletion.acreate(model=model, messages=messages, temperature=0.7)
+
+        initial_questions_from_llm = response['choices'][0]['message']['content']
 
         prompt_result_logger("initial question (input data) prompt result", prompt_result=initial_questions_from_llm)
 
@@ -67,7 +55,8 @@ class InitialQuestionGiver(metaclass=SingletonMeta):
             raise InitialQuestionParseError()  # 파싱이 실패하면, InitialQuestionParseError를 발생시킵니다.
 
     @async_retry()
-    async def give_initial_questions(self, job_group: str, question_count: int, exclusion_list: List[str] = None) -> List[str]:
+    async def give_initial_questions(self, job_group: str, question_count: int, exclusion_list: List[str] = None) -> \
+            List[str]:
         """
         Args:
             job_group: 타겟 직군
@@ -77,22 +66,22 @@ class InitialQuestionGiver(metaclass=SingletonMeta):
         """
         exclusion_question = self.__create_exclusion_question_string(exclusion_list)
 
-        prompt = ChatPromptTemplate(
-            messages=[
-                SystemMessagePromptTemplate.from_template(
-                    self.prompt["create_question"].format(
-                        exclusion_question=exclusion_question,
-                        job_group=job_group,
-                        question_count=question_count
-                    )
-                ),
-                HumanMessagePromptTemplate.from_template("양식을 지켜서 질문을 생성하세요.")
-            ],
-            # input_variables=["analysis"],
-        )
+        model = "gpt-3.5-turbo-16k"
 
-        chain = LLMChain(llm=self.llm, prompt=prompt)
-        initial_questions_from_llm = await chain.apredict()
+        messages = [{
+            "role": "system",
+            "content": self.prompt["create_question"].format(
+                exclusion_question=exclusion_question,
+                job_group=job_group,
+                question_count=question_count)
+        }, {
+            "role": "user",
+            "content": "양식을 지켜서 질문을 생성하세요"
+        }]
+
+        response = await openai.ChatCompletion.acreate(model=model, messages=messages, temperature=0.7)
+
+        initial_questions_from_llm = response['choices'][0]['message']['content']
 
         prompt_result_logger("initial question prompt result", prompt_result=initial_questions_from_llm)
 
@@ -113,7 +102,7 @@ class InitialQuestionGiver(metaclass=SingletonMeta):
         exclusion_question = ""
         if exclusion_list is not None:
             for idx, question in enumerate(exclusion_list):
-                exclusion_question += f"{idx+1}. {question}\n"
+                exclusion_question += f"{idx + 1}. {question}\n"
         return exclusion_question
 
     @staticmethod

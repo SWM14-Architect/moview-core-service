@@ -31,3 +31,7 @@ class LLMModelFactory:
         return ChatOpenAI(openai_api_key=EnvironmentLoader.getenv(OPENAI_API_KEY_PARAM),
                           temperature=temperature, model_name=model_name,
                           verbose=False, streaming=False, request_timeout=request_timeout)
+
+    @staticmethod
+    def load_api_key_for_open_ai() -> str:
+        return EnvironmentLoader.getenv(OPENAI_API_KEY_PARAM)

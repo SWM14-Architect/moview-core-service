@@ -30,3 +30,17 @@ class TestLightQuestionGiver(unittest.TestCase):
 
         # then
         self.assertIn("light question", result)
+
+    def test_open_ai_call(self):
+        # given
+        job_group = "테스트 직군"
+        question_count = 10
+        keyword = "test"
+
+        # when
+        result = self.light_question_giver.give_light_questions_by_input_data(job_group=job_group,
+                                                                              keyword=keyword,
+                                                                              question_count=question_count)
+
+        # then
+        self.assertLessEqual(len(result), question_count)

@@ -22,7 +22,7 @@ class TestInputAnalyzer(asynctest.TestCase):
         cover_letter_answer = "테스트 자소서 답변"
 
         analysis_result = await self.analyzer.analyze_initial_input(job_group=job_group,
-                                                              recruitment_announcement=recruitment_announcement,
-                                                              cover_letter_question=cover_letter_question,
-                                                              cover_letter_answer=cover_letter_answer)
+                                                                    recruitment_announcement=recruitment_announcement,
+                                                                    cover_letter_question=cover_letter_question,
+                                                                    cover_letter_answer=cover_letter_answer)
         self.assertTrue(is_not_none_string(analysis_result))

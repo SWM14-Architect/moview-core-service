@@ -9,6 +9,8 @@ from moview.decorator.timing_decorator import api_timing_decorator
 from moview.decorator.validation_decorator import validate_char_count
 from moview.controller.constants.input_data_constants import (MAX_COMPANY_NAME_LENGTH, MAX_POSITION_NAME_LENGTH,
                                                               MAX_KEYWORD_LENGTH)
+from moview.exception.retry_execution_error import RetryExecutionError
+import openai
 
 api = Namespace('light_mode', description='light mode api')
 
@@ -42,21 +44,29 @@ class LightModeConstructor(Resource):
                 user_id=user_id,
             )
             g.interview_id = interview_document_id
-            
+
         except Exception as e:
             error_logger(msg="CREATE INTERVIEW DOCUMENT ERROR", error=e)
-            return make_response(jsonify(
-                {'message': {
-                    'error': '오잉? 이상한 오류 메시지가 나타났어요. 다시 시도해주세요.',
-                    'error_message': str(e)
-                }}
-            ), HTTPStatus.INTERNAL_SERVER_ERROR)
+            raise e
 
         # 2. Initial Question 생성
-        result = light_mode_service.ask_light_question_to_interviewee(
-            interviewee_name=interviewee_name,
-            company_name=company_name,
-            job_group=job_group, keyword=keyword)
+        try:
+            result = light_mode_service.ask_light_question_to_interviewee(
+                interviewee_name=interviewee_name,
+                company_name=company_name,
+                job_group=job_group, keyword=keyword)
+
+        except RetryExecutionError as e:
+            error_logger(msg="RETRY EXECUTION ERROR")
+            raise e
+
+        except openai.error.RateLimitError as e:
+            error_logger(msg="RATE LIMIT ERROR")
+            raise e
+
+        except Exception as e:
+            error_logger(msg="CREATE INTERVIEW DOCUMENT ERROR", error=e)
+            raise e
 
         # Parse Error 발생했을 경우 500 에러 반환
         if result is None:
@@ -76,12 +86,7 @@ class LightModeConstructor(Resource):
             )
         except Exception as e:
             error_logger(msg="CREATE INTERVIEW DOCUMENT ERROR", error=e)
-            return make_response(jsonify(
-                {'message': {
-                    'error': '오잉? 이상한 오류 메시지가 나타났어요. 다시 시도해주세요.',
-                    'error_message': str(e)
-                }}
-            ), HTTPStatus.INTERNAL_SERVER_ERROR)
+            raise e
 
         execution_trace_logger("LIGHT MODE CONTROLLER: POST",
                                interviewee_name=interviewee_name,

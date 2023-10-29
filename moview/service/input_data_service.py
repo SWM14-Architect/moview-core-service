@@ -4,7 +4,7 @@ import asyncio
 from moview.config.loggers.mongo_logger import error_logger, execution_trace_logger
 from moview.domain.entity.input_data.coverletter_document import CoverLetter
 from moview.domain.entity.input_data.initial_input_data_document import InitialInputData
-from moview.domain.entity.question_answer.question import Question
+from moview.domain.entity.question_answer.question_document import Question
 from moview.modules.input.input_analyzer import InputAnalyzer
 from moview.modules.input.initial_question_giver import InitialQuestionGiver, InitialQuestionParseError
 from moview.repository.input_data.input_data_repository import InputDataRepository
@@ -169,15 +169,15 @@ class InputDataService(metaclass=SingletonMeta):
 
         execution_trace_logger("Initial Question By Job", created_questions=created_questions)
 
-        # coverletter를 하나의 스트링으로 합침.
-        coverletter = ""
+        # cover_letter를 하나의 스트링으로 합침.
+        cover_letter = ""
         for question, answer in zip(cover_letter_questions, cover_letter_answers):
-            coverletter += f"Q. {question}\nA. {answer}\n\n"
+            cover_letter += f"Q. {question}\nA. {answer}\n\n"
 
         # 자기소개서와 모집공고를 기반으로 초기질문 생성.
         created_questions = await self.initial_question_giver.give_initial_questions_by_input_data(
             recruit_announcement=recruit_announcement,
-            coverletter=coverletter,
+            cover_letter=cover_letter,
             question_count=self.INIT_QUESTION_NUMBER // 2,
             exclusion_list=initial_question_list  # 이미 생성된 질문은 제외
         )
