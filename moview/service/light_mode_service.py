@@ -2,7 +2,7 @@ from typing import List, Dict, Any, Optional
 
 from moview.config.loggers.mongo_logger import error_logger, execution_trace_logger
 from moview.domain.entity.input_data.initial_input_data_document import InitialInputData
-from moview.domain.entity.question_answer.question import Question
+from moview.domain.entity.question_answer.question_document import Question
 from moview.exception.light_question_parse_error import LightQuestionParseError
 from moview.modules.light.light_question_giver import LightQuestionGiver
 from moview.repository.input_data.input_data_repository import InputDataRepository

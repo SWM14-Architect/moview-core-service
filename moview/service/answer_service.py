@@ -1,13 +1,13 @@
 import random
 from typing import Dict, Any, Optional, Tuple, List
-from moview.domain.entity.question_answer.answer import Answer
+from moview.domain.entity.question_answer.answer_document import Answer
 from moview.modules.question_generator import FollowUpQuestionGiver
 from moview.utils.singleton_meta_class import SingletonMeta
 from moview.config.loggers.mongo_logger import execution_trace_logger
 from moview.repository.question_answer.question_answer_repository import QuestionAnswerRepository
 from moview.repository.interview_repository import InterviewRepository
 from moview.domain.entity.interview_document import Interview
-from moview.domain.entity.question_answer.question import Question
+from moview.domain.entity.question_answer.question_document import Question
 from moview.utils.prompt_parser import PromptParser
 
 

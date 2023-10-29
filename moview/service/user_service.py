@@ -3,7 +3,7 @@ from flask import g
 from moview.utils.singleton_meta_class import SingletonMeta
 from moview.config.loggers.mongo_logger import execution_trace_logger
 from moview.repository.user.user_repository import UserRepository
-from moview.domain.entity.user.user import OauthUser
+from moview.domain.entity.user.user_document import OauthUser
 
 
 class UserService(metaclass=SingletonMeta):

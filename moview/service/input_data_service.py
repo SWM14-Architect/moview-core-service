@@ -4,7 +4,7 @@ import asyncio
 from moview.config.loggers.mongo_logger import error_logger, execution_trace_logger
 from moview.domain.entity.input_data.coverletter_document import CoverLetter
 from moview.domain.entity.input_data.initial_input_data_document import InitialInputData
-from moview.domain.entity.question_answer.question import Question
+from moview.domain.entity.question_answer.question_document import Question
 from moview.modules.input.input_analyzer import InputAnalyzer
 from moview.modules.input.initial_question_giver import InitialQuestionGiver, InitialQuestionParseError
 from moview.repository.input_data.input_data_repository import InputDataRepository

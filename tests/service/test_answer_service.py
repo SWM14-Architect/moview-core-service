@@ -7,7 +7,7 @@ from moview.repository.interview_repository import InterviewRepository
 from moview.modules.question_generator import FollowUpQuestionGiver
 from moview.utils.prompt_loader import PromptLoader
 from moview.domain.entity.interview_document import Interview
-from moview.domain.entity.question_answer.question import Question
+from moview.domain.entity.question_answer.question_document import Question
 
 PATCH_PATH = "moview.service.answer_service.AnswerService.need_to_give_followup_question"
 
