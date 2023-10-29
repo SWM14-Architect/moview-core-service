@@ -1,7 +1,7 @@
 import unittest
 from moview.service.feedback_service import FeedbackService
 from moview.config.db.mongo_config import MongoConfig
-from moview.domain.entity.question_answer.question import Question
+from moview.domain.entity.question_answer.question_document import Question
 from moview.repository.question_answer.question_answer_repository import QuestionAnswerRepository
 
 

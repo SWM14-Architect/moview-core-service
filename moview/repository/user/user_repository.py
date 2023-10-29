@@ -5,7 +5,7 @@ from pymongo.results import InsertOneResult
 from moview.config.db.mongo_config import MongoConfig
 from moview.utils.singleton_meta_class import SingletonMeta
 from moview.config.loggers.mongo_logger import execution_trace_logger
-from moview.domain.entity.user.user import OauthUser
+from moview.domain.entity.user.user_document import OauthUser
 from moview.config.db.mongo_constant import *
 from moview.environment.environment_loader import EnvironmentLoader
 

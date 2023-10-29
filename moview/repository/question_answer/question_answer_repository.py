@@ -4,8 +4,8 @@ from pymongo import MongoClient
 from pymongo.results import InsertOneResult, UpdateResult
 from moview.config.db.mongo_config import MongoConfig
 from moview.utils.singleton_meta_class import SingletonMeta
-from moview.domain.entity.question_answer.question import Question
-from moview.domain.entity.question_answer.answer import Answer
+from moview.domain.entity.question_answer.question_document import Question
+from moview.domain.entity.question_answer.answer_document import Answer
 from moview.config.loggers.mongo_logger import execution_trace_logger, error_logger
 from moview.environment.environment_loader import EnvironmentLoader
 from moview.config.db.mongo_constant import *
