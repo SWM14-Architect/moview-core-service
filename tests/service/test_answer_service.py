@@ -9,6 +9,7 @@ from moview.utils.prompt_loader import PromptLoader
 from moview.domain.entity.interview_document import Interview
 from moview.domain.entity.question_answer.question_document import Question
 from moview.service.answer.followup_question_determiner import FollowupQuestionDeterminer
+from moview.service.answer.question_choosing_strategy import RandomQuestionChoosingStrategy
 
 PATCH_PATH = FollowupQuestionDeterminer.get_full_class_name() + ".need_to_give_followup_question"
 
@@ -20,6 +21,7 @@ class TestAnswerService(unittest.TestCase):
         self.mongo_config.db_name = "test_database"
 
         self.prompt_loader = PromptLoader()
+        self.strategy = RandomQuestionChoosingStrategy()
         self.giver = FollowUpQuestionGiver(self.prompt_loader)
 
         self.interview_repository = InterviewRepository(self.mongo_config)
@@ -32,7 +34,8 @@ class TestAnswerService(unittest.TestCase):
         self.initial_question = Question(content="질문 내용", feedback_score=0, question_id=None)
         self.initial_question_id = self.question_answer_repository.save_question(self.initial_question).inserted_id
 
-        self.answer_service = AnswerService(self.interview_repository, self.question_answer_repository, self.giver)
+        self.answer_service = AnswerService(self.interview_repository, self.question_answer_repository, self.strategy,
+                                            self.giver)
 
         self.question_content = "이 회사에서 어떻게 성과를 낼 건지 말씀해주세요."
         self.answer_content = "탁월한 개발자로서 이 회사의 핵심 인재가 되겠습니다. 그리고 신입 개발자들의 온보딩을 도움으로써 회사의 효율성을 높이는 시니어 개발자가 될 것입니다."
@@ -44,8 +47,10 @@ class TestAnswerService(unittest.TestCase):
 
     def test_singleton(self):
         # when
-        answer_service1 = AnswerService(self.interview_repository, self.question_answer_repository, self.giver)
-        answer_service2 = AnswerService(self.interview_repository, self.question_answer_repository, self.giver)
+        answer_service1 = AnswerService(self.interview_repository, self.question_answer_repository, self.strategy,
+                                        self.giver)
+        answer_service2 = AnswerService(self.interview_repository, self.question_answer_repository, self.strategy,
+                                        self.giver)
         # then
         self.assertEqual(answer_service1, answer_service2)
 

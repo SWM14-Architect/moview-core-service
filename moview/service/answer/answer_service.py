@@ -8,15 +8,18 @@ from moview.repository.question_answer.question_answer_repository import Questio
 from moview.repository.interview_repository import InterviewRepository
 from moview.domain.entity.question_answer.question_document import Question
 from moview.utils.prompt_parser import PromptParser
+from moview.service.answer.question_choosing_strategy import QuestionChoosingStrategy
 from moview.service.answer.followup_question_determiner import FollowupQuestionDeterminer
 
 
 class AnswerService(metaclass=SingletonMeta):
 
     def __init__(self, interview_repository: InterviewRepository, question_answer_repository: QuestionAnswerRepository,
+                 choosing_strategy: QuestionChoosingStrategy,
                  followup_question_giver: FollowUpQuestionGiver):
         self.interview_repository = interview_repository
         self.question_answer_repository = question_answer_repository
+        self.choosing_strategy = choosing_strategy
         self.followup_question_giver = followup_question_giver
 
     # todo 이 메서드 자체에 transaction 처리가 필요함.
@@ -48,7 +51,7 @@ class AnswerService(metaclass=SingletonMeta):
             parsed_questions = PromptParser.parse_question(followup_question_content)
 
             if parsed_questions:
-                chosen_question = self.__choose_question(parsed_questions)
+                chosen_question = self.choosing_strategy.choose_question(parsed_questions)
 
                 saved_followup_question_id = self.__save_followup_question(interview_id=interview_id,
                                                                            question_id=question_id,
@@ -74,9 +77,6 @@ class AnswerService(metaclass=SingletonMeta):
                         })
 
         self.question_answer_repository.save_answer(answer)
-
-    def __choose_question(self, parsed_questions: List[str]) -> str:
-        return random.choice(parsed_questions)
 
     def __save_followup_question(self, interview_id: str, question_id: str, followup_question_content: str):
         execution_trace_logger(msg="CREATE_AND_SAVE_FOLLOWUP_QUESTION")
