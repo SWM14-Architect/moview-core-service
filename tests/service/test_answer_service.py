@@ -1,15 +1,15 @@
 import unittest
 from unittest.mock import patch
-from moview.service.answer.answer_service import AnswerService
 from moview.config.db.mongo_config import MongoConfig
+from moview.service.answer.answer_service import AnswerService
+from moview.service.answer.followup_question_determiner import FollowupQuestionDeterminer
+from moview.service.answer.question_choosing_strategy import RandomQuestionChoosingStrategy
 from moview.repository.question_answer.question_answer_repository import QuestionAnswerRepository
 from moview.repository.interview_repository import InterviewRepository
 from moview.modules.question_generator import FollowUpQuestionGiver
-from moview.utils.prompt_loader import PromptLoader
 from moview.domain.entity.interview_document import Interview
 from moview.domain.entity.question_answer.question_document import Question
-from moview.service.answer.followup_question_determiner import FollowupQuestionDeterminer
-from moview.service.answer.question_choosing_strategy import RandomQuestionChoosingStrategy
+from moview.utils.prompt_loader import PromptLoader
 
 PATCH_PATH = FollowupQuestionDeterminer.get_full_class_name() + ".need_to_give_followup_question"
 

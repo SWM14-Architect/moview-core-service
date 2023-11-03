@@ -1,15 +1,14 @@
-import random
-from typing import Optional, Tuple, List
-from moview.domain.entity.question_answer.answer_document import Answer
-from moview.modules.question_generator import FollowUpQuestionGiver
-from moview.utils.singleton_meta_class import SingletonMeta
+from typing import Optional, Tuple
 from moview.config.loggers.mongo_logger import execution_trace_logger
+from moview.service.answer.question_choosing_strategy import QuestionChoosingStrategy
+from moview.service.answer.followup_question_determiner import FollowupQuestionDeterminer
 from moview.repository.question_answer.question_answer_repository import QuestionAnswerRepository
 from moview.repository.interview_repository import InterviewRepository
 from moview.domain.entity.question_answer.question_document import Question
+from moview.domain.entity.question_answer.answer_document import Answer
+from moview.modules.question_generator import FollowUpQuestionGiver
+from moview.utils.singleton_meta_class import SingletonMeta
 from moview.utils.prompt_parser import PromptParser
-from moview.service.answer.question_choosing_strategy import QuestionChoosingStrategy
-from moview.service.answer.followup_question_determiner import FollowupQuestionDeterminer
 
 
 class AnswerService(metaclass=SingletonMeta):
