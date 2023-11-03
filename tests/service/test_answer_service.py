@@ -1,6 +1,8 @@
 import unittest
+import os
+
 from unittest.mock import patch
-from moview.service.answer_service import AnswerService
+from moview.service.answer.answer_service import AnswerService
 from moview.config.db.mongo_config import MongoConfig
 from moview.repository.question_answer.question_answer_repository import QuestionAnswerRepository
 from moview.repository.interview_repository import InterviewRepository
@@ -9,7 +11,8 @@ from moview.utils.prompt_loader import PromptLoader
 from moview.domain.entity.interview_document import Interview
 from moview.domain.entity.question_answer.question_document import Question
 
-PATCH_PATH = "moview.service.answer_service.AnswerService.need_to_give_followup_question"
+# todo 아래 경로 문자열은 테스트 대상 클래스의 디렉토리가 달라짐에 따라 바뀐다. 뭔가 좀 더 안정적인 코드로 바꿀 필요가 있다.
+PATCH_PATH = "moview.service.answer.answer_service.AnswerService.need_to_give_followup_question"
 
 
 class TestAnswerService(unittest.TestCase):
@@ -47,6 +50,18 @@ class TestAnswerService(unittest.TestCase):
         answer_service2 = AnswerService(self.interview_repository, self.question_answer_repository, self.giver)
         # then
         self.assertEqual(answer_service1, answer_service2)
+
+        answer_service_module_path = os.path.abspath(AnswerService.__module__)
+
+        import sys
+        # AnswerService가 정의된 모듈의 이름을 얻습니다.
+        module_name = AnswerService.__module__
+        # sys.modules에서 모듈 객체를 얻습니다.
+        module = sys.modules[module_name]
+        # 모듈 객체에서 __file__ 속성을 사용해 실제 파일 경로를 얻습니다.
+        module_path = os.path.abspath(module.__file__)
+
+        print("AnswerService module path:", module_path)
 
     @patch(PATCH_PATH)
     def test_no_need_followup_question(self, mock_method):

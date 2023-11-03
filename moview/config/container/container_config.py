@@ -8,7 +8,7 @@ from moview.repository.interview_repository import InterviewRepository
 from moview.repository.question_answer.question_answer_repository import QuestionAnswerRepository
 from moview.service.interview_service import InterviewService
 from moview.service.input_data_service import InputDataService
-from moview.service.answer_service import AnswerService
+from moview.service.answer.answer_service import AnswerService
 from moview.service.evaluation_service import EvaluationService
 from moview.service.feedback_service import FeedbackService
 from moview.service.light_mode_service import LightModeService
