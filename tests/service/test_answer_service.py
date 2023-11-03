@@ -8,9 +8,9 @@ from moview.modules.question_generator import FollowUpQuestionGiver
 from moview.utils.prompt_loader import PromptLoader
 from moview.domain.entity.interview_document import Interview
 from moview.domain.entity.question_answer.question_document import Question
+from moview.service.answer.followup_question_determiner import FollowupQuestionDeterminer
 
-# todo 아래 경로 문자열은 테스트 대상 클래스의 디렉토리가 달라짐에 따라 바뀐다. 뭔가 좀 더 안정적인 코드로 바꿀 필요가 있다.
-PATCH_PATH = "moview.service.answer.answer_service.AnswerService.need_to_give_followup_question"
+PATCH_PATH = FollowupQuestionDeterminer.get_full_class_name() + ".need_to_give_followup_question"
 
 
 class TestAnswerService(unittest.TestCase):

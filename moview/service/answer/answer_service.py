@@ -8,6 +8,7 @@ from moview.repository.question_answer.question_answer_repository import Questio
 from moview.repository.interview_repository import InterviewRepository
 from moview.domain.entity.question_answer.question_document import Question
 from moview.utils.prompt_parser import PromptParser
+from moview.service.answer.followup_question_determiner import FollowupQuestionDeterminer
 
 
 class AnswerService(metaclass=SingletonMeta):
@@ -35,11 +36,9 @@ class AnswerService(metaclass=SingletonMeta):
 
         """
 
-        need_for_followup_question = self.need_to_give_followup_question()
-
         self.__save_latest_answer(answer_content=answer_content, question_id=question_id)
 
-        if need_for_followup_question:
+        if FollowupQuestionDeterminer.need_to_give_followup_question():
 
             execution_trace_logger(msg="NEED_TO_GIVE_FOLLOWUP_QUESTION")
 
@@ -63,15 +62,6 @@ class AnswerService(metaclass=SingletonMeta):
             execution_trace_logger(msg="NO_FOLLOWUP_QUESTION")
 
             return None, None
-
-    def need_to_give_followup_question(self) -> bool:
-        base_probability_of_question = 0.5
-
-        need = random.random() < base_probability_of_question
-
-        execution_trace_logger(msg="NEED_TO_GIVE_FOLLOWUP_QUESTION", result=need)
-
-        return need
 
     def __save_latest_answer(self, answer_content: str, question_id: str):
         execution_trace_logger(msg="CREATE_AND_SAVE_ANSWER")
