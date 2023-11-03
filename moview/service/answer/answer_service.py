@@ -22,44 +22,34 @@ class AnswerService(metaclass=SingletonMeta):
     def maybe_give_followup_question_about_latest_answer(self, user_id: str, interview_id: str, question_id: str,
                                                          question_content: str, answer_content: str) -> \
             Tuple[Optional[str], Optional[str]]:
-        # 1. 현재 인터뷰 세션을 불러온 후, 업데이트한다.
 
-        # 2. 꼬리 질문을 할지 말지를 결정한다.
         need_for_followup_question = self.need_to_give_followup_question()
 
-        # 3. answer 엔티티 생성 및 저장
         self.__save_latest_answer(answer_content=answer_content, question_id=question_id)
 
-        #   4-1. 꼬리 질문을 해야 한다면.
         if need_for_followup_question:
 
             followup_question_content = self.__give_followup_question(
                 question_content=question_content,
                 answer_content=answer_content)
 
-            # 4-1-1. 꼬리 질문 파싱
             parsed_questions = self.__parse_questions(followup_question_content)
 
-            if parsed_questions:  # 파싱 성공했다면,
-                # 4-1-2. 꼬리 질문 중 하나를 선택
+            if parsed_questions:
                 chosen_question = self.__choose_question(parsed_questions)
 
-                # 4-1-3. 꼬리 질문을 저장하고, 그 id를 반환
                 saved_followup_question_id = self.__create_and_save_followup_question(interview_id=interview_id,
                                                                                       question_id=question_id,
                                                                                       followup_question_content=chosen_question)
-
-                # return 파싱된 꼬리 질문 내용, Question 엔티티 id
                 return chosen_question, str(saved_followup_question_id)
 
             else:  # 파싱 실패했다면, 꼬리 질문을 출제하지 않는다.
                 execution_trace_logger(msg="NO_FOLLOWUP_QUESTION")
                 return None, None
-        #   4-2. 꼬리 질문을 할 필요 없다면
-        else:
+        else:  # 꼬리 질문을 할 필요 없다면
             execution_trace_logger(msg="NO_FOLLOWUP_QUESTION")
 
-            # return None. 즉, 꼬리 질문 출제를 하지 않는다는 것이다. 프론트엔드는 다음 초기 질문으로 넘어가야 한다.
+            # 꼬리 질문을 출제하지 않는다.
             return None, None
 
     def need_to_give_followup_question(self) -> bool:
@@ -94,12 +84,11 @@ class AnswerService(metaclass=SingletonMeta):
         return PromptParser.parse_question(questions_string)
 
     def __choose_question(self, parsed_questions: List[str]) -> str:
-        return random.choice(parsed_questions)  # 주어진 리스트에서 랜덤하게 요소 하나 선택
+        return random.choice(parsed_questions)
 
     def __create_and_save_followup_question(self, interview_id: str, question_id: str, followup_question_content: str):
         execution_trace_logger(msg="CREATE_AND_SAVE_FOLLOWUP_QUESTION")
 
-        # Question 엔티티를 생성한다. question_id를 가리킴으로써, 꼬리질문임을 나타낸다.
         followup_question = Question(content=followup_question_content, feedback_score=0,
                                      interview_id={
                                          "#ref": self.interview_repository.collection.name,
@@ -108,9 +97,8 @@ class AnswerService(metaclass=SingletonMeta):
                                      },
                                      prev_question_id={
                                          "#ref": self.question_answer_repository.collection.name,
-                                         "#id": question_id,
+                                         "#id": question_id,  # question_id를 가리킴으로써, 꼬리질문임을 나타낸다.
                                          "#db": self.question_answer_repository.db.name
                                      })
 
-        # Question 리포지토리의 saveQuestion()을 활용해 Question 엔티티를 저장한다.
         return self.question_answer_repository.save_question(followup_question).inserted_id
