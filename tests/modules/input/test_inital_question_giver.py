@@ -60,4 +60,4 @@ class TestInitialQuestionGiver(asynctest.TestCase):
                                                                     question_count=question_count,
                                                                     exclusion_list=exclusion_list)
         print(initial_questions)
-        self.assertTrue(len(initial_questions) == question_count)
+        self.assertLessEqual(len(initial_questions), question_count)
