@@ -13,10 +13,10 @@ from moview.utils.prompt_parser import PromptParser
 class AnswerService(metaclass=SingletonMeta):
 
     def __init__(self, interview_repository: InterviewRepository, question_answer_repository: QuestionAnswerRepository,
-                 giver: FollowUpQuestionGiver):
+                 followup_question_giver: FollowUpQuestionGiver):
         self.interview_repository = interview_repository
         self.question_answer_repository = question_answer_repository
-        self.giver = giver
+        self.followup_question_giver = followup_question_giver
 
     # todo 이 메서드 자체에 transaction 처리가 필요함.
     def maybe_give_followup_question_about_latest_answer(self, interview_id: str, question_id: str,
@@ -31,7 +31,7 @@ class AnswerService(metaclass=SingletonMeta):
             question_content: 최근에 답변했던 질문의 내용
             answer_content: 최근의 답변했던 답변의 내용
 
-        Returns: 꼬리 질문을 낼 필요가 있다면, 꼬리질문 내용과 꼬리질문의 id를 반환한다. 그렇지 않다면 None, None을 반환한다.
+        Returns: 꼬리 질문을 낼 필요가 있다면, 꼬리질문 내용과 str(꼬리질문의 id)를 반환한다. 그렇지 않다면 None, None을 반환한다.
 
         """
 
@@ -41,18 +41,19 @@ class AnswerService(metaclass=SingletonMeta):
 
         if need_for_followup_question:
 
-            followup_question_content = self.__give_followup_question(
-                question_content=question_content,
-                answer_content=answer_content)
+            execution_trace_logger(msg="NEED_TO_GIVE_FOLLOWUP_QUESTION")
+
+            followup_question_content = self.followup_question_giver.give_followup_question(question=question_content,
+                                                                                            answer=answer_content)
 
             parsed_questions = self.__parse_questions(followup_question_content)
 
             if parsed_questions:
                 chosen_question = self.__choose_question(parsed_questions)
 
-                saved_followup_question_id = self.__create_and_save_followup_question(interview_id=interview_id,
-                                                                                      question_id=question_id,
-                                                                                      followup_question_content=chosen_question)
+                saved_followup_question_id = self.__save_followup_question(interview_id=interview_id,
+                                                                           question_id=question_id,
+                                                                           followup_question_content=chosen_question)
                 return chosen_question, str(saved_followup_question_id)
 
             else:
@@ -84,20 +85,13 @@ class AnswerService(metaclass=SingletonMeta):
 
         self.question_answer_repository.save_answer(answer)
 
-    def __give_followup_question(self, question_content: str,
-                                 answer_content: str) -> str:
-        execution_trace_logger(msg="GIVE_FOLLOWUP_QUESTION")
-
-        return self.giver.give_followup_question(question=question_content,
-                                                 answer=answer_content)
-
     def __parse_questions(self, questions_string: str) -> Optional[List[str]]:
         return PromptParser.parse_question(questions_string)
 
     def __choose_question(self, parsed_questions: List[str]) -> str:
         return random.choice(parsed_questions)
 
-    def __create_and_save_followup_question(self, interview_id: str, question_id: str, followup_question_content: str):
+    def __save_followup_question(self, interview_id: str, question_id: str, followup_question_content: str):
         execution_trace_logger(msg="CREATE_AND_SAVE_FOLLOWUP_QUESTION")
 
         followup_question = Question(content=followup_question_content, feedback_score=0,
