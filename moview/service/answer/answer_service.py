@@ -45,7 +45,7 @@ class AnswerService(metaclass=SingletonMeta):
             followup_question_content = self.followup_question_giver.give_followup_question(question=question_content,
                                                                                             answer=answer_content)
 
-            parsed_questions = self.__parse_questions(followup_question_content)
+            parsed_questions = PromptParser.parse_question(followup_question_content)
 
             if parsed_questions:
                 chosen_question = self.__choose_question(parsed_questions)
@@ -74,9 +74,6 @@ class AnswerService(metaclass=SingletonMeta):
                         })
 
         self.question_answer_repository.save_answer(answer)
-
-    def __parse_questions(self, questions_string: str) -> Optional[List[str]]:
-        return PromptParser.parse_question(questions_string)
 
     def __choose_question(self, parsed_questions: List[str]) -> str:
         return random.choice(parsed_questions)
