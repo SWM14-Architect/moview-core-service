@@ -4,9 +4,10 @@ from moview.environment.llm_factory import LLMModelFactory
 from moview.config.loggers.mongo_logger import prompt_result_logger
 from moview.decorator.retry_decorator import retry
 from moview.utils.singleton_meta_class import SingletonMeta
+from moview.utils.mixin.directory_mixin import DirectoryMixin
 
 
-class FollowUpQuestionGiver(metaclass=SingletonMeta):
+class FollowUpQuestionGiver(DirectoryMixin, metaclass=SingletonMeta):
 
     def __init__(self, prompt_loader: PromptLoader):
         self.prompt = prompt_loader.load_prompt_json(FollowUpQuestionGiver.__name__)

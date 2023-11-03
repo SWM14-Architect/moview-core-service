@@ -5,6 +5,8 @@ from tests.common_code_for_test import is_not_none_string
 from moview.modules.question_generator.followup_question_giver import FollowUpQuestionGiver
 from moview.utils.prompt_loader import PromptLoader
 
+PATCH_PATH = FollowUpQuestionGiver.get_full_class_name() + ".give_followup_question"
+
 
 class TestFollowUpQuestionGiver(unittest.TestCase):
 
@@ -15,9 +17,7 @@ class TestFollowUpQuestionGiver(unittest.TestCase):
     def test_load_prompt(self):
         self.assertTrue(is_not_none_string(self.followup_question_giver.prompt))
 
-    @patch(
-        'moview.modules.question_generator.followup_question_giver.FollowUpQuestionGiver'
-        '.give_followup_question')
+    @patch(PATCH_PATH)
     def test_give_followup_question(self, mock_method):
         # given
         question = "테스트 질문"
