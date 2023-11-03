@@ -45,11 +45,12 @@ class AnswerConstructor(Resource):
                                                                  question_id=question_id,
                                                                  question_content=question_content)
 
-            chosen_question, saved_id = answer_service.maybe_give_followup_question_about_latest_answer(user_id=user_id,
-                                                                                                        interview_id=interview_id,
-                                                                                                        question_id=question_id,
-                                                                                                        question_content=question_content,
-                                                                                                        answer_content=answer_content)
+            chosen_question, saved_id = answer_service.maybe_give_followup_question_about_latest_answer(
+                interview_id=interview_id,
+                question_id=question_id,
+                question_content=question_content,
+                answer_content=answer_content)
+
         except RetryExecutionError as e:
             error_logger(msg="RETRY EXECUTION ERROR")
             raise e

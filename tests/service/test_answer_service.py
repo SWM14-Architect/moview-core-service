@@ -55,12 +55,12 @@ class TestAnswerService(unittest.TestCase):
         mock_method.return_value = False
 
         # when
-        content, saved_id = self.answer_service.maybe_give_followup_question_about_latest_answer(user_id=self.user_id,
-                                                                                                 interview_id=self.interview_id,
-                                                                                                 question_id=str(
-                                                                                                     self.initial_question_id),
-                                                                                                 question_content=self.question_content,
-                                                                                                 answer_content=self.answer_content)
+        content, saved_id = self.answer_service.maybe_give_followup_question_about_latest_answer(
+            interview_id=self.interview_id,
+            question_id=str(
+                self.initial_question_id),
+            question_content=self.question_content,
+            answer_content=self.answer_content)
 
         # then
         self.assertTrue(content is None)
@@ -72,12 +72,12 @@ class TestAnswerService(unittest.TestCase):
         # given
         mock_method.return_value = True
         # when
-        content, saved_id = self.answer_service.maybe_give_followup_question_about_latest_answer(user_id=self.user_id,
-                                                                                                 interview_id=self.interview_id,
-                                                                                                 question_id=str(
-                                                                                                     self.initial_question_id),
-                                                                                                 question_content=self.question_content,
-                                                                                                 answer_content=self.answer_content)
+        content, saved_id = self.answer_service.maybe_give_followup_question_about_latest_answer(
+            interview_id=self.interview_id,
+            question_id=str(
+                self.initial_question_id),
+            question_content=self.question_content,
+            answer_content=self.answer_content)
 
         # then
         self.assertTrue(content is not None)
@@ -90,20 +90,20 @@ class TestAnswerService(unittest.TestCase):
         # given
         mock_method.return_value = True
 
-        content1, saved_id1 = self.answer_service.maybe_give_followup_question_about_latest_answer(user_id=self.user_id,
-                                                                                                   interview_id=self.interview_id,
-                                                                                                   question_id=str(
-                                                                                                       self.initial_question_id),
-                                                                                                   question_content=self.question_content,
-                                                                                                   answer_content=self.answer_content)
+        content1, saved_id1 = self.answer_service.maybe_give_followup_question_about_latest_answer(
+            interview_id=self.interview_id,
+            question_id=str(
+                self.initial_question_id),
+            question_content=self.question_content,
+            answer_content=self.answer_content)
 
         # when
-        content2, saved_id2 = self.answer_service.maybe_give_followup_question_about_latest_answer(user_id=self.user_id,
-                                                                                                   interview_id=self.interview_id,
-                                                                                                   question_id=str(
-                                                                                                       saved_id1),
-                                                                                                   question_content=content1,
-                                                                                                   answer_content="신입 사원이 온보딩을 쉽게 할 수 있도록 코드 베이스와 문서를 잘 정리해놓을 것입니다.")
+        content2, saved_id2 = self.answer_service.maybe_give_followup_question_about_latest_answer(
+            interview_id=self.interview_id,
+            question_id=str(
+                saved_id1),
+            question_content=content1,
+            answer_content="신입 사원이 온보딩을 쉽게 할 수 있도록 코드 베이스와 문서를 잘 정리해놓을 것입니다.")
 
         # then
         self.assertTrue(content2 is not None)

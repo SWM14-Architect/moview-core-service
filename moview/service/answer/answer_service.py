@@ -19,9 +19,21 @@ class AnswerService(metaclass=SingletonMeta):
         self.giver = giver
 
     # todo 이 메서드 자체에 transaction 처리가 필요함.
-    def maybe_give_followup_question_about_latest_answer(self, user_id: str, interview_id: str, question_id: str,
+    def maybe_give_followup_question_about_latest_answer(self, interview_id: str, question_id: str,
                                                          question_content: str, answer_content: str) -> \
             Tuple[Optional[str], Optional[str]]:
+
+        """
+
+        Args:
+            interview_id: 인터뷰 세션 id
+            question_id: 최근에 답변했던 질문의 id
+            question_content: 최근에 답변했던 질문의 내용
+            answer_content: 최근의 답변했던 답변의 내용
+
+        Returns: 꼬리 질문을 낼 필요가 있다면, 꼬리질문 내용과 꼬리질문의 id를 반환한다. 그렇지 않다면 None, None을 반환한다.
+
+        """
 
         need_for_followup_question = self.need_to_give_followup_question()
 
@@ -43,13 +55,12 @@ class AnswerService(metaclass=SingletonMeta):
                                                                                       followup_question_content=chosen_question)
                 return chosen_question, str(saved_followup_question_id)
 
-            else:  # 파싱 실패했다면, 꼬리 질문을 출제하지 않는다.
+            else:
                 execution_trace_logger(msg="NO_FOLLOWUP_QUESTION")
                 return None, None
-        else:  # 꼬리 질문을 할 필요 없다면
+        else:
             execution_trace_logger(msg="NO_FOLLOWUP_QUESTION")
 
-            # 꼬리 질문을 출제하지 않는다.
             return None, None
 
     def need_to_give_followup_question(self) -> bool:
