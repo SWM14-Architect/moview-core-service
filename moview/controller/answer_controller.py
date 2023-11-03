@@ -34,11 +34,21 @@ class AnswerConstructor(Resource):
         question_content = request_body['question_content']
         answer_content = request_body['answer_content']
 
+        interview_service = ContainerConfig().interview_service
         answer_service = ContainerConfig().answer_service
 
         try:
-            chosen_question, saved_id = answer_service.maybe_give_followup_question_about_latest_answer(user_id=user_id, interview_id=interview_id,
-                                                                                                        question_id=question_id, question_content=question_content,
+            interview_dict = interview_service.find_interview(user_id=user_id, interview_id=interview_id)
+
+            interview_service.add_latest_question_into_interview(interview_id=interview_id,
+                                                                 interview_dict=interview_dict,
+                                                                 question_id=question_id,
+                                                                 question_content=question_content)
+
+            chosen_question, saved_id = answer_service.maybe_give_followup_question_about_latest_answer(user_id=user_id,
+                                                                                                        interview_id=interview_id,
+                                                                                                        question_id=question_id,
+                                                                                                        question_content=question_content,
                                                                                                         answer_content=answer_content)
         except RetryExecutionError as e:
             error_logger(msg="RETRY EXECUTION ERROR")

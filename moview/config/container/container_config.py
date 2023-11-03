@@ -39,7 +39,8 @@ class ContainerConfig:
         # Service
         self.user_service = UserService(user_repository=self.user_repository)
 
-        self.interview_service = InterviewService(interview_repository=self.interview_repository)
+        self.interview_service = InterviewService(interview_repository=self.interview_repository,
+                                                  question_answer_repository=self.question_answer_repository)
         self.input_data_service = InputDataService(
             input_data_repository=self.input_data_repository,
             question_answer_repository=self.question_answer_repository,

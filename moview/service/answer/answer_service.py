@@ -1,12 +1,11 @@
 import random
-from typing import Dict, Any, Optional, Tuple, List
+from typing import Optional, Tuple, List
 from moview.domain.entity.question_answer.answer_document import Answer
 from moview.modules.question_generator import FollowUpQuestionGiver
 from moview.utils.singleton_meta_class import SingletonMeta
 from moview.config.loggers.mongo_logger import execution_trace_logger
 from moview.repository.question_answer.question_answer_repository import QuestionAnswerRepository
 from moview.repository.interview_repository import InterviewRepository
-from moview.domain.entity.interview_document import Interview
 from moview.domain.entity.question_answer.question_document import Question
 from moview.utils.prompt_parser import PromptParser
 
@@ -17,17 +16,13 @@ class AnswerService(metaclass=SingletonMeta):
                  giver: FollowUpQuestionGiver):
         self.interview_repository = interview_repository
         self.question_answer_repository = question_answer_repository
-
         self.giver = giver
 
     # todo 이 메서드 자체에 transaction 처리가 필요함.
-    def maybe_give_followup_question_about_latest_answer(self, user_id: str, interview_id: str, question_id: str, question_content: str, answer_content: str) -> \
+    def maybe_give_followup_question_about_latest_answer(self, user_id: str, interview_id: str, question_id: str,
+                                                         question_content: str, answer_content: str) -> \
             Tuple[Optional[str], Optional[str]]:
         # 1. 현재 인터뷰 세션을 불러온 후, 업데이트한다.
-        interview_dict = self.__load_interview_session(user_id=user_id, interview_id=interview_id)
-
-        self.__add_latest_question_into_interview_session(interview_id=interview_id, interview_dict=interview_dict,
-                                                          question_id=question_id, question_content=question_content)
 
         # 2. 꼬리 질문을 할지 말지를 결정한다.
         need_for_followup_question = self.need_to_give_followup_question()
@@ -66,28 +61,6 @@ class AnswerService(metaclass=SingletonMeta):
 
             # return None. 즉, 꼬리 질문 출제를 하지 않는다는 것이다. 프론트엔드는 다음 초기 질문으로 넘어가야 한다.
             return None, None
-
-    def __load_interview_session(self, user_id: str, interview_id: str) -> Dict[str, Any]:
-        execution_trace_logger(msg="LOAD_INTERVIEW_SESSION", user_id=user_id, interview_id=interview_id)
-
-        return self.interview_repository.find_interview_by_object_id(user_id=user_id, interview_id=interview_id)
-
-    def __add_latest_question_into_interview_session(self, interview_id: str, interview_dict: Dict[str, Any], question_id: str,
-                                                     question_content: str) -> Interview:
-        execution_trace_logger(msg="UPDATE_INTERVIEW_SESSION", interview_id=interview_id, question_id=question_id)
-
-        # 이전 질문들에 현재 질문을 저장하고 그 id를 인터뷰 세션에 저장한다.
-        interview_entity = Interview(**interview_dict)
-        interview_entity.previous_question_content.append(question_content)
-        interview_entity.question_id_list.append({
-            "#ref": self.question_answer_repository.collection.name,
-            "#id": question_id,
-            "#db": self.question_answer_repository.db.name
-        })
-
-        self.interview_repository.update_interview(interview_model=interview_entity, interview_id=interview_id)
-
-        return interview_entity
 
     def need_to_give_followup_question(self) -> bool:
         base_probability_of_question = 0.5
