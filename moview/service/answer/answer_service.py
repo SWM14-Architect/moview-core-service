@@ -21,19 +21,19 @@ class AnswerService(metaclass=SingletonMeta):
         self.giver = giver
 
     # todo 이 메서드 자체에 transaction 처리가 필요함.
-    def answer(self, user_id: str, interview_id: str, question_id: str, question_content: str, answer_content: str) -> \
+    def maybe_give_followup_question_about_latest_answer(self, user_id: str, interview_id: str, question_id: str, question_content: str, answer_content: str) -> \
             Tuple[Optional[str], Optional[str]]:
         # 1. 현재 인터뷰 세션을 불러온 후, 업데이트한다.
         interview_dict = self.__load_interview_session(user_id=user_id, interview_id=interview_id)
 
-        self.__update_interview_session(interview_id=interview_id, interview_dict=interview_dict,
-                                        question_id=question_id, question_content=question_content)
+        self.__add_latest_question_into_interview_session(interview_id=interview_id, interview_dict=interview_dict,
+                                                          question_id=question_id, question_content=question_content)
 
         # 2. 꼬리 질문을 할지 말지를 결정한다.
         need_for_followup_question = self.need_to_give_followup_question()
 
         # 3. answer 엔티티 생성 및 저장
-        self.__create_and_save_answer(answer_content=answer_content, question_id=question_id)
+        self.__save_latest_answer(answer_content=answer_content, question_id=question_id)
 
         #   4-1. 꼬리 질문을 해야 한다면.
         if need_for_followup_question:
@@ -72,8 +72,8 @@ class AnswerService(metaclass=SingletonMeta):
 
         return self.interview_repository.find_interview_by_object_id(user_id=user_id, interview_id=interview_id)
 
-    def __update_interview_session(self, interview_id: str, interview_dict: Dict[str, Any], question_id: str,
-                                   question_content: str) -> Interview:
+    def __add_latest_question_into_interview_session(self, interview_id: str, interview_dict: Dict[str, Any], question_id: str,
+                                                     question_content: str) -> Interview:
         execution_trace_logger(msg="UPDATE_INTERVIEW_SESSION", interview_id=interview_id, question_id=question_id)
 
         # 이전 질문들에 현재 질문을 저장하고 그 id를 인터뷰 세션에 저장한다.
@@ -98,7 +98,7 @@ class AnswerService(metaclass=SingletonMeta):
 
         return need
 
-    def __create_and_save_answer(self, answer_content: str, question_id: str):
+    def __save_latest_answer(self, answer_content: str, question_id: str):
         execution_trace_logger(msg="CREATE_AND_SAVE_ANSWER")
 
         answer = Answer(content=answer_content,
@@ -121,7 +121,6 @@ class AnswerService(metaclass=SingletonMeta):
         return PromptParser.parse_question(questions_string)
 
     def __choose_question(self, parsed_questions: List[str]) -> str:
-        # todo 나중에 업그레이드 시켜야 하는 메소드. 현재는 랜덤하게 하나를 선택하는 것으로 대체.
         return random.choice(parsed_questions)  # 주어진 리스트에서 랜덤하게 요소 하나 선택
 
     def __create_and_save_followup_question(self, interview_id: str, question_id: str, followup_question_content: str):
