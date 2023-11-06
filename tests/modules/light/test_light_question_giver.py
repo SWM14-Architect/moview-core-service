@@ -5,6 +5,8 @@ from tests.common_code_for_test import is_not_none_string
 from moview.modules.light.light_question_giver import LightQuestionGiver
 from moview.utils.prompt_loader import PromptLoader
 
+PATCH_PATH = LightQuestionGiver.get_full_class_name() + ".give_light_questions_by_input_data"
+
 
 class TestLightQuestionGiver(unittest.TestCase):
 
@@ -14,8 +16,9 @@ class TestLightQuestionGiver(unittest.TestCase):
 
     def test_load_prompt(self):
         self.assertTrue(is_not_none_string(self.light_question_giver.prompt))
+        print(PATCH_PATH)
 
-    @patch("moview.modules.light.light_question_giver.LightQuestionGiver.give_light_questions_by_input_data")
+    @patch(PATCH_PATH)
     def test_give_light_question(self, mock_method):
         # given
         job_group = "테스트 직군"

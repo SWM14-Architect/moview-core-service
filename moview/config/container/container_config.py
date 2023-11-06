@@ -8,7 +8,8 @@ from moview.repository.interview_repository import InterviewRepository
 from moview.repository.question_answer.question_answer_repository import QuestionAnswerRepository
 from moview.service.interview_service import InterviewService
 from moview.service.input_data_service import InputDataService
-from moview.service.answer_service import AnswerService
+from moview.service.answer.answer_service import AnswerService
+from moview.service.answer.question_choosing_strategy import RandomQuestionChoosingStrategy
 from moview.service.evaluation_service import EvaluationService
 from moview.service.feedback_service import FeedbackService
 from moview.service.light_mode_service import LightModeService
@@ -39,18 +40,24 @@ class ContainerConfig:
         # Service
         self.user_service = UserService(user_repository=self.user_repository)
 
-        self.interview_service = InterviewService(interview_repository=self.interview_repository)
+        self.interview_service = InterviewService(interview_repository=self.interview_repository,
+                                                  question_answer_repository=self.question_answer_repository)
         self.input_data_service = InputDataService(
             input_data_repository=self.input_data_repository,
             question_answer_repository=self.question_answer_repository,
             initial_question_giver=self.initial_question_giver,
             initial_input_analyzer=self.initial_input_analyzer
         )
+
+        self.choosing_strategy = RandomQuestionChoosingStrategy()
+
         self.answer_service = AnswerService(
             interview_repository=self.interview_repository,
             question_answer_repository=self.question_answer_repository,
-            giver=self.followup_question_giver
+            choosing_strategy=self.choosing_strategy,
+            followup_question_giver=self.followup_question_giver
         )
+
         self.evaluation_service = EvaluationService(
             interview_repository=self.interview_repository,
             question_answer_repository=self.question_answer_repository,

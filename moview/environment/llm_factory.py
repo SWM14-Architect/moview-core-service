@@ -1,4 +1,3 @@
-from langchain.chat_models import ChatOpenAI
 from moview.environment.environment_loader import EnvironmentLoader
 
 OPENAI_API_KEY_PARAM = "openai-api-key"
@@ -23,14 +22,6 @@ class LLMModelFactory:
     gpt-4-0314					10,000	200
     gpt-4-0613					10,000	200
     """
-
-    @staticmethod
-    def create_chat_open_ai(model_name: str = "gpt-3.5-turbo",
-                            temperature: float = 0.5,
-                            request_timeout: int = 60) -> ChatOpenAI:
-        return ChatOpenAI(openai_api_key=EnvironmentLoader.getenv(OPENAI_API_KEY_PARAM),
-                          temperature=temperature, model_name=model_name,
-                          verbose=False, streaming=False, request_timeout=request_timeout)
 
     @staticmethod
     def load_api_key_for_open_ai() -> str:
