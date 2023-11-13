@@ -172,13 +172,13 @@ class InputDataService(metaclass=SingletonMeta):
         initial_question_list = []  # List[str]
 
         # 직군 정보만 가지고 초기질문 생성.
-        created_questions = await self.initial_question_giver.give_initial_questions(
-            job_group=job_group,
-            question_count=self.INIT_QUESTION_NUMBER // 2
-        )
-        initial_question_list.extend(created_questions)
-
-        execution_trace_logger("Initial Question By Job", created_questions=created_questions)
+        # created_questions = await self.initial_question_giver.give_initial_questions(
+        #     job_group=job_group,
+        #     question_count=self.INIT_QUESTION_NUMBER // 2
+        # )
+        # initial_question_list.extend(created_questions)
+        #
+        # execution_trace_logger("Initial Question By Job", created_questions=created_questions)
 
         # cover_letter를 하나의 스트링으로 합침.
         cover_letter = ""
@@ -189,7 +189,7 @@ class InputDataService(metaclass=SingletonMeta):
         created_questions = await self.initial_question_giver.give_initial_questions_by_input_data(
             recruit_announcement=recruit_announcement,
             cover_letter=cover_letter,
-            question_count=self.INIT_QUESTION_NUMBER // 2,
+            question_count=self.INIT_QUESTION_NUMBER,
             exclusion_list=initial_question_list  # 이미 생성된 질문은 제외
         )
         initial_question_list.extend(created_questions)
