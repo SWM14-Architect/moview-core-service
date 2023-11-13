@@ -60,6 +60,7 @@ class InputDataService(metaclass=SingletonMeta):
         ))
         # 초기 질문 생성
         create_initial_question_task = asyncio.create_task(self.__create_initial_question_list(
+            company_name=company_name,
             job_group=job_group,
             recruit_announcement=recruit_announcement,
             cover_letter_questions=cover_letter_questions,
@@ -152,6 +153,7 @@ class InputDataService(metaclass=SingletonMeta):
 
     async def __create_initial_question_list(
             self,
+            company_name: str,
             job_group: str,
             recruit_announcement: str,
             cover_letter_questions: List[str],
@@ -173,6 +175,7 @@ class InputDataService(metaclass=SingletonMeta):
 
         # 직군 정보만 가지고 초기질문 생성.
         # created_questions = await self.initial_question_giver.give_initial_questions(
+        #     company_name=company_name,
         #     job_group=job_group,
         #     question_count=self.INIT_QUESTION_NUMBER // 2
         # )
@@ -187,6 +190,7 @@ class InputDataService(metaclass=SingletonMeta):
 
         # 자기소개서와 모집공고를 기반으로 초기질문 생성.
         created_questions = await self.initial_question_giver.give_initial_questions_by_input_data(
+            company_name=company_name,
             recruit_announcement=recruit_announcement,
             cover_letter=cover_letter,
             question_count=self.INIT_QUESTION_NUMBER,
