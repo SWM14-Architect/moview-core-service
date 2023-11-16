@@ -55,7 +55,8 @@ class AnswerService(metaclass=SingletonMeta):
                 saved_followup_question_id = self.__save_followup_question(interview_id=interview_id,
                                                                            question_id=question_id,
                                                                            followup_question_content=chosen_question)
-                return chosen_question, str(saved_followup_question_id)
+                return None, None
+                # return chosen_question, str(saved_followup_question_id)
 
             else:
                 execution_trace_logger(msg="NO_FOLLOWUP_QUESTION")

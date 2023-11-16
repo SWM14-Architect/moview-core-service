@@ -90,6 +90,7 @@ class InputDataService(metaclass=SingletonMeta):
         # Initial Question Entity Model 생성 및 Document 저장
         question_document_id_list = []
 
+        initial_question_list = ["TEST1", "TEST2", "TEST3"] # 시연용 질문 리스트
         for question_content in initial_question_list:
             question_model = self.__create_question_entity(question_content=question_content)
             question_document = self.question_answer_repository.save_question(question_model)
