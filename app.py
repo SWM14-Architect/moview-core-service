@@ -36,10 +36,12 @@ def set_moview_config():
     Flask App에 API 추가
     """
     app.secret_key = ''.join(random.choice(string.ascii_letters) for i in range(20))
-    api = Api(app)
+    api = Api(app, version='3.2', title='Moview API', description='Moview API', doc='/docs')
 
     app.config['JSON_AS_ASCII'] = False  # 한글 깨짐 방지
 
+    # health check api
+    api.add_namespace(health_controller.api, '/')
     api.add_namespace(input_data_controller.api, '/interview')
     api.add_namespace(answer_controller.api, '/interview')
     api.add_namespace(evaluation_controller.api, '/interview')
@@ -56,8 +58,6 @@ def set_moview_config():
     # slack api
     api.add_namespace(slack_controller.api, '/slack')
 
-    # health check api
-    api.add_namespace(health_controller.api, '/')
 
 
 def set_jwt_config():
