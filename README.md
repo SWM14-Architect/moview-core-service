@@ -14,26 +14,26 @@
 
 ***
 
-### API 명세서 (인증 / 인가 관련 명세서는 미포함)
+### API 명세서
 
 ***
 
 #### /interview/input
 
 ```
-method : POST
-request: json(면접자 이름, 회사, 직군, 모집공고, 자소서 문항, 자소서 답변)
-response: json(초기 질문 n개에 대한 데이터{"objectId":id, ""}, 인터뷰 아이디)
-description: 초기 질문 받아오는 API
-GPT call: O
+Method        : POST
+Request       : json(이름, 회사, 직군, 모집공고, 자소서 문항, 자소서 답변)
+Response      : json(초기 질문 리스트, 인터뷰 아이디)
+Description   : 초기 질문 받아오는 API
 ```
 
-request json
+Request JSON
 
 ```json
 {
-  "interviewee_name": "아무개",
-  "company_name": "아무개 회사",
+  "interviewee_name": "홍길동",
+  "company_name": "지원 회사 이름",
+  "job_group": "지원 직군",
   "recruit_announcement": "모집 공고",
   "cover_letter_questions": [
     "자소서 문항 1",
@@ -47,7 +47,7 @@ request json
 
 ```
 
-response json
+Response JSON
 
 ```json
 {
@@ -61,10 +61,7 @@ response json
         "question_id": "초기 질문 id",
         "content": "GPT 결과"
       },
-      {
-        "question_id": "초기 질문 id",
-        "content": "GPT 결과"
-      }
+      ...
     ],
     "interview_id": "인터뷰 id"
   }
@@ -76,26 +73,25 @@ response json
 #### /interview/light
 
 ```
-method : POST
-request: json(면접자 이름, 회사, 직군, 직무면접 키워드)
-response: json(초기 질문 n개에 대한 데이터{"objectId":id, ""}, 인터뷰 아이디)
-description: 초기 질문 받아오는 API (light mode)
-GPT call: O
+Method        : POST
+Request       : json(이름, 회사, 직군, 직무면접 키워드)
+Response      : json(초기 질문 리스트, 인터뷰 아이디)
+Description   : 초기 질문 받아오는 API (light mode)
 ```
 
-request json
+Request JSON
 
 ```json
 {
-    "interviewee_name":"tester",
-    "company_name":"Facebook",
-    "job_group":"Backend",
-    "keyword":"아파치 카프카"
+    "interviewee_name":"홍길동",
+    "company_name":"지원 회사 이름",
+    "job_group":"지원 직군",
+    "keyword":"면접 키워드, ..."
 }
 
 ```
 
-response json
+Response JSON
 
 ```json
 {
@@ -109,10 +105,7 @@ response json
         "question_id": "초기 질문 id",
         "content": "GPT 결과"
       },
-      {
-        "question_id": "초기 질문 id",
-        "content": "GPT 결과"
-      }
+      ...
     ],
     "interview_id": "인터뷰 id"
   }
@@ -124,31 +117,31 @@ response json
 #### /interview/answer
 
 ```
-method : POST
-request:cookie(세션id),json(인터뷰 id, 질문 id, 질문 내용, 사용자 답변)
-response: json(출제할 질문, 출제 질문 id) 
-description: 
-GPT call: O (동기 처리)
+Method        : POST
+Request       : json(인터뷰 id, 질문 id, 질문 내용, 사용자 답변)
+Response      : json(꼬리 질문, 출제 질문 id)
+Description   : 꼬리질문을 생성하는 API
 ```
 
-request json
+Request JSON
 
 ```json
 {
-  "user_id": "session_id일수도 있음 ",
-  "interview_id": "interview_id",
+  "interview_id": "인터뷰 id",
   "question_id": "최근에 출제했던 질문 id",
   "question_content": "최근에 출제했던 질문 내용",
   "answer_content": "사용자 답변"
 }
 ```
 
-response json
+Response JSON
 
 ```json
 {
-  "question_content": "꼬리질문 내용 (Nullable)",
-  "question_id": "꼬리 질문 id (Nullable)"
+  "message": {
+    "question_content": "꼬리질문 내용 (Nullable)",
+    "question_id": "꼬리 질문 id (Nullable)"
+  }
 }
 ```
 
@@ -157,61 +150,119 @@ response json
 #### /interview/evaluation
 
 ```
-method : POST
-request: cookie(세션id), json(user_id, interview_id)
-response: json(질문 내용, 답변 내용, 평가 내용)
-description: 사용자가 답변했던 내용에 대한 평가 내역을 불러오는 api
-GPT call: O
+Method        : POST
+Request       : json(인터뷰 id)
+Response      : json(질문 id, 질문 내용, 답변 내용, 평가 내용)
+Description   : 사용자가 답변했던 내용에 대한 평가를 생성하고 반환하는 API
 ```
 
-response json
+Request JSON
 ```json
 {
-  "evaluations": [
-    {
-      "question_id": "질문 id. Question 엔티티의 _id.",
-      "question": "질문 내용. Question 엔티티 content 칼럼.",
-      "answer": "답변 내용. Answer 엔티티 content 칼럼.",
-      "evaluation": "평가 내용. Answer 엔티티 칼럼."
-    },
-    {
-      "question_id": "질문 id. Question 엔티티의 _id.",
-      "question": "질문 내용. Question 엔티티 content 칼럼.",
-      "answer": "답변 내용. Answer 엔티티 content 칼럼.",
-      "evaluation": "평가 내용. Answer 엔티티 칼럼."
-    }
-  ]
+  "interview_id": "인터뷰 id"
+}
+```
+
+Response JSON
+```json
+{
+  "message": {
+    "evaluations": [
+      {
+          "question_id": "질문 id",
+          "question": "질문 내용",
+          "answer": "답변 내용",
+          "evaluation": "평가 내용"
+      },
+      ...
+    ]
+  }
 }
 ```
 
 ***
 
-#### /interview/feedback
+#### /interview/tts
 
 ```
-method : POST
-request: cookie(세션id), json(각 답변분석에 대한 유저의 평가)
-response: X
-description: 유저의 서비스평가를 받고, 종료 
-GPT call: X (동기 처리)
+Method        : POST
+Request       : json(인터뷰 id, 내용)
+Response      : json(TTS 음성 내용 - base64)
+Description   : Text를 음성파일로 변환하는 API
 ```
 
-request json
-
+Request JSON
 ```json
 {
-  "user_id": "session_id일수도 있음 ",
-  "interview_id": "interview_id",
-  "question_ids": [
-    "질문 id 1",
-    "질문 id 2"
-  ],
-  "feedback_scores": [
-    "질문 id 1에 대한 피드백 점수",
-    "질문 id 2에 대한 피드백 점수"
-  ]
+  "interview_id": "인터뷰 id",
+  "text": "TTS로 변환할 내용"
 }
 ```
+
+Response JSON
+```json
+{
+  "message": {
+    "audio_data": "TTS 음성 내용 - base64"
+  }
+}
+```
+
+***
+
+#### /interview/stt
+
+```
+Method        : POST
+Request       : json(인터뷰 id, 오디오 데이터)
+Response      : json(음성을 텍스트로 변환한 내용)
+Description   : 음성파일을 Text로 변환하는 API
+```
+
+Request JSON
+```json
+{
+  "interview_id": "인터뷰 id",
+  "audio_data": "음성을 텍스트로 변환한 내용"
+}
+```
+
+Response JSON
+```json
+{
+  "message": {
+    "text": "음성을 텍스트로 변환한 내용"
+  }
+}
+```
+
+***
+
+#### /slack/feedback
+
+```
+Method        : POST
+Request       : json(이름, 피드백 내용, 생성 시간)
+Response      : json(성공적으로 전달했음을 알리는 메시지)
+Description   : 사용자의 피드백 내용을 개발자 Slack의 Feedback 채널로 보내주는 API
+```
+
+Request JSON
+```json
+{
+  "profile_nickname": "홍길동",
+  "user_message": "피드백 내용",
+  "created_at": "생성 시간"
+}
+```
+
+Response JSON
+```json
+{
+  "message": "OK"
+}
+```
+
 
 ***
 
