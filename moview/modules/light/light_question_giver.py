@@ -7,9 +7,10 @@ from moview.config.loggers.mongo_logger import prompt_result_logger
 from moview.utils.prompt_parser import PromptParser
 from moview.utils.singleton_meta_class import SingletonMeta
 from moview.decorator.retry_decorator import retry
+from moview.utils.mixin.directory_mixin import DirectoryMixin
 
 
-class LightQuestionGiver(metaclass=SingletonMeta):
+class LightQuestionGiver(DirectoryMixin, metaclass=SingletonMeta):
 
     def __init__(self, prompt_loader: PromptLoader):
         self.prompt = prompt_loader.load_prompt_json(LightQuestionGiver.__name__)

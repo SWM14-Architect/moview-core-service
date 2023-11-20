@@ -17,10 +17,11 @@ class InitialQuestionGiver(metaclass=SingletonMeta):
 
     @async_retry()
     async def give_initial_questions_by_input_data(
-            self, recruit_announcement: str, cover_letter: str, question_count: int, exclusion_list: List[str] = None
+            self, company_name, recruit_announcement: str, cover_letter: str, question_count: int, exclusion_list: List[str] = None
     ) -> List[str]:
         """
         Args:
+            company_name: 회사 이름
             recruit_announcement: 모집공고
             cover_letter: 자기소개서
             question_count: 출제할 질문 개수
@@ -34,6 +35,7 @@ class InitialQuestionGiver(metaclass=SingletonMeta):
         messages = [{
             "role": "system",
             "content": self.prompt["create_question_by_input_data"].format(
+                company_name=company_name,
                 exclusion_question=exclusion_question,
                 question_count=question_count)
         }, {
@@ -55,10 +57,12 @@ class InitialQuestionGiver(metaclass=SingletonMeta):
             raise InitialQuestionParseError()  # 파싱이 실패하면, InitialQuestionParseError를 발생시킵니다.
 
     @async_retry()
-    async def give_initial_questions(self, job_group: str, question_count: int, exclusion_list: List[str] = None) -> \
-            List[str]:
+    async def give_initial_questions(
+            self, company_name:str, job_group: str, question_count: int, exclusion_list: List[str] = None
+    ) -> List[str]:
         """
         Args:
+            company_name: 회사 이름
             job_group: 타겟 직군
             question_count: 출제할 질문 개수
             exclusion_list: 제외할 질문 리스트
@@ -71,6 +75,7 @@ class InitialQuestionGiver(metaclass=SingletonMeta):
         messages = [{
             "role": "system",
             "content": self.prompt["create_question"].format(
+                company_name=company_name,
                 exclusion_question=exclusion_question,
                 job_group=job_group,
                 question_count=question_count)

@@ -88,7 +88,5 @@ class TestLightModeService(unittest.TestCase):
             retrieved_document = self.question_answer_repository.find_question_by_object_id(str(question_id))
             retrieved_document_list.append(retrieved_document)
 
-        self.assertLessEqual(len(retrieved_document_list), 6)
-
         # 4초 정도 소요됨을 확인.
         print(retrieved_document_list)

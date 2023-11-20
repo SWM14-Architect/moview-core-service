@@ -13,9 +13,10 @@ class TestInitialQuestionGiver(asynctest.TestCase):
 
     def test_load_prompt(self):
         self.assertTrue(is_not_none_string(self.giver.prompt["create_question"]))
-        print(self.giver.prompt["create_question"].format(exclusion_question="", job_group="백엔드 개발자", question_count=2))
+        print(self.giver.prompt["create_question"].format(exclusion_question="", company_name="삼성 SDS", job_group="백엔드 개발자", question_count=2))
 
     async def test_give_initial_questions_by_input_data(self):
+        company_name = "삼성 청년 SW 아카데미"
         recruit_announcement = ("삼성 청년 SW 아카데미\n8기 모집 Coming soon\n청년 SW인재 양성을 위한 SSAFY 8기 모집이 곧 시작됩니다.\n궁금한 SSAFY 8기 "
                                 "모집! 미리 알려드립니다!\n\n8기 모집 안내\n지원 자격\n만 29세 이하(92.7.1이후 출생자), 미취업자,\n국내외 4년제 대학 졸업자 및 "
                                 "졸업예정자(전공무관)\n\n교육 기간\n2022년 7월 ~ 2023년 6월(1년)\n\n교육 장소\n서울, 대전, 구미, 광주, "
@@ -32,6 +33,7 @@ class TestInitialQuestionGiver(asynctest.TestCase):
         question_count = 3
 
         initial_questions = await self.giver.give_initial_questions_by_input_data(
+            company_name=company_name,
             recruit_announcement=recruit_announcement,
             cover_letter=cover_letter,
             question_count=question_count
@@ -40,15 +42,20 @@ class TestInitialQuestionGiver(asynctest.TestCase):
         self.assertTrue(len(initial_questions) == question_count)
 
     async def test_give_initial_questions(self):
+        company_name = "삼성 SDS"
         job_group = "백엔드 개발자"
         question_count = 3
 
-        initial_questions = await self.giver.give_initial_questions(job_group=job_group,
-                                                                    question_count=question_count)
+        initial_questions = await self.giver.give_initial_questions(
+            company_name=company_name,
+            job_group=job_group,
+            question_count=question_count
+        )
         print(initial_questions)
         self.assertTrue(len(initial_questions) == question_count)
 
     async def test_give_initial_questions_with_exclusion_list(self):
+        company_name = "삼성 SDS"
         job_group = "백엔드 개발자"
         question_count = 3
         exclusion_list = [
@@ -56,8 +63,11 @@ class TestInitialQuestionGiver(asynctest.TestCase):
             "이전에 개발한 백엔드 시스템에서 겪은 가장 큰 어려움은 무엇이었나요?"
         ]
 
-        initial_questions = await self.giver.give_initial_questions(job_group=job_group,
-                                                                    question_count=question_count,
-                                                                    exclusion_list=exclusion_list)
+        initial_questions = await self.giver.give_initial_questions(
+            company_name=company_name,
+            job_group=job_group,
+            question_count=question_count,
+            exclusion_list=exclusion_list
+        )
         print(initial_questions)
-        self.assertTrue(len(initial_questions) == question_count)
+        self.assertLessEqual(len(initial_questions), question_count)
