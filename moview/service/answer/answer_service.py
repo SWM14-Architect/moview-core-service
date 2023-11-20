@@ -56,7 +56,8 @@ class AnswerService(metaclass=SingletonMeta):
                                                                            question_id=question_id,
                                                                            followup_question_content=chosen_question)
 
-                return chosen_question, str(saved_followup_question_id)
+                return None, None
+                # return chosen_question, str(saved_followup_question_id)
 
             else:
                 execution_trace_logger(msg="NO_FOLLOWUP_QUESTION")
