@@ -52,21 +52,24 @@ class InputDataService(metaclass=SingletonMeta):
         }
         """
         # 사용자 입력 정보 분석
-        task1 = asyncio.create_task(self.__analyze_initial_inputs_of_interviewee(
+        analyze_initial_input_task = asyncio.create_task(self.__analyze_initial_inputs_of_interviewee(
             job_group=job_group,
             recruit_announcement=recruit_announcement,
             cover_letter_questions=cover_letter_questions,
             cover_letter_answers=cover_letter_answers
         ))
         # 초기 질문 생성
-        task2 = asyncio.create_task(self.__create_initial_question_list(
+        create_initial_question_task = asyncio.create_task(self.__create_initial_question_list(
+            company_name=company_name,
             job_group=job_group,
             recruit_announcement=recruit_announcement,
             cover_letter_questions=cover_letter_questions,
             cover_letter_answers=cover_letter_answers
         ))
         # 비동기로 병렬처리함
-        analyzed_initial_inputs_of_interviewee, initial_question_list = await asyncio.gather(task1, task2)
+        analyzed_initial_inputs_of_interviewee, initial_question_list = await asyncio.gather(
+            analyze_initial_input_task, create_initial_question_task
+        )
 
         # Initial Input Data Entity Model 생성
         initial_input_data_model, cover_letter_model_list = self.__create_interviewee_data_entity(
@@ -110,12 +113,15 @@ class InputDataService(metaclass=SingletonMeta):
             cover_letter_answers: List[str]
     ) -> List[str]:
         """
-        (자소서 문항,자소서 답변) 전체 쌍에 대해 LLM을 이용하여 분석하는 메서드
-        해당 쌍을 4개 입력 받았다면, 4개의 쌍에 대해 분석을 수행한다.
-        cover_letter_questions 와 cover_letter_answers 의 길이는 같아야 한다.
-        그리고 인덱스를 i라 할 때, (cover_letter_questions[i], cover_letter_answers[i]) 쌍이다.
+        면접자의 자기소개서를 평가하는 메소드
+        Args:
+            job_group: 면접자 직군
+            recruit_announcement: 면접자 목표회사 모집공고
+            cover_letter_questions: 면접자 자소서 문항 리스트
+            cover_letter_answers: 면접자 자소서 답변 리스트
 
-        Returns: 입력 파라미터에 대한 분석 결과 문자열 리스트 (올바르지 않은 입력은 공백으로 치환)
+        Returns:
+            LLM을 이용하여 평가한 내용을 저장한 리스트
         """
         if len(cover_letter_questions) != len(cover_letter_answers):
             error_logger("자소서 문항과 자소서 답변의 개수가 일치하지 않습니다.",
@@ -126,15 +132,17 @@ class InputDataService(metaclass=SingletonMeta):
         analysis_count = len(cover_letter_questions)
 
         # 자소서 개수만큼 분석 시작.
-        tasks = []
+        analyzer_task_list = []
         for i in range(analysis_count):
-            tasks.append(asyncio.create_task(self.initial_input_analyzer.analyze_initial_input(
+            analyzer_task = asyncio.create_task(self.initial_input_analyzer.analyze_initial_input(
                 job_group=job_group,
                 recruitment_announcement=recruit_announcement,
                 cover_letter_question=cover_letter_questions[i],
                 cover_letter_answer=cover_letter_answers[i]
-            )))
-        analysis_list = await asyncio.gather(*tasks)
+            ))
+            analyzer_task_list.append(analyzer_task)
+
+        analysis_list = await asyncio.gather(*analyzer_task_list)
 
         execution_trace_logger(
             "Analyzed Input Data",
@@ -145,29 +153,35 @@ class InputDataService(metaclass=SingletonMeta):
 
     async def __create_initial_question_list(
             self,
+            company_name: str,
             job_group: str,
             recruit_announcement: str,
             cover_letter_questions: List[str],
             cover_letter_answers: List[str]
     ) -> List[str]:
         """
+        면접자의 자기소개서와 채용공고를 기반으로 초기질문을 생성하는 메소드
         Args:
-            job_group: 타겟 직군
-            recruit_announcement: 모집공고
-            cover_letter_questions: 자기소개서 문항 리스트
-            cover_letter_answers: 자기소개서 답변 리스트
+            job_group: 면접자 직군
+            recruit_announcement: 면접자 목표회사 모집공고
+            cover_letter_questions: 면접자 자소서 문항 리스트
+            cover_letter_answers: 면접자 자소서 답변 리스트
+
+        Returns:
+            생성된 초기질문 리스트
         """
         # 초기질문 생성
         initial_question_list = []  # List[str]
 
         # 직군 정보만 가지고 초기질문 생성.
-        created_questions = await self.initial_question_giver.give_initial_questions(
-            job_group=job_group,
-            question_count=self.INIT_QUESTION_NUMBER // 2
-        )
-        initial_question_list.extend(created_questions)
-
-        execution_trace_logger("Initial Question By Job", created_questions=created_questions)
+        # created_questions = await self.initial_question_giver.give_initial_questions(
+        #     company_name=company_name,
+        #     job_group=job_group,
+        #     question_count=self.INIT_QUESTION_NUMBER // 2
+        # )
+        # initial_question_list.extend(created_questions)
+        #
+        # execution_trace_logger("Initial Question By Job", created_questions=created_questions)
 
         # cover_letter를 하나의 스트링으로 합침.
         cover_letter = ""
@@ -176,9 +190,10 @@ class InputDataService(metaclass=SingletonMeta):
 
         # 자기소개서와 모집공고를 기반으로 초기질문 생성.
         created_questions = await self.initial_question_giver.give_initial_questions_by_input_data(
+            company_name=company_name,
             recruit_announcement=recruit_announcement,
             cover_letter=cover_letter,
-            question_count=self.INIT_QUESTION_NUMBER // 2,
+            question_count=self.INIT_QUESTION_NUMBER,
             exclusion_list=initial_question_list  # 이미 생성된 질문은 제외
         )
         initial_question_list.extend(created_questions)

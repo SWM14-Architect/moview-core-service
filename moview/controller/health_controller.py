@@ -6,7 +6,7 @@ from http import HTTPStatus
 api = Namespace('health', description='health api')
 
 
-@api.route('/health')
+@api.route('health')
 class HealthChecker(Resource):
 
     def get(self):
