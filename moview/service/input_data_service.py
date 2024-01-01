@@ -90,15 +90,6 @@ class InputDataService(metaclass=SingletonMeta):
         # Initial Question Entity Model 생성 및 Document 저장
         question_document_id_list = []
 
-        # FIXME: 이 부분은 시연을 위해 임시로 추가된 부분
-        initial_question_list = [
-            "자기소개서에서 언급한 SW 마에스트로 프로젝트와 팀프로젝트를 통한 협업 경험에 대해 자세히 설명해주세요.",
-            "팀프로젝트에서의 협업 과정에서 가장 만족스러웠던 부분은 무엇이었고, 그 이유는 무엇인가요?",
-            "백엔드서버의 성능 개선 경험에 대해 자세히 설명해주세요.",
-            "답변에 언급된 프롬프트를 통한 답변양식 지정이 잘 되지 않았던 이유는 무엇인가요?",
-            "파싱에 실패한 경우 다시 생성하도록 요청하는 방법에 대해서 자세히 설명해주세요."
-        ]
-
         for question_content in initial_question_list:
             question_model = self.__create_question_entity(question_content=question_content)
             question_document = self.question_answer_repository.save_question(question_model)
