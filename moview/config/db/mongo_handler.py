@@ -27,15 +27,15 @@ class MongoHandler(logging.Handler):
         }
 
         # prod 환경일 경우 DocumentDB 설정
-        if EnvironmentLoader.is_prod_env():
-            prod_config = {
-                "tls": True,
-                "tlsCAFile": EnvironmentLoader.getenv(TLS_CA_FILE),
-                "replicaSet": EnvironmentLoader.getenv(REPLICA_SET),
-                "readPreference": EnvironmentLoader.getenv(READ_PREFERENCE),
-                "retryWrites": False
-            }
-            common_config.update(prod_config)
+        # if EnvironmentLoader.is_prod_env():
+        #     prod_config = {
+        #         "tls": True,
+        #         "tlsCAFile": EnvironmentLoader.getenv(TLS_CA_FILE),
+        #         "replicaSet": EnvironmentLoader.getenv(REPLICA_SET),
+        #         "readPreference": EnvironmentLoader.getenv(READ_PREFERENCE),
+        #         "retryWrites": False
+        #     }
+        #     common_config.update(prod_config)
 
         self.conn = pymongo.MongoClient(**common_config)
         self.db = self.conn.get_database(database_name)
